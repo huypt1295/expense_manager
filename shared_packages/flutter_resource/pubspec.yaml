@@ -1,0 +1,73 @@
+name: flutter_resource
+description: "Resources, assets, themes, and constants for the Flutter application."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_core:
+    path: ../flutter_core
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+  flutter_svg: ^2.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  build_runner: ^2.1.11
+  intl_utils: ^2.8.5
+  injectable_generator: ^2.4.2
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+  uses-material-design: true
+
+  # Images configuration
+  assets:
+    - assets/images/
+
+  # Fonts configuration
+  fonts:
+    - family: SFUIText
+      fonts:
+        - asset: assets/fonts/SFUIText-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/SFUIText-Light.ttf
+          weight: 300
+        - asset: assets/fonts/SFUIText-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/SFUIText-Semibold.ttf
+          weight: 600
+        - asset: assets/fonts/SFUIText-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/SFUIText-Heavy.ttf
+          weight: 800
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Roboto-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Roboto-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Roboto-Black.ttf
+          weight: 900
+
+flutter_intl:
+  enabled: true
+  class_name: S
+  arb_dir: lib/l10n
+  output_dir: lib/l10n/gen

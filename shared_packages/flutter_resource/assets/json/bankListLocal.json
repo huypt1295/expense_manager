@@ -1,0 +1,721 @@
+{
+  "listBank": [
+    {
+      "vn_name": "Ngân Hàng TMCP Tiên Phong",
+      "logoBankName": "logo_bank_tpbank",
+      "shortName": "TPBANK",
+      "bankCode": ""
+    },
+    {
+      "vn_name": "Ngân hàng An Bình",
+      "logoBankName": "logo_bank_323",
+      "shortName": "ABBank",
+      "bankCode": "323"
+    },
+    {
+      "vn_name": "Ngân hàng Á Châu",
+      "logoBankName": "logo_bank_307",
+      "shortName": "ACB",
+      "bankCode": "307"
+    },
+    {
+      "vn_name": "Ngân hàng ANZ Việt Nam",
+      "logoBankName": "logo_bank_602",
+      "shortName": "ANZ",
+      "bankCode": "602"
+    },
+    {
+      "vn_name": "Ngân hàng NN & PTNT VN",
+      "logoBankName": "logo_bank_204",
+      "shortName": "AGRIBANK",
+      "bankCode": "204"
+    },
+    {
+      "vn_name": "BANGKOK  BANK",
+      "logoBankName": "logo_bank_612",
+      "shortName": "BANGKOK  BANK",
+      "bankCode": "612"
+    },
+    {
+      "vn_name": "BANK OF CHINA",
+      "logoBankName": "logo_bank_620",
+      "shortName": "BOC",
+      "bankCode": "620"
+    },
+    {
+      "vn_name": "NH ĐT&PT Campuchia CN HCM",
+      "logoBankName": "logo_bank_648",
+      "shortName": "BIDC HCM",
+      "bankCode": "648"
+    },
+    {
+      "vn_name": "NH ĐT&PT Campuchia CN Hà Nội",
+      "logoBankName": "logo_bank_638",
+      "shortName": "BIDC HN",
+      "bankCode": "638"
+    },
+    {
+      "vn_name": "Ngân hàng Đầu tư và Phát triển Việt Nam",
+      "logoBankName": "logo_bank_202",
+      "shortName": "BIDV",
+      "bankCode": "202"
+    },
+    {
+      "vn_name": "Ngân hàng BNP Paribas CN HCM",
+      "logoBankName": "logo_bank_614",
+      "shortName": "BNP Paribas HCM",
+      "bankCode": "614"
+    },
+    {
+      "vn_name": "Ngân hàng BNP Paribas CN Hà Nội",
+      "logoBankName": "logo_bank_657",
+      "shortName": "BNP Paribas HN",
+      "bankCode": "657"
+    },
+    {
+      "vn_name": "Bank of Communications",
+      "logoBankName": "logo_bank_615",
+      "shortName": "BoCom",
+      "bankCode": "615"
+    },
+    {
+      "vn_name": "Bank of India",
+      "logoBankName": "logo_bank_659",
+      "shortName": "BOI",
+      "bankCode": "659"
+    },
+    {
+      "vn_name": "Ngân hàng BPCEIOM CN  TP Hồ Chí Minh",
+      "logoBankName": "logo_bank_601",
+      "shortName": "BPCEICOM",
+      "bankCode": "601"
+    },
+    {
+      "vn_name": "BANK OF TOKYO - MITSUBISHI UFJ - TP HCM",
+      "logoBankName": "logo_bank_622",
+      "shortName": "BTMU HCM",
+      "bankCode": "622"
+    },
+    {
+      "vn_name": "BANK OF TOKYO - MITSUBISHI UFJ - HN",
+      "logoBankName": "logo_bank_653",
+      "shortName": "BTMU HN",
+      "bankCode": "653"
+    },
+    {
+      "vn_name": "Công ty cổ phần chuyển mạch tài chính quốc gia Việt Nam",
+      "logoBankName": "logo_bank_401",
+      "shortName": "Banknetvn",
+      "bankCode": "401"
+    },
+    {
+      "vn_name": "Ngân hàng TMCP Bảo Việt",
+      "logoBankName": "logo_bank_359",
+      "shortName": "BAOVIET Bank",
+      "bankCode": "359"
+    },
+    {
+      "vn_name": "Credit Agricole Corporate and Investment Bank",
+      "logoBankName": "logo_bank_621",
+      "shortName": "CACIB",
+      "bankCode": "621"
+    },
+    {
+      "vn_name": "Commonwealth Bank of Australia",
+      "logoBankName": "logo_bank_643",
+      "shortName": "CBA",
+      "bankCode": "643"
+    },
+    {
+      "vn_name": "NH TMCP Xây dựng Việt Nam",
+      "logoBankName": "logo_bank_339",
+      "shortName": "CBB",
+      "bankCode": "339"
+    },
+    {
+      "vn_name": "China Construction Bank Corporation",
+      "logoBankName": "logo_bank_611",
+      "shortName": "CCBC",
+      "bankCode": "611"
+    },
+    {
+      "vn_name": "The Chase Manhattan Bank",
+      "logoBankName": "logo_bank_627",
+      "shortName": "CHASE",
+      "bankCode": "627"
+    },
+    {
+      "vn_name": "Ngân hàng TNHH MTV CIMB Việt Nam",
+      "logoBankName": "logo_bank_661",
+      "shortName": "CIMB",
+      "bankCode": "661"
+    },
+    {
+      "vn_name": "Ngân hàng Hợp tác Việt Nam",
+      "logoBankName": "logo_bank_901",
+      "shortName": "COOPBANK",
+      "bankCode": "901"
+    },
+    {
+      "vn_name": "Ngân hàng CTBC CN TP Hồ Chí Minh",
+      "logoBankName": "logo_bank_629",
+      "shortName": "CTBC",
+      "bankCode": "629"
+    },
+    {
+      "vn_name": "Ngân hàng Cathay",
+      "logoBankName": "logo_bank_634",
+      "shortName": "CTU",
+      "bankCode": "634"
+    },
+    {
+      "vn_name": "CTTC Quoc Te Chailease HSC",
+      "logoBankName": "logo_bank_820",
+      "shortName": "Chailease",
+      "bankCode": "820"
+    },
+    {
+      "vn_name": "Citi Bank TP HCM",
+      "logoBankName": "logo_bank_654",
+      "shortName": "CitibankHCM",
+      "bankCode": "654"
+    },
+    {
+      "vn_name": "Citi Bank Ha Noi",
+      "logoBankName": "logo_bank_605",
+      "shortName": "CitibankHN",
+      "bankCode": "605"
+    },
+    {
+      "vn_name": "Ngân hàng Hợp tác xã Việt Nam",
+      "logoBankName": "logo_bank_901",
+      "shortName": "Co-opBank",
+      "bankCode": "901"
+    },
+    {
+      "vn_name": "DEUTSCHE BANK",
+      "logoBankName": "logo_bank_619",
+      "shortName": "DB",
+      "bankCode": "619"
+    },
+    {
+      "vn_name": "DBS Bank Ltd",
+      "logoBankName": "logo_bank_650",
+      "shortName": "DBS",
+      "bankCode": "650"
+    },
+    {
+      "vn_name": "DBS chi nhánh Thành phố Hồ Chí Minh",
+      "logoBankName": "logo_bank_650",
+      "shortName": "DBS",
+      "bankCode": "650"
+    },
+    {
+      "vn_name": "Ngân hàng TNHH Một thành viên số Vikki",
+      "logoBankName": "logo_bank_304",
+      "shortName": "Vikki Bank",
+      "bankCode": "304"
+    },
+    {
+      "vn_name": "Ngân hàng Xuất nhập khẩu Việt Nam",
+      "logoBankName": "logo_bank_305",
+      "shortName": "EXIMBANK",
+      "bankCode": "305"
+    },
+    {
+      "vn_name": "First Commercial Bank",
+      "logoBankName": "logo_bank_630",
+      "shortName": "FCNB",
+      "bankCode": "630"
+    },
+    {
+      "vn_name": "First Commercial Bank Ha Noi",
+      "logoBankName": "logo_bank_608",
+      "shortName": "FCNB HN",
+      "bankCode": "608"
+    },
+    {
+      "vn_name": "Ngân hàng Dầu khí Toàn cầu",
+      "logoBankName": "logo_bank_320",
+      "shortName": "GP Bank",
+      "bankCode": "320"
+    },
+    {
+      "vn_name": "Ngân hàng Phát triển TP HCM",
+      "logoBankName": "logo_bank_321",
+      "shortName": "HDBank",
+      "bankCode": "321"
+    },
+    {
+      "vn_name": "Ngân hàng Hong Leong Viet Nam",
+      "logoBankName": "logo_bank_603",
+      "shortName": "HLO",
+      "bankCode": "603"
+    },
+    {
+      "vn_name": "Hua Nan Commercial Bank",
+      "logoBankName": "logo_bank_640",
+      "shortName": "HNCB",
+      "bankCode": "640"
+    },
+    {
+      "vn_name": "NH TNHH Một Thành Viên HSBC Việt Nam",
+      "logoBankName": "logo_bank_617",
+      "shortName": "HSBC",
+      "bankCode": "617"
+    },
+    {
+      "vn_name": "Ngân hàng The Hongkong và Thượng Hải",
+      "logoBankName": "logo_bank_645",
+      "shortName": "HSBC HN",
+      "bankCode": "645"
+    },
+    {
+      "vn_name": "Industrial Bank of Korea",
+      "logoBankName": "logo_bank_641",
+      "shortName": "IBK",
+      "bankCode": "641"
+    },
+    {
+      "vn_name": "Industrial Bank of Korea CN TP. HCM",
+      "logoBankName": "logo_bank_641",
+      "shortName": "IBK HCM",
+      "bankCode": "641"
+    },
+    {
+      "vn_name": "ICB of China CN Ha Noi",
+      "logoBankName": "logo_bank_649",
+      "shortName": "ICB",
+      "bankCode": "649"
+    },
+    {
+      "vn_name": "Indovina Bank",
+      "logoBankName": "logo_bank_502",
+      "shortName": "IVB",
+      "bankCode": "502"
+    },
+    {
+      "vn_name": "Ngân hàng Kookmin – CN TP. HCM",
+      "logoBankName": "logo_bank_631",
+      "shortName": "KBHCM",
+      "bankCode": "631"
+    },
+    {
+      "vn_name": "Ngân hàng Kookmin - CN Hà Nội",
+      "logoBankName": "logo_bank_631",
+      "shortName": "KBHN",
+      "bankCode": "631"
+    },
+    {
+      "vn_name": "Kho Bạc Nhà Nước",
+      "logoBankName": "logo_bank_701",
+      "shortName": "KBNN",
+      "bankCode": "701"
+    },
+    {
+      "vn_name": "Đại chúng TNHH Kasikornbank - Chi nhánh TP. HCM",
+      "logoBankName": "logo_bank_kasikornbank",
+      "shortName": "KBank",
+      "bankCode": ""
+    },
+    {
+      "vn_name": "Korea Exchange Bank",
+      "logoBankName": "logo_bank_626",
+      "shortName": "KEB",
+      "bankCode": "626"
+    },
+    {
+      "vn_name": "Ngân hàng Kookmin",
+      "logoBankName": "logo_bank_631",
+      "shortName": "KMB",
+      "bankCode": "631"
+    },
+    {
+      "vn_name": "Ngân hàng Kiên Long",
+      "logoBankName": "logo_bank_353",
+      "shortName": "KienlongBank",
+      "bankCode": "353"
+    },
+    {
+      "shortName": "UMEE",
+      "vn_name": "Ngân hàng số UMEE by Kienlongbank",
+      "logoBankName": "logo_bank_umee",
+      "bankCode": "353"
+    },
+    {
+      "vn_name": "Ngân hàng TMCP Lộc Phát Việt Nam",
+      "logoBankName": "logo_bank_357",
+      "shortName": "LPBANK",
+      "bankCode": "357"
+    },
+    {
+      "vn_name": "Ngân hàng Quân Đội",
+      "logoBankName": "logo_bank_311",
+      "shortName": "MB Bank",
+      "bankCode": "311"
+    },
+    {
+      "vn_name": "Malayan Banking Berhad",
+      "logoBankName": "logo_bank_635",
+      "shortName": "MBB",
+      "bankCode": "635"
+    },
+    {
+      "vn_name": "Mizuho Corporate Bank - TP HCM",
+      "logoBankName": "logo_bank_639",
+      "shortName": "MCB_HCM",
+      "bankCode": "639"
+    },
+    {
+      "vn_name": "Mega ICBC Bank",
+      "logoBankName": "logo_bank_623",
+      "shortName": "MICB",
+      "bankCode": "623"
+    },
+    {
+      "vn_name": "Ngân hàng Hàng Hải Việt Nam",
+      "logoBankName": "logo_bank_302",
+      "shortName": "Maritime Bank, MSB",
+      "bankCode": "302"
+    },
+    {
+      "vn_name": "Malayan Banking Berhad",
+      "logoBankName": "logo_bank_609",
+      "shortName": "Maybank",
+      "bankCode": "609"
+    },
+    {
+      "vn_name": "Mizuho Corporate Bank",
+      "logoBankName": "logo_bank_613",
+      "shortName": "Mizuho Bank",
+      "bankCode": "613"
+    },
+    {
+      "vn_name": "Ngân hàng Bắc Á",
+      "logoBankName": "logo_bank_313",
+      "shortName": "Bac A Bank",
+      "bankCode": "313"
+    },
+    {
+      "vn_name": "Ngân hàng Quốc Dân",
+      "logoBankName": "logo_bank_352",
+      "shortName": "NCB",
+      "bankCode": "352"
+    },
+    {
+      "vn_name": "Ngân hàng Nonghyup – Chi nhánh Hà Nội",
+      "logoBankName": "logo_bank_662",
+      "shortName": "NHB HN",
+      "bankCode": "662"
+    },
+    {
+      "vn_name": "Ngân hàng Nam Á",
+      "logoBankName": "logo_bank_306",
+      "shortName": "Nam A Bank",
+      "bankCode": "306"
+    },
+    {
+      "vn_name": "Oversea - Chinese Bank",
+      "logoBankName": "logo_bank_625",
+      "shortName": "OCBC",
+      "bankCode": "625"
+    },
+    {
+      "vn_name": "Ngân hàng Đại Dương",
+      "logoBankName": "logo_bank_319",
+      "shortName": "Ocean Bank",
+      "bankCode": "319"
+    },
+    {
+      "vn_name": "Ngân hàng TMCP Phương Đông",
+      "logoBankName": "logo_bank_333",
+      "shortName": "Oricombank, OCB",
+      "bankCode": "333"
+    },
+    {
+      "shortName": "Liobank by OCB",
+      "vn_name": "Liobank by OCB",
+      "logoBankName": "logo_bank_liobank",
+      "bankCode": "333"
+    },
+    {
+      "vn_name": "Ngân hàng TMCP Thịnh vượng và Phát triển",
+      "logoBankName": "logo_bank_341",
+      "shortName": "PGBANK",
+      "bankCode": "341"
+    },
+    {
+      "vn_name": "NH TMCP Đại Chúng Việt Nam",
+      "logoBankName": "logo_bank_360",
+      "shortName": "PVcombank",
+      "bankCode": "360"
+    },
+    {
+      "vn_name": "Quỹ tín dụng cơ sở",
+      "logoBankName": "logo_bank_902",
+      "shortName": "QTDCS",
+      "bankCode": "902"
+    },
+    {
+      "vn_name": "Ngân Hàng Nhà Nước Việt Nam",
+      "logoBankName": "logo_bank_101",
+      "shortName": "SBV",
+      "bankCode": "101"
+    },
+    {
+      "vn_name": "Ngân hàng TMCP Sài Gòn",
+      "logoBankName": "logo_bank_334",
+      "shortName": "SCB",
+      "bankCode": "334"
+    },
+    {
+      "vn_name": "Ngân hàng Standard Chartered Bank HN",
+      "logoBankName": "logo_bank_646",
+      "shortName": "SCBank HN",
+      "bankCode": "646"
+    },
+    {
+      "vn_name": "The Shanghai Commercial & Savings Bank CN Đồng Nai",
+      "logoBankName": "logo_bank_606",
+      "shortName": "SCSB",
+      "bankCode": "606"
+    },
+    {
+      "vn_name": "Ngân hàng TNHH MTV Standard Chartered Việt Nam",
+      "logoBankName": "logo_bank_604",
+      "shortName": "SCVN",
+      "bankCode": "604"
+    },
+    {
+      "vn_name": "Ngân hàng Sài Gòn - Hà Nội",
+      "logoBankName": "logo_bank_348",
+      "shortName": "SHB",
+      "bankCode": "348"
+    },
+    {
+      "vn_name": "Ngân hàng The Siam Commercial Public",
+      "logoBankName": "logo_bank_600",
+      "shortName": "SIAM",
+      "bankCode": "600"
+    },
+    {
+      "vn_name": "Sumitomo Mitsui Banking Corporation HCM",
+      "logoBankName": "logo_bank_636",
+      "shortName": "SMBC",
+      "bankCode": "636"
+    },
+    {
+      "vn_name": "Sumitomo Mitsui Banking Corporation HN",
+      "logoBankName": "logo_bank_936",
+      "shortName": "SMBC HN",
+      "bankCode": "936"
+    },
+    {
+      "vn_name": "Ngân hàng SinoPac",
+      "logoBankName": "logo_bank_632",
+      "shortName": "SPB",
+      "bankCode": "632"
+    },
+    {
+      "vn_name": "Ngân hàng Sài Gòn Thương Tín",
+      "logoBankName": "logo_bank_303",
+      "shortName": "Sacombank",
+      "bankCode": "303"
+    },
+    {
+      "vn_name": "Ngân hàng Sài Gòn Công Thương",
+      "logoBankName": "logo_bank_308",
+      "shortName": "Saigonbank",
+      "bankCode": "308"
+    },
+    {
+      "vn_name": "Ngân hàng TMCP Đông Nam Á",
+      "logoBankName": "logo_bank_317",
+      "shortName": "SeABank",
+      "bankCode": "317"
+    },
+    {
+      "vn_name": "Ngân hàng TNHH MTV Shinhan Việt Nam",
+      "logoBankName": "logo_bank_616",
+      "shortName": "Shinhan Bank",
+      "bankCode": "616"
+    },
+    {
+      "bankCode": "",
+      "shortName": "SVFC",
+      "en_name": "Shinhan Finance",
+      "vn_name": "Công ty Tài chính TNHH MTV Shinhan Việt Nam",
+      "logoBankName": "logo_bank_Shinhan_Finance"
+    },
+    {
+      "vn_name": "Taipei Fubon Commercial Bank Ha Noi",
+      "logoBankName": "logo_bank_642",
+      "shortName": "TFCBHN",
+      "bankCode": "642"
+    },
+    {
+      "vn_name": "Taipei Fubon Commercial Bank TP Ho Chi Minh",
+      "logoBankName": "logo_bank_651",
+      "shortName": "TFCBTPHCM",
+      "bankCode": "651"
+    },
+    {
+      "vn_name": "Ngân hàng Thương mại Cổ phần Tiên Phong",
+      "logoBankName": "logo_bank_358",
+      "shortName": "TPBank",
+      "bankCode": "358"
+    },
+    {
+      "vn_name": "Ngân hàng Kỹ thương Việt Nam",
+      "logoBankName": "logo_bank_310",
+      "shortName": "Techcombank, TCB",
+      "bankCode": "310"
+    },
+    {
+      "vn_name": "United Oversea Bank",
+      "logoBankName": "logo_bank_618",
+      "shortName": "UOB",
+      "bankCode": "618"
+    },
+    {
+      "vn_name": "Ngân hàng Chính sách xã hội Việt Nam",
+      "logoBankName": "logo_bank_207",
+      "shortName": "VBSP",
+      "bankCode": "207"
+    },
+    {
+      "vn_name": "Ngân hàng Phát triển Việt Nam",
+      "logoBankName": "logo_bank_208",
+      "shortName": "VDB",
+      "bankCode": "208"
+    },
+    {
+      "vn_name": "Ngân hàng Quốc tế",
+      "logoBankName": "logo_bank_314",
+      "shortName": "VIB",
+      "bankCode": "314"
+    },
+    {
+      "vn_name": "Ngân hàng VID Public",
+      "logoBankName": "logo_bank_501",
+      "shortName": "VID public",
+      "bankCode": "501"
+    },
+    {
+      "vn_name": "Ngân hàng Thương mại cổ phần Việt Nam Thịnh Vượng",
+      "logoBankName": "logo_bank_vpbank",
+      "shortName": "VPBank",
+      "bankCode": "309"
+    },
+    {
+      "vn_name": "Ngân hàng số CAKE by VPBank",
+      "logoBankName": "logo_bank_309",
+      "shortName": "CAKE",
+      "bankCode": "309"
+    },
+    {
+      "vn_name": "Ngân hàng số Ubank by VPBank",
+      "logoBankName": "logo_bank_ubank",
+      "shortName": "Ubank",
+      "bankCode": "309"
+    },
+    {
+      "vn_name": "Ngân hàng Liên doanh Việt Nga",
+      "logoBankName": "logo_bank_505",
+      "shortName": "VRB",
+      "bankCode": "505"
+    },
+    {
+      "vn_name": "Ngân hàng Việt Hoa",
+      "logoBankName": "logo_bank_324",
+      "shortName": "Viet Hoa Bank",
+      "bankCode": "324"
+    },
+    {
+      "vn_name": "Ngân hàng Việt Á",
+      "logoBankName": "logo_bank_355",
+      "shortName": "VIETABANK",
+      "bankCode": "355"
+    },
+    {
+      "vn_name": "NHTMCP Bản Việt",
+      "logoBankName": "logo_bank_327",
+      "shortName": "BVBank",
+      "bankCode": "327"
+    },
+    {
+      "vn_name": "NHTMCP Bản Việt Timo",
+      "logoBankName": "logo_bank_bvtimo",
+      "shortName": "BVBank Timo",
+      "bankCode": "327"
+    },
+    {
+      "vn_name": "Ngân hàng Việt Nam Thương Tín",
+      "logoBankName": "logo_bank_356",
+      "shortName": "VIETBANK",
+      "bankCode": "356"
+    },
+    {
+      "vn_name": "Ngân hàng TMCP Ngoại Thương",
+      "logoBankName": "logo_bank_203",
+      "shortName": "Vietcombank, VCB",
+      "bankCode": "203"
+    },
+    {
+      "vn_name": "Ngân hàng Công Thương Việt Nam",
+      "logoBankName": "logo_bank_201",
+      "shortName": "VietinBank",
+      "bankCode": "201"
+    },
+    {
+      "vn_name": "Ngân hàng Vũng Tàu",
+      "logoBankName": "logo_bank_315",
+      "shortName": "Vung Tau",
+      "bankCode": "315"
+    },
+    {
+      "vn_name": "Ngân hàng Woori Việt Nam",
+      "logoBankName": "logo_bank_624",
+      "shortName": "Woori Bank",
+      "bankCode": "663"
+    },
+    {
+      "bankCode": "",
+      "shortName": "VNPT Money",
+      "en_name": "VNPT Money",
+      "vn_name": "VNPT Money",
+      "logoBankName": "logo_bank_vnpt"
+    },
+    {
+      "bankCode": "",
+      "shortName": "Viettel Money",
+      "en_name": "Viettel Money",
+      "vn_name": "Viettel Money",
+      "logoBankName": "logo_bank_viettel"
+    },
+    {
+      "bankCode": "",
+      "shortName": "MAFC",
+      "vn_name": "Công ty Tài chính TNHH MTV Mirae Asset",
+      "logoBankName": "logo_bank_mirae_asset"
+    },
+    {
+      "bankCode": "",
+      "shortName": "NAPAS",
+      "vn_name": "NAPAS",
+      "logoBankName": "logo_bank_napas"
+    },
+    {
+      "bankCode": "",
+      "vn_name": "PVcomBank Pay",
+      "logoBankName": "logo_bank_360",
+      "shortName": "PVcomBank Pay"
+    },
+    {
+      "bankCode": "",
+      "vn_name": "Vikki by HDBank",
+      "logoBankName": "logo_bank_vikkihd",
+      "shortName": "Vikki by HDBank"
+    }
+  ]
+}
