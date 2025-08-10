@@ -1,4 +1,4 @@
-package com.huypt.expense_manager
+package com.huypt.expense.expense_manager
 
 import io.flutter.embedding.android.FlutterActivity
 

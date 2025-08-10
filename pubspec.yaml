@@ -53,8 +53,14 @@ dependencies:
 
   # JSON handling
   json_annotation: ^4.9.0
+
+  # Firebase config
   firebase_core: ^4.0.0
   firebase_auth: ^6.0.0
+  
+  # Social Login
+  google_sign_in: ^6.2.1
+  flutter_facebook_auth: ^6.1.1
 
 dev_dependencies:
   flutter_test:
@@ -74,3 +80,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Assets from flutter_resource package
+  assets:
+    - shared_packages/flutter_resource/assets/images/
+    - shared_packages/flutter_resource/assets/lotties/

@@ -7,6 +7,7 @@ import 'package:flutter_common/flutter_common.dart';
 import 'package:expense_manager/core/config/app_config.dart';
 import 'package:expense_manager/core/di/injector.dart';
 import 'package:flutter_core/flutter_core.dart';
+import 'package:flutter_resource/flutter_resource.dart' show TPAnims;
 import 'core/config/app_config_cubit.dart';
 import 'firebase_options.dart';
 
@@ -36,7 +37,7 @@ void _configLoading() {
     ..maskColor = Colors.black.withOpacity(0.7)
     ..userInteractions = false
     ..boxShadow = []
-    ..indicatorWidget = Lottie.asset("assets/lottie/newLoading.json")
+    ..indicatorWidget = Lottie.asset(TPAnims.loading)
     ..indicatorColor = Colors.amber
     ..textColor = Colors.amber
     ..dismissOnTap = false;
