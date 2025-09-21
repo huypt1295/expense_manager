@@ -16,22 +16,19 @@ class AuthBloc extends BaseBloc<AuthEvent, AuthState> {
 
     // Listen to auth state changes
     _authRepository.authStateChanges.listen((user) {
-      if (user != null) {
-        add(const CheckAuthState());
-      } else {
-        emit(const AuthUnauthenticated());
-      }
+      add(const CheckAuthState());
     });
   }
 
-  void _onSignInWithGoogle(
+  Future<void> _onSignInWithGoogle(
     SignInWithGoogle event,
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
     (await runAsyncCatching<UserEntity?>(
       action: () => _authRepository.signInWithGoogle(),
-    )).when(
+    ))
+        .when(
       success: (user) => user != null
           ? emit(AuthAuthenticated(user: user))
           : emit(const AuthError('Google sign in failed')),
@@ -39,14 +36,15 @@ class AuthBloc extends BaseBloc<AuthEvent, AuthState> {
     );
   }
 
-  void _onSignInWithFacebook(
+  Future<void> _onSignInWithFacebook(
     SignInWithFacebook event,
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
     (await runAsyncCatching<UserEntity?>(
       action: () => _authRepository.signInWithFacebook(),
-    )).when(
+    ))
+        .when(
       success: (user) => user != null
           ? emit(AuthAuthenticated(user: user))
           : emit(const AuthError('Facebook sign in failed')),
@@ -54,17 +52,19 @@ class AuthBloc extends BaseBloc<AuthEvent, AuthState> {
     );
   }
 
-  void _onSignOut(SignOut event, Emitter<AuthState> emit) async {
+  Future<void> _onSignOut(SignOut event, Emitter<AuthState> emit) async {
     emit(const AuthLoading());
     (await runAsyncCatching<void>(
       action: () => _authRepository.signOut(),
-    )).when(
+    ))
+        .when(
       success: (_) => emit(const AuthUnauthenticated()),
       failure: (e) => emit(AuthError(e.toString())),
     );
   }
 
-  void _onCheckAuthState(CheckAuthState event, Emitter<AuthState> emit) async {
+  Future<void> _onCheckAuthState(
+      CheckAuthState event, Emitter<AuthState> emit) async {
     final user = _authRepository.currentUser;
     if (user != null) {
       emit(AuthAuthenticated(user: user));

@@ -27,8 +27,9 @@ class _TPContainerAppState extends State<TPContainerApp> {
       child: BlocBuilder<ConfigCubit, AppConfig>(
         builder: (context, config) {
           return MaterialApp.router(
-            title: 'Flutter Container',
-            theme: config.themeType.themeData,
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            themeMode: config.themeMode,
             localizationsDelegates: const [
               ...L10n.localizationsDelegates,
               GlobalMaterialLocalizations.delegate,
@@ -36,7 +37,7 @@ class _TPContainerAppState extends State<TPContainerApp> {
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: L10n.supportedLocales,
-            locale: Locale(config.localize),
+            locale: config.locale,
             routerConfig: tpGetIt.get<AppRouter>().router,
             builder: (context, child) {
               return MediaQuery(

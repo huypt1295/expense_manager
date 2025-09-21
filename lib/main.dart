@@ -2,30 +2,49 @@ import 'dart:async';
 
 import 'package:expense_manager/app/app.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show PlatformDispatcher;
 import 'package:flutter/material.dart';
-import 'package:flutter_common/flutter_common.dart';
-import 'package:expense_manager/core/config/app_config.dart';
 import 'package:expense_manager/core/di/injector.dart';
 import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_resource/flutter_resource.dart' show TPAnims;
 import 'core/config/app_config_cubit.dart';
-import 'firebase_options.dart';
+import 'core/firebase/firebase_options.dart';
 
 void main() async {
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    LoggerProvider.instance?.error('flutter.error', {
+      'exception': details.exceptionAsString(),
+      'stack': details.stack?.toString(),
+    });
+  };
+
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
     await configureDependencies();
     _configLoading();
     runApp(
       BlocProvider(
-        create: (_) => ConfigCubit(AppConfig.initialConfig()),
+        create: (_) => ConfigCubit(),
         child: const TPContainerApp(),
       ),
     );
   }, (error, stack) {
-    Log.e('Unhandled error', stackTrace: stack);
+    LoggerProvider.instance?.error('zone.error', {
+      'exception': error.toString(),
+      'stack': stack.toString(),
+    });
   });
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    LoggerProvider.instance?.error('platform.error', {
+      'exception': error.toString(),
+      'stack': stack.toString(),
+    });
+    return true;
+  };
 }
 
 void _configLoading() {

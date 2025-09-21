@@ -8,8 +8,7 @@ abstract class BaseRequest {
 }
 
 class BaseRequestImpl extends BaseRequest {
-  BaseRequestImpl({bool? loading, bool? sync})
-      : super(loading: loading, sync: sync);
+  BaseRequestImpl({super.loading, super.sync});
 
   @override
   Map<String, dynamic> toDictionary() {

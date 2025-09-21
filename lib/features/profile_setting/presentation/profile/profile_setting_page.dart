@@ -9,7 +9,8 @@ class ProfilePage extends BaseStatelessWidget {
   @override
   Widget buildContent(BuildContext context) {
     final configCubit = context.read<ConfigCubit>();
-    final currentLocale = context.watch<ConfigCubit>().state.localize;
+    final currentLocale =
+        context.watch<ConfigCubit>().state.locale.languageCode;
     return Scaffold(
       appBar: AppBar(title: Text(S.of(context).appName)),
       body: Padding(
@@ -27,26 +28,23 @@ class ProfilePage extends BaseStatelessWidget {
               selected: {currentLocale},
               onSelectionChanged: (selection) {
                 final locale = selection.first;
-                configCubit.changeLanguage(locale);
+                configCubit.changeLanguage(languageCode: locale);
               },
             ),
             const SizedBox(height: 24),
             Text('Theme', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
-            SegmentedButton<ThemeType>(
-              segments: const <ButtonSegment<ThemeType>>[
-                ButtonSegment<ThemeType>(
-                    value: ThemeType.light, label: Text('Light')),
-                ButtonSegment<ThemeType>(
-                    value: ThemeType.dark, label: Text('Dark')),
+            SegmentedButton<ThemeMode>(
+              segments: const <ButtonSegment<ThemeMode>>[
+                ButtonSegment<ThemeMode>(
+                    value: ThemeMode.light, label: Text('Light')),
+                ButtonSegment<ThemeMode>(
+                    value: ThemeMode.dark, label: Text('Dark')),
               ],
-              selected: {context.watch<ConfigCubit>().state.themeType},
+              selected: {context.watch<ConfigCubit>().state.themeMode},
               onSelectionChanged: (selection) {
                 final theme = selection.first;
-                context.read<ConfigCubit>().updateConfig(context
-                    .read<ConfigCubit>()
-                    .state
-                    .copyWith(themeType: theme));
+                context.read<ConfigCubit>().toggleTheme(themeMode: theme);
               },
             ),
           ],

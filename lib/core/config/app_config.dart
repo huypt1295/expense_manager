@@ -1,31 +1,36 @@
-import 'package:flutter_resource/flutter_resource.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_core/flutter_core.dart';
 
-class AppConfig {
-  final ThemeType themeType;
-  final String localize;
+class AppConfig extends Equatable {
+  final ThemeMode themeMode;
+  final Locale locale;
 
-  AppConfig({
-    required this.themeType,
-    required this.localize,
+  const AppConfig({
+    required this.themeMode,
+    required this.locale,
   });
 
-  AppConfig copyWith({
-    ThemeType? themeType,
-    String? localize,
-    String? baseURL,
-    String? routeName,
-    String? selectedAccountNo,
-  }) {
-    return AppConfig(
-      themeType: themeType ?? this.themeType,
-      localize: localize ?? this.localize,
+  factory AppConfig.initial() {
+    return const AppConfig(
+      locale: Locale('vi'),
+      themeMode: ThemeMode.light,
     );
   }
 
-  static AppConfig initialConfig() {
+  AppConfig copyWith({
+    ThemeMode? themeMode,
+    Locale? locale,
+  }) {
     return AppConfig(
-      themeType: ThemeType.light,
-      localize: 'vi',
+      themeMode: themeMode ?? this.themeMode,
+      locale: locale ?? this.locale,
     );
   }
+
+  @override
+  List<Object?> get props => [themeMode, locale];
+}
+
+extension ThemeModeX on ThemeMode {
+  bool get isDarkMode => this == ThemeMode.dark;
 }

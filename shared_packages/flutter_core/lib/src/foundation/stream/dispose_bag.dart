@@ -1,0 +1,52 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'disposable_base.dart';
+
+class DisposeBag {
+  final List<Object> _disposable = [];
+
+  void addDisposable(Object disposable) {
+    _disposable.add(disposable);
+  }
+
+  void dispose() {
+    for (var disposable in _disposable) {
+      if (disposable is StreamSubscription) {
+        disposable.cancel();
+      } else if (disposable is StreamController) {
+        disposable.close();
+      } else if (disposable is ChangeNotifier) {
+        disposable.dispose();
+      } else if (disposable is DisposableBase) {
+        disposable.dispose();
+      }
+    }
+
+    _disposable.clear();
+  }
+}
+
+extension StreamSubscriptionExtensions<T> on StreamSubscription<T> {
+  void disposeBy(DisposeBag disposeBag) {
+    disposeBag.addDisposable(this);
+  }
+}
+
+extension StreamControllerExtensions<T> on StreamController<T> {
+  void disposeBy(DisposeBag disposeBag) {
+    disposeBag.addDisposable(this);
+  }
+}
+
+extension ChangeNotifierExtensions on ChangeNotifier {
+  void disposeBy(DisposeBag disposeBag) {
+    disposeBag.addDisposable(this);
+  }
+}
+
+extension DisposableExtensions on DisposableBase {
+  void disposeBy(DisposeBag disposeBag) {
+    disposeBag.addDisposable(this);
+  }
+}

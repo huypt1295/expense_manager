@@ -1,3 +1,4 @@
-export 'entity.dart';
-export 'repository.dart';
-export 'usercase.dart';
+//GENERATED BARREL FILE 
+export 'entity.dart'; 
+export 'repository.dart'; 
+export 'usercase.dart'; 

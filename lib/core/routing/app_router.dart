@@ -51,6 +51,6 @@ class AppRouter {
 class NavigationObserver extends NavigatorObserver {
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    Log.d('Navigated to: ${route.settings.name}');
+    LoggerProvider.instance?.debug('Navigated to: ${route.settings.name}');
   }
 }

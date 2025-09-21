@@ -1,18 +1,9 @@
-library flutter_core;
-
-/// Core classes
-export 'src/localization/locale_service.dart';
-export 'src/domain/usercase.dart';
-export 'src/native/native_bridge.dart';
-export 'src/native/constant.dart';
-export 'src/navigation/base_router.dart';
-export 'src/data/data.dart';
-export 'src/domain/domain.dart';
-export 'src/presentation/presentation.dart';
-export 'src/di/di.dart';
-export 'src/network/network.dart';
-export 'src/exception/exception.dart';
-export 'src/utils/utils.dart';
+export 'package:flutter_core/src/data/data.dart';
+export 'package:flutter_core/src/di/di.dart';
+export 'package:flutter_core/src/domain/domain.dart';
+export 'package:flutter_core/src/foundation/foundation.dart';
+export 'package:flutter_core/src/localization/locale_service.dart';
+export 'package:flutter_core/src/presentation/presentation.dart';
 
 /// Go router
 export 'package:go_router/go_router.dart';
@@ -35,19 +26,9 @@ export 'package:lottie/lottie.dart';
 
 export 'package:json_annotation/json_annotation.dart';
 
-export 'package:dartx/dartx.dart';
-
 export 'package:path_provider/path_provider.dart';
 export 'package:flutter_cache_manager/flutter_cache_manager.dart';
 export 'package:mime/mime.dart';
 export 'package:url_launcher/url_launcher.dart';
-
-
-
-
-
-
-
-
-
-
+export 'package:shared_preferences/shared_preferences.dart';
+export 'package:dartz/dartz.dart' show Either;

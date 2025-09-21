@@ -18,8 +18,10 @@ class S {
   static S? _current;
 
   static S get current {
-    assert(_current != null,
-        'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.');
+    assert(
+      _current != null,
+      'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.',
+    );
     return _current!;
   }
 
@@ -41,8 +43,10 @@ class S {
 
   static S of(BuildContext context) {
     final instance = S.maybeOf(context);
-    assert(instance != null,
-        'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?');
+    assert(
+      instance != null,
+      'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?',
+    );
     return instance!;
   }
 
@@ -62,12 +66,7 @@ class S {
 
   /// `Home`
   String get tab_home {
-    return Intl.message(
-      'Home',
-      name: 'tab_home',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Home', name: 'tab_home', desc: '', args: []);
   }
 
   /// `Transactions`
@@ -82,22 +81,12 @@ class S {
 
   /// `Budget`
   String get tab_budget {
-    return Intl.message(
-      'Budget',
-      name: 'tab_budget',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Budget', name: 'tab_budget', desc: '', args: []);
   }
 
   /// `Profile`
   String get tab_profile {
-    return Intl.message(
-      'Profile',
-      name: 'tab_profile',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Profile', name: 'tab_profile', desc: '', args: []);
   }
 }
 

@@ -1,8 +1,9 @@
+import 'package:expense_manager/features/auth/domain/repositories/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_core/flutter_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:expense_manager/core/domain/entities/user_entity.dart';
-import '../../domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuth _firebaseAuth;
@@ -13,47 +14,50 @@ class AuthRepositoryImpl implements AuthRepository {
     FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
     FacebookAuth? facebookAuth,
-  }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-       _googleSignIn = googleSignIn ?? GoogleSignIn(),
-       _facebookAuth = facebookAuth ?? FacebookAuth.instance;
+  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+        _googleSignIn = googleSignIn ?? GoogleSignIn.instance,
+        _facebookAuth = facebookAuth ?? FacebookAuth.instance;
 
   @override
   Future<UserEntity?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
+      await _googleSignIn.initialize();
+      if (!_googleSignIn.supportsAuthenticate()) {
+        throw RemoteConfigException(
+            kind: RemoteConfigExceptionKind.unSupportPlatform);
+      }
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate(
+        scopeHint: ['email', 'profile'],
+      );
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential = await _firebaseAuth
-          .signInWithCredential(credential);
+      final UserCredential userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
       return _mapFirebaseUserToEntity(userCredential.user);
     } catch (e) {
-      print('Google sign in error: $e');
-      return null;
+      throw RemoteException(kind: RemoteExceptionKind.unknown);
     }
   }
 
   @override
   Future<UserEntity?> signInWithFacebook() async {
     try {
-      final LoginResult result = await _facebookAuth.login();
+      final LoginResult result =
+          await _facebookAuth.login(permissions: ['email', 'public_profile']);
       if (result.status != LoginStatus.success) return null;
 
       final OAuthCredential credential = FacebookAuthProvider.credential(
-        result.accessToken!.token,
+        result.accessToken!.tokenString,
       );
-      final UserCredential userCredential = await _firebaseAuth
-          .signInWithCredential(credential);
+      final UserCredential userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
       return _mapFirebaseUserToEntity(userCredential.user);
     } catch (e) {
-      print('Facebook sign in error: $e');
-      return null;
+      throw RemoteException(kind: RemoteExceptionKind.unknown);
     }
   }
 
