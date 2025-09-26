@@ -4,7 +4,11 @@ import 'package:flutter_core/flutter_core.dart' show Logger, Result, Failure, St
 
 import 'effect/effect.dart';
 
-
+/// Base cubit providing shared infrastructure for handling asynchronous
+/// operations that emit [Result] values alongside transient [Effect]s.
+///
+/// The helper methods guard against stale state updates, provide structured
+/// logging, and surface failures as effects when desired.
 abstract class BaseCubit<S, E extends Effect> extends Cubit<S>
     with EffectEmitter<E> {
   BaseCubit(
@@ -14,17 +18,19 @@ abstract class BaseCubit<S, E extends Effect> extends Cubit<S>
 
   final Logger? _logger;
 
-  // Ngăn tác vụ cũ ghi đè kết quả của tác vụ mới hơn
+  /// Monotonic sequence number to detect and discard stale asynchronous work.
   int _opSeq = 0;
 
   int get _nextOp => ++_opSeq;
 
-  /// Chạy 1 tác vụ trả về Future<Result<R>> theo “recipe” chung:
-  /// - onStart / onFinally: updater state (ví dụ bật/tắt loading)
-  /// - onOk: cập nhật state khi thành công
-  /// - onErr: xử lý khi lỗi; nếu không cung cấp, có thể bắn Effect lỗi qua toErrorEffect
-  /// - toErrorEffect: map Failure -> E (Effect) để UI hiển thị snackbar/dialog
-  /// - spanName: tên nhịp để logger dễ đọc
+  /// Executes a task that resolves to `Future<Result<R>>` while applying a
+  /// repeatable handling pattern for loading, success, and error states.
+  ///
+  /// The optional callbacks mirror those exposed by the bloc helper
+  /// `runResult`. They allow callers to mutate state before the task runs,
+  /// after it completes, and when the result is either successful or failed.
+  /// When [toErrorEffect] is provided, failures are surfaced to the UI as
+  /// effects.
   @protected
   Future<void> runResult<R>({
     required Future<Result<R>> Function() task,
@@ -38,7 +44,6 @@ abstract class BaseCubit<S, E extends Effect> extends Cubit<S>
     final op = _nextOp;
 
     if (onStart != null) {
-      // cho phép toggle loading, vv.
       emit(onStart(state));
     }
 
@@ -46,9 +51,7 @@ abstract class BaseCubit<S, E extends Effect> extends Cubit<S>
     final result = await task();
     sw.stop();
 
-    // Nếu đã có tác vụ mới hơn chạy xong trước, bỏ qua kết quả cũ để tránh giật state.
     if (op != _opSeq) {
-      // Không gọi onFinally để tránh tắt loading của tác vụ mới.
       return;
     }
 
@@ -82,7 +85,8 @@ abstract class BaseCubit<S, E extends Effect> extends Cubit<S>
     }
   }
 
-  /// Khi đã có sẵn Result<R> (không cần await), xử lý nhanh.
+  /// Applies the same success/error handling logic as [runResult] when a
+  /// [Result] instance is already available.
   @protected
   void reduceResult<R>({
     required Result<R> result,

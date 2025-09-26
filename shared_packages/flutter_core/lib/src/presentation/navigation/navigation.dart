@@ -1,2 +1,2 @@
-//GENERATED BARREL FILE 
-export 'base_router.dart'; 
+/// Barrel export exposing navigation contracts for the presentation layer.
+export 'base_router.dart';

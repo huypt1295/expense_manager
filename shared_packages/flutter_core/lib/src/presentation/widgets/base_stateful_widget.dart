@@ -14,6 +14,8 @@ abstract class BaseStatefulWidget extends StatefulWidget {
 }
 
 abstract class BaseState<T extends BaseStatefulWidget> extends State<T> {
+  /// Bag collecting stream subscriptions or other disposables tied to the
+  /// widget's lifecycle.
   final DisposeBag disposeBag = DisposeBag();
 
   /// Called in `initState` before `onPostFrame`.
@@ -37,11 +39,13 @@ abstract class BaseState<T extends BaseStatefulWidget> extends State<T> {
   void onDispose() {}
 
   @protected
+  /// Displays the shared loading indicator.
   void showLoading() {
     EasyLoading.show();
   }
 
   @protected
+  /// Hides the shared loading indicator.
   void hideLoading({bool animation = true}) {
     EasyLoading.dismiss(animation: animation);
   }
