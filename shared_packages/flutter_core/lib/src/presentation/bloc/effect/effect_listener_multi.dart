@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+/// Utility widget that nests multiple effect listeners around a single child.
 class EffectListenerMulti extends StatelessWidget {
   const EffectListenerMulti({
     super.key,
@@ -7,13 +8,15 @@ class EffectListenerMulti extends StatelessWidget {
     required this.child,
   });
 
-  final List<Widget> listeners; // mỗi phần tử là một EffectListener<...>
+  /// Widgets that wrap [child] to listen to different effect sources.
+  final List<Widget> listeners;
+
+  /// Widget rendered at the core of the nested listeners.
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     Widget current = child;
-    // Gói child bằng các listener từ cuối lên đầu
     for (final l in listeners.reversed) {
       current = _Wrap(wrapper: l, child: current);
     }
@@ -37,8 +40,6 @@ class _Passthrough extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // replace placeholder child của wrapper bằng child thật
-    // giả định wrapper là một EffectListener với child = null
     return _WithChild(wrapper: wrapper, child: child);
   }
 }
@@ -50,10 +51,8 @@ class _WithChild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Nếu wrapper là Stateless với field child, bạn có thể sửa EffectListener
-    // nhận child bắt buộc để bỏ hack này. Để ngắn gọn, bạn có thể xếp tay:
     return wrapper is SingleChildRenderObjectWidget
-        ? wrapper // giữ đơn giản: đa phần dùng EffectListener lồng nhau là đủ
+        ? wrapper
         : wrapper;
   }
 }

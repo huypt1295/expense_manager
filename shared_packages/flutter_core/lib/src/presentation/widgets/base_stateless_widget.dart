@@ -27,6 +27,8 @@ abstract class BaseStatelessWidget extends StatelessWidget {
   }
 
   @override
+  /// Schedules [onPostBuild] after the first frame before delegating to
+  /// [buildContent].
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {

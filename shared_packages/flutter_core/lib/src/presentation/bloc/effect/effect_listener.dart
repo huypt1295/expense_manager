@@ -2,9 +2,12 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-/// Lắng nghe one-shot effects từ một Cubit/Bloc cụ thể.
-/// - Không rebuild UI (giống BlocListener)
-/// - Có thể lọc effect bằng [filter]
+/// Listens to one-off [Effect] emissions from a specific [BaseCubit] without
+/// rebuilding the widget tree.
+///
+/// This widget mirrors the behavior of `BlocListener` while forwarding emitted
+/// effects to the provided [listener]. Effects can optionally be filtered using
+/// [filter].
 class EffectListener<C extends BaseCubit<dynamic, E>, E extends Effect>
     extends StatefulWidget {
   const EffectListener({
@@ -12,11 +15,12 @@ class EffectListener<C extends BaseCubit<dynamic, E>, E extends Effect>
     required this.listener,
     this.filter,
     this.child,
-    this.cubit, // optional: nếu không truyền sẽ lấy từ context.read<C>()
+    this.cubit,
   });
 
   final Widget? child;
   final C? cubit;
+  /// Handles one-off effects emitted by [cubit].
   final EffectCallback<E> listener;
   final EffectFilter<E>? filter;
 
@@ -47,7 +51,6 @@ class _EffectListenerState<C extends BaseCubit<dynamic, E>, E extends Effect>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Nếu không truyền cubit thì lấy từ context; khi tree đổi cần re-subscribe
     if (widget.cubit == null) {
       final newCubit = context.read<C>();
       if (!identical(_cubit, newCubit)) {

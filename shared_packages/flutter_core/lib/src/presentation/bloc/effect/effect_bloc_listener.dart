@@ -5,15 +5,19 @@ import 'package:flutter_core/src/presentation/bloc/effect/effect.dart' show Effe
 import 'package:flutter_core/src/presentation/bloc/effect/effect_provider.dart' show EffectsProvider;
 import 'package:flutter_core/src/presentation/widgets/ui_actions.dart' show UiActions;
 
+/// Signature for reacting to an emitted [Effect]. The provided [UiActions]
+/// helper exposes synchronous UI operations without leaking the widget
+/// context.
 typedef EffectCallback<E extends Effect> = FutureOr<void> Function(
-    E effect,
-    UiActions ui,
-    );
+  E effect,
+  UiActions ui,
+);
 
+/// Determines whether an [Effect] should be forwarded to the listener.
 typedef EffectFilter<E extends Effect> = bool Function(E effect);
 
-/// Lắng nghe one-shot effects từ bất kỳ BlocBase<S> nào (Cubit hoặc Bloc),
-/// miễn là nó cũng implement EffectsProvider<E>.
+/// Listens to one-off [Effect] emissions from any [BlocBase] that also
+/// implements [EffectsProvider].
 class EffectBlocListener<S, E extends Effect, B extends BlocBase<S>>
     extends StatefulWidget {
   const EffectBlocListener({
@@ -21,11 +25,12 @@ class EffectBlocListener<S, E extends Effect, B extends BlocBase<S>>
     required this.listener,
     this.filter,
     this.child,
-    this.bloc, // optional: nếu không truyền, lấy từ context.read<B>()
+    this.bloc,
   });
 
   final Widget? child;
   final B? bloc;
+  /// Handles one-off effects emitted by [bloc].
   final EffectCallback<E> listener;
   final EffectFilter<E>? filter;
 
@@ -74,13 +79,13 @@ class _EffectBlocListenerState<S, E extends Effect, B extends BlocBase<S>>
 
   void _listenTo(B bloc) {
     assert(
-    bloc is EffectsProvider<E>,
-    'EffectBlocListener: bloc phải implement EffectsProvider<$E>. '
-        'Hãy dùng BaseCubit/BaseBloc (mixin EffectEmitter) hoặc tự implement EffectsProvider.',
+      bloc is EffectsProvider<E>,
+      'EffectBlocListener requires the provided bloc to implement '
+      'EffectsProvider<$E>. Use BaseCubit/BaseBloc (which mix in '
+      'EffectEmitter) or provide your own implementation.',
     );
     final provider = bloc as EffectsProvider<E>;
     _sub = provider.effects.listen((event) {
-      // Không chuyển context; thay bằng UiActions(this) để thi hành tức thời.
       if (widget.filter == null || widget.filter!(event)) {
         widget.listener(event, UiActions(this));
       }
