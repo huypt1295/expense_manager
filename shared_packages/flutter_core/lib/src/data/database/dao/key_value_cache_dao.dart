@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
 
-/// Lightweight "key → JSON" cache table for parameterized responses
+/// Lightweight "key -> JSON" cache table for parameterized responses
 /// (search results, pagination pages, filtered lists).
 ///
 /// Stores raw JSON plus a `fetchedAt` timestamp for TTL decisions in repositories.
@@ -37,4 +37,3 @@ class KeyValueCacheDao {
   /// Clears the entire KV cache table.
   Future<void> clear() async => db.delete('kv_cache');
 }
-

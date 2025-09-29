@@ -23,8 +23,9 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _googleSignIn.initialize();
       if (!_googleSignIn.supportsAuthenticate()) {
-        throw RemoteConfigException(
-            kind: RemoteConfigExceptionKind.unSupportPlatform);
+        throw AuthException(
+          'Google sign-in failed',
+        );
       }
       final GoogleSignInAccount googleUser = await _googleSignIn.authenticate(
         scopeHint: ['email', 'profile'],
@@ -38,8 +39,13 @@ class AuthRepositoryImpl implements AuthRepository {
       final UserCredential userCredential =
           await _firebaseAuth.signInWithCredential(credential);
       return _mapFirebaseUserToEntity(userCredential.user);
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(
+        e.message ?? 'Google sign-in failed',
+        tokenExpired: e.code == 'user-token-expired',
+      );
     } catch (e) {
-      throw RemoteException(kind: RemoteExceptionKind.unknown);
+      throw AuthException(e.toString());
     }
   }
 
@@ -56,8 +62,13 @@ class AuthRepositoryImpl implements AuthRepository {
       final UserCredential userCredential =
           await _firebaseAuth.signInWithCredential(credential);
       return _mapFirebaseUserToEntity(userCredential.user);
+    } on FirebaseAuthException catch (e) {
+      throw AuthException(
+        e.message ?? 'Google sign-in failed',
+        tokenExpired: e.code == 'user-token-expired',
+      );
     } catch (e) {
-      throw RemoteException(kind: RemoteExceptionKind.unknown);
+      throw AuthException(e.toString());
     }
   }
 

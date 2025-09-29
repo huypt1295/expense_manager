@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'colors.dart';
 import 'color_tokens.dart';
 
-/// Extension on ColorScheme to provide app-specific colors
+/// Extension on [ColorScheme] that exposes domain-specific palette entries.
 extension AppColorScheme on ColorScheme {
   // Primary Colors
   Color get primaryBranding => AppColors.purpleBranding500;
@@ -29,7 +29,7 @@ extension AppColorScheme on ColorScheme {
   Color get stateWhite => AppColors.dimWhite500;
 }
 
-/// Custom color scheme extension for semantic colors
+/// Custom [ThemeExtension] that stores semantic color roles for the app.
 class AppColorSchemeExtension extends ThemeExtension<AppColorSchemeExtension> {
   const AppColorSchemeExtension({
     required this.textMain,
@@ -144,6 +144,7 @@ class AppColorSchemeExtension extends ThemeExtension<AppColorSchemeExtension> {
   final Color backgroundSub;
   final Color backgroundMain;
 
+  /// Returns a copy of this extension with the provided overrides applied.
   @override
   ThemeExtension<AppColorSchemeExtension> copyWith({
     Color? textMain,
@@ -257,6 +258,7 @@ class AppColorSchemeExtension extends ThemeExtension<AppColorSchemeExtension> {
     );
   }
 
+  /// Linearly interpolates between this extension and [other] by [t].
   @override
   ThemeExtension<AppColorSchemeExtension> lerp(
     covariant ThemeExtension<AppColorSchemeExtension>? other,

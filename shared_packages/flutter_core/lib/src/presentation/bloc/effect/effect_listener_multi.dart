@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+/// Wraps a child widget with multiple effect listeners without nesting them
+/// manually in the widget tree.
 class EffectListenerMulti extends StatelessWidget {
   const EffectListenerMulti({
     super.key,
@@ -7,13 +9,14 @@ class EffectListenerMulti extends StatelessWidget {
     required this.child,
   });
 
-  final List<Widget> listeners; // mỗi phần tử là một EffectListener<...>
+  // Each entry is expected to be an `EffectListener<...>` widget.
+  final List<Widget> listeners;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     Widget current = child;
-    // Gói child bằng các listener từ cuối lên đầu
+    // Wrap the child with listeners from the end of the list to the start.
     for (final l in listeners.reversed) {
       current = _Wrap(wrapper: l, child: current);
     }
@@ -37,8 +40,8 @@ class _Passthrough extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // replace placeholder child của wrapper bằng child thật
-    // giả định wrapper là một EffectListener với child = null
+    // Replace the placeholder child of the wrapper with the actual child.
+    // Assumes the wrapper is an EffectListener with `child = null`.
     return _WithChild(wrapper: wrapper, child: child);
   }
 }
@@ -50,10 +53,10 @@ class _WithChild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Nếu wrapper là Stateless với field child, bạn có thể sửa EffectListener
-    // nhận child bắt buộc để bỏ hack này. Để ngắn gọn, bạn có thể xếp tay:
+    // TODO: Improve wrapper handling once EffectListener enforces a non-null
+    // child. For now, manual composition may be clearer for complex cases.
     return wrapper is SingleChildRenderObjectWidget
-        ? wrapper // giữ đơn giản: đa phần dùng EffectListener lồng nhau là đủ
+        ? wrapper // Keep simple: nested EffectListener widgets cover most cases.
         : wrapper;
   }
 }

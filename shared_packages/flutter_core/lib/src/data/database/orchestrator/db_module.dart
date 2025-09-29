@@ -18,6 +18,6 @@ abstract class DBModule {
   Future<void> onCreate(DatabaseExecutor db);
 
   /// Upgrade the module schema from [from] (exclusive) to [to] (inclusive),
-  /// applying migrations step-by-step (from+1 → ... → to).
+  /// applying migrations step-by-step (from+1 -> ... -> to).
   Future<void> migrate(DatabaseExecutor db, int from, int to);
 }

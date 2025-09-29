@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:flutter_common/flutter_common.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_ml_kit/google_ml_kit.dart';
 

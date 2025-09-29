@@ -1,7 +1,6 @@
 import 'package:expense_manager/core/domain/entities/user_entity.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-// States
 abstract class AuthState extends BaseBlocState with EquatableMixin {
   const AuthState();
 

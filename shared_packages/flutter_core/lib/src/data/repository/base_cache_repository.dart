@@ -5,6 +5,7 @@ import 'package:flutter_core/src/data/caching/memory/memory_cache.dart'
 import 'package:flutter_core/src/data/exceptions/exception_mapper.dart';
 
 
+/// Fetches fresh data from the remote source.
 typedef RemoteFetcher<T> = Future<T> Function();
 
 /// Reads the latest persistent snapshot (if any) and its timestamp.
@@ -17,6 +18,7 @@ typedef LocalReader<T> = Future<(T?, DateTime?)> Function();
 /// Should be idempotent and safe to call repeatedly.
 typedef LocalWriter<T> = Future<void> Function(T data);
 
+/// Base repository mixin offering cache-aware data access helpers.
 class BaseCacheRepository with RepoErrorMapper {
   final MemoryCache mem;
   final Map<String, Future<dynamic>> _inFlight = {};
@@ -31,7 +33,7 @@ class BaseCacheRepository with RepoErrorMapper {
   /// 3) **Revalidate**: Optionally call [remote], then [saveLocal], write RAM, and **emit fresh**.
   ///
   /// Emission contract:
-  /// - The stream may emit **0..2 data events** per subscription (snapshot → fresh),
+  /// - The stream may emit **0..2 data events** per subscription (snapshot -> fresh),
   ///   plus an **error** if the remote step fails *and* no snapshot was emitted earlier.
   /// - If a snapshot was already emitted (RAM/disk), a later remote failure will surface
   ///   as a stream error only if you do not catch it here (current implementation forwards it).
@@ -51,21 +53,21 @@ class BaseCacheRepository with RepoErrorMapper {
   ///              (they are still evicted when the app process dies or you call `invalidate`).
   /// - [revalidateIfOlderThan] :
   ///     When **provided**, the remote step runs **only if** the current snapshot `age >= this`.
-  ///     This is the main switch to avoid revalidating when cache is still “fresh enough.”
+  ///     This is the main switch to avoid revalidating when cache is still "fresh enough".
   ///     If **null**, revalidation will **always** run after emitting a snapshot (aggressive SWR).
   /// - [jitterPct] : Adds up to `jitterPct` (0..0.3) randomization to [revalidateIfOlderThan]
-  ///                 to avoid synchronized refresh spikes (“cache stampede”).
+  ///                 to avoid synchronized refresh spikes ("cache stampede").
   ///
   /// Age source:
   /// - If a RAM hit occurs and `MemoryCache` exposes `fetchedAt` (via `getEntry`), that timestamp
-  ///   is used for age; otherwise the disk snapshot’s `fetchedAt` is used.
+  ///   is used for age; otherwise the disk snapshot's `fetchedAt` is used.
   ///
   /// Hard TTL:
   /// - If `policy.hardTtl` is configured and the disk snapshot is **hard-expired**, it will **not**
   ///   be emitted in step (2); the flow proceeds to revalidate or fail if offline.
   ///
   /// Typical usage:
-  /// - To mirror the classic “don’t revalidate while still fresh” behavior, pass
+  /// - To mirror the classic "don't revalidate while still fresh" behavior, pass
   ///   `revalidateIfOlderThan: policy.ttl` (or a slightly smaller multiple if you want earlier refresh).
   Stream<T> swr<T>({
     required String key,
@@ -165,7 +167,7 @@ class BaseCacheRepository with RepoErrorMapper {
   ///
   /// Notes:
   /// - This method does **not** de-duplicate concurrent remote calls. If you need
-  ///   de-duplication or a “snapshot → fresh” emission pattern, prefer [swr].
+  ///   de-duplication or a "snapshot -> fresh" emission pattern, prefer [swr].
   /// - [saveLocal] should be idempotent; it may be invoked repeatedly.
   ///
   /// Errors:
@@ -188,7 +190,7 @@ class BaseCacheRepository with RepoErrorMapper {
 
       return fresh;
     } catch (_) {
-      // Remote failed → graceful fallback chain.
+      // Remote failed -> graceful fallback chain.
 
       // 1) Try memory cache (fast).
       final memHit = mem.get<T>(key, ttl: memTtl);
@@ -198,11 +200,12 @@ class BaseCacheRepository with RepoErrorMapper {
       final (loc, _) = await local();
       if (loc != null) return loc;
 
-      // 3) Nothing to serve → bubble up original error.
+      // 3) Nothing to serve -> bubble up original error.
       rethrow;
     }
   }
 
+  /// Runs the remote fetch and write-through persistence for [key].
   Future<T> _refresh<T>({
     required String key,
     required RemoteFetcher<T> remote,

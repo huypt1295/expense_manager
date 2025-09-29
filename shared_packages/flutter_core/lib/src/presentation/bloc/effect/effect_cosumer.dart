@@ -5,6 +5,8 @@ import 'package:flutter_core/src/presentation/bloc/base_cubit.dart';
 import 'package:flutter_core/src/presentation/bloc/effect/effect.dart' show Effect;
 import 'effect_listener.dart';
 
+/// Combines a [BlocBuilder] with an [EffectListener] for cubits that emit
+/// effects.
 class EffectConsumer<C extends BaseCubit<S, E>, S, E extends Effect>
     extends StatelessWidget {
   const EffectConsumer({

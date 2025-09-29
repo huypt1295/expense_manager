@@ -23,7 +23,7 @@ class HomeTab extends BaseStatelessWidget {
               body: Column(
                 children: [
                   Text(state.user.displayName ?? ''),
-                  Text(state.user.email ?? ''),
+                  Text(state.user.email),
                 ],
               ),
             ),

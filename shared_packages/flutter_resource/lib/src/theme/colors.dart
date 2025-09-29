@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Color system for the application
+/// Centralized color definitions for the design system.
 class AppColors {
   AppColors._();
 

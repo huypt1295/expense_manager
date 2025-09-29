@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_core/flutter_core.dart';
 
+/// Convenience widget combining a [BlocBuilder] with an [EffectBlocListener].
 class EffectBlocConsumer<S, E extends Effect, B extends BlocBase<S>>
     extends StatelessWidget {
   const EffectBlocConsumer({
@@ -22,7 +23,7 @@ class EffectBlocConsumer<S, E extends Effect, B extends BlocBase<S>>
   Widget build(BuildContext context) {
     return EffectBlocListener<S, E, B>(
       bloc: bloc,
-      listener: listener, // không chuyền BuildContext
+      listener: listener,
       filter: filter,
       child: BlocBuilder<B, S>(
         buildWhen: buildWhen,

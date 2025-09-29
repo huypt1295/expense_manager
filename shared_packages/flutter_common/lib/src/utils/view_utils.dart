@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_common/src/utils/object_utils.dart';
 
+/// Collection of helper methods for working with Flutter views and widgets.
 class ViewUtils {
   const ViewUtils._();
 
+  /// Displays an app-themed [SnackBar] with the provided [message].
   static void showAppSnackBar(
     BuildContext context,
     String message, {
@@ -25,6 +27,7 @@ class ViewUtils {
     );
   }
 
+  /// Dismisses the keyboard if a focus node currently holds focus.
   static void hideKeyboard(BuildContext context) {
     final currentFocus = FocusScope.of(context);
     if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
@@ -32,24 +35,28 @@ class ViewUtils {
     }
   }
 
+  /// Applies the allowed [orientations] to the current app session.
   static Future<void> setPreferredOrientations(List<DeviceOrientation> orientations) {
     return SystemChrome.setPreferredOrientations(orientations);
   }
 
-  /// set status bar color & navigation bar color
+  /// Sets the system UI overlay style such as status and navigation bar colors.
   static void setSystemUIOverlayStyle(SystemUiOverlayStyle systemUiOverlayStyle) {
     SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
   }
 
+  /// Returns the global position for the widget associated with [globalKey].
   static Offset? getWidgetPosition(GlobalKey globalKey) {
     return (globalKey.currentContext?.findRenderObject() as RenderBox?)
         ?.let((it) => it.localToGlobal(Offset.zero));
   }
 
+  /// Returns the width for the widget associated with [globalKey].
   static double? getWidgetWidth(GlobalKey globalKey) {
     return (globalKey.currentContext?.findRenderObject() as RenderBox?)?.let((it) => it.size.width);
   }
 
+  /// Returns the height for the widget associated with [globalKey].
   static double? getWidgetHeight(GlobalKey globalKey) {
     return (globalKey.currentContext?.findRenderObject() as RenderBox?)
         ?.let((it) => it.size.height);

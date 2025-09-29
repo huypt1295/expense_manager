@@ -1,19 +1,18 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_core/flutter_core.dart';
-import 'package:flutter_core/src/presentation/bloc/effect/effect.dart';
-
-// import 'effect_emitter.dart'; // nếu EffectEmitter nằm file riêng
-// ở đây giả định bạn đã có Effect + EffectEmitter như trong BaseCubit
 
 typedef StateUpdater<S> = S Function(S);
 typedef ValueReducer<S, R> = S Function(S, R);
 
-/// BaseBloc:
-/// - One-shot side-effects qua EffectEmitter
-/// - runResult / reduceResult làm việc với Result<T>
-/// - Chống ghi đè state từ tác vụ cũ (opSeq theo group/trackKey)
-/// - Hook logger (tùy chọn)
+/// Base [Bloc] that supports effect streams, convenient `Result` handling, and
+/// race-condition safeguards when running asynchronous work.
+///
+/// - Integrates the [EffectEmitter] mixin for one-shot side effects.
+/// - Provides [runResult] / [reduceResult] helpers for working with
+///   `Result<T>`.
+/// - Prevents stale state updates by tracking operations per [trackKey].
+/// - Optionally logs successes and failures through [Logger].
 abstract class BaseBloc<EVENT, S, FX extends Effect> extends Bloc<EVENT, S>
     with EffectEmitter<FX> {
   BaseBloc(
@@ -23,8 +22,9 @@ abstract class BaseBloc<EVENT, S, FX extends Effect> extends Bloc<EVENT, S>
 
   final Logger? _logger;
 
-  /// Mỗi "nhóm" tác vụ có bộ đếm riêng để tránh race-condition.
-  /// Ví dụ: trackKey='loadList' vs 'refreshProfile' chạy song song mà không chặn nhau.
+  /// Maintains a counter per operation group to avoid race conditions.
+  /// Example: `trackKey='loadList'` versus `'refreshProfile'` can run in
+  /// parallel without blocking each other.
   final Map<Object, int> _opSeqBy = {};
 
   int _nextOp(Object key) =>
@@ -32,12 +32,15 @@ abstract class BaseBloc<EVENT, S, FX extends Effect> extends Bloc<EVENT, S>
 
   bool _isStale(Object key, int op) => (_opSeqBy[key] ?? 0) != op;
 
-  /// Chạy 1 tác vụ trả Future<Result<R>> theo "recipe" chung của presentation:
-  /// - emit(onStart(state)) trước khi chạy, emit(onFinally(state)) sau khi xong
-  /// - onOk: reducer cập nhật state khi thành công
-  /// - onErr: tự xử lý khi lỗi; nếu không cung cấp thì map Failure -> Effect để UI hiển thị
-  /// - spanName: tên để log
-  /// - trackKey: khoá "nhóm" để chống race-condition độc lập giữa nhiều tác vụ
+  /// Executes [task] and reduces the resulting [Result] following the
+  /// presentation-layer recipe.
+  ///
+  /// - Emits [onStart] before running and [onFinally] after completion.
+  /// - [onOk]: reduces the success value into a new state.
+  /// - [onErr]: handles failures manually; otherwise [toErrorEffect] maps a
+  ///   failure into an effect for UI feedback.
+  /// - [spanName]: optional label for logging and performance tracking.
+  /// - [trackKey]: isolates concurrent operations to avoid race conditions.
   @protected
   Future<void> runResult<R>({
     required Emitter<S> emit,
@@ -60,7 +63,7 @@ abstract class BaseBloc<EVENT, S, FX extends Effect> extends Bloc<EVENT, S>
     final result = await task();
     sw.stop();
 
-    // Nếu đã có tác vụ mới hơn cùng trackKey hoàn tất trước, bỏ qua kết quả cũ.
+    // Skip the result if a newer operation with the same trackKey completed.
     if (_isStale(trackKey, op)) {
       return;
     }
@@ -97,7 +100,7 @@ abstract class BaseBloc<EVENT, S, FX extends Effect> extends Bloc<EVENT, S>
     }
   }
 
-  /// Khi đã có Result<R> sẵn (không cần await), xử lý nhanh.
+  /// Reduces an already available [Result] without awaiting a task.
   @protected
   void reduceResult<R>({
     required Emitter<S> emit,

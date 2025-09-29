@@ -1,9 +1,9 @@
 import 'package:sqflite/sqflite.dart';
 
-/// Base DAO for "row ↔ model" mapping on top of SQLite.
+/// Base DAO for "row <-> model" mapping on top of SQLite.
 ///
 /// Provides common CRUD utilities and stamps `_fetchedAt` on upsert.
-/// TTL/expiry logic is intentionally **not** handled here—use a repository
+/// TTL/expiry logic is intentionally **not** handled here - use a repository
 /// + cache policy instead. Best suited for 1:1 entities (e.g., user_profile).
 /// For parameterized lists/search results, prefer `KeyValueCacheDao`.
 abstract class BaseSqfliteDao<T> {
@@ -34,7 +34,7 @@ abstract class BaseSqfliteDao<T> {
     return fromMap(rows.first);
   }
 
-  /// Lấy theo ID (kèm fetchedAt để check TTL ở Repository)
+  /// Reads a row by primary key and returns the model plus its `_fetchedAt` timestamp.
   Future<(T?, DateTime?)> getByIdWithMeta(String id) async {
     final rows = await db.query(
       table,
@@ -101,7 +101,7 @@ abstract class BaseSqfliteDao<T> {
   /// Clears all rows in this table.
   Future<int> clear() => db.delete(table);
 
-  /// Count the row
+  /// Returns the number of rows matching [where].
   Future<int> count({String? where, List<Object?>? whereArgs}) async {
     final rows = await db.rawQuery(
       'SELECT COUNT(*) AS c FROM $table${where != null ? ' WHERE $where' : ''}',

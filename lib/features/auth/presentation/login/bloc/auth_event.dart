@@ -1,6 +1,5 @@
 import 'package:flutter_core/flutter_core.dart';
 
-// Events
 abstract class AuthEvent extends BaseBlocEvent with EquatableMixin {
   const AuthEvent();
 

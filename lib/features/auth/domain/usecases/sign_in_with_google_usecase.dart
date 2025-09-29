@@ -1,15 +1,46 @@
-import 'package:expense_manager/core/domain/entities/user_entity.dart';
+ import 'package:expense_manager/core/domain/entities/user_entity.dart';
 import 'package:expense_manager/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
+import 'package:flutter_core/src/data/exceptions/exceptions.dart'
+    show AuthException;
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuthException;
 
 @singleton
-class SignInWithGoogleUseCase extends BaseUseCase<NoParam, Result<UserEntity>> {
-  final AuthRepository repository;
+class SignInWithGoogleUseCase extends BaseUseCase<NoParam, UserEntity?> {
+  SignInWithGoogleUseCase(this._repository);
 
-  SignInWithGoogleUseCase(this.repository);
+  final AuthRepository _repository;
 
   @override
-  Future<Either<>> call(NoParam params) async {
-    return await repository.signInWithGoogle();
+  Future<Result<UserEntity?>> call(NoParam params) {
+    return Result.guard<UserEntity?>(
+      () => _repository.signInWithGoogle(),
+      _mapToFailure,
+    );
+  }
+
+  Failure _mapToFailure(Object error, StackTrace stackTrace) {
+    if (error is Failure) {
+      return error;
+    }
+    if (error is AuthException) {
+      return AuthFailure(
+        message: error.message,
+        cause: error,
+        stackTrace: stackTrace,
+      );
+    }
+    if (error is FirebaseAuthException) {
+      return AuthFailure(
+        message: error.message,
+        cause: error,
+        stackTrace: stackTrace,
+      );
+    }
+    return UnknownFailure(
+      message: error.toString(),
+      cause: error,
+      stackTrace: stackTrace,
+    );
   }
 }

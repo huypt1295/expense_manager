@@ -4,7 +4,6 @@ import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_resource/flutter_resource.dart';
 import 'package:expense_manager/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:expense_manager/features/auth/domain/repositories/auth_repository.dart';
-import 'package:expense_manager/features/auth/presentation/login/bloc/auth_bloc.dart';
 
 @InjectableInit(
   includeMicroPackages: true,

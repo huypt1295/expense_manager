@@ -1,14 +1,23 @@
 import 'package:expense_manager/core/domain/entities/user_entity.dart';
 import 'package:flutter_core/flutter_core.dart';
 import '../../../domain/repositories/auth_repository.dart';
+import '../../../domain/usecases/sign_in_with_fb_usecase.dart';
+import '../../../domain/usecases/sign_in_with_google_usecase.dart';
+import 'auth_effect.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 @injectable
-class AuthBloc extends BaseBloc<AuthEvent, AuthState> {
+class AuthBloc extends BaseBloc<AuthEvent, AuthState, AuthEffect> {
   final AuthRepository _authRepository;
+  final SignInWithGoogleUseCase _signInWithGoogleUseCase;
+  final SignInWithFacebookUseCase _signInWithFacebookUseCase;
 
-  AuthBloc(this._authRepository) : super(const AuthInitial()) {
+  AuthBloc(
+    this._authRepository,
+    this._signInWithGoogleUseCase,
+    this._signInWithFacebookUseCase,
+  ) : super(const AuthInitial()) {
     on<SignInWithGoogle>(_onSignInWithGoogle);
     on<SignInWithFacebook>(_onSignInWithFacebook);
     on<SignOut>(_onSignOut);
@@ -24,15 +33,20 @@ class AuthBloc extends BaseBloc<AuthEvent, AuthState> {
     SignInWithGoogle event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthLoading());
-    (await runAsyncCatching<UserEntity?>(
-      action: () => _authRepository.signInWithGoogle(),
-    ))
-        .when(
-      success: (user) => user != null
-          ? emit(AuthAuthenticated(user: user))
-          : emit(const AuthError('Google sign in failed')),
-      failure: (e) => emit(AuthError(e.toString())),
+    await runResult<UserEntity?>(
+      emit: emit,
+      task: () => _signInWithGoogleUseCase(NoParam()),
+      onStart: (_) => const AuthLoading(),
+      onOk: (_, user) => user != null
+          ? AuthAuthenticated(user: user)
+          : const AuthError('Google sign in failed'),
+      onErr: (_, failure) {
+        final message = failure.message ?? failure.code;
+        emit(AuthError(message));
+        emitEffect(AuthShowErrorEffect(message));
+      },
+      trackKey: 'signInGoogle',
+      spanName: 'auth.signIn.google',
     );
   }
 
@@ -40,26 +54,43 @@ class AuthBloc extends BaseBloc<AuthEvent, AuthState> {
     SignInWithFacebook event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthLoading());
-    (await runAsyncCatching<UserEntity?>(
-      action: () => _authRepository.signInWithFacebook(),
-    ))
-        .when(
-      success: (user) => user != null
-          ? emit(AuthAuthenticated(user: user))
-          : emit(const AuthError('Facebook sign in failed')),
-      failure: (e) => emit(AuthError(e.toString())),
+    await runResult<UserEntity?>(
+      emit: emit,
+      task: () => _signInWithFacebookUseCase(NoParam()),
+      onStart: (_) => const AuthLoading(),
+      onOk: (_, user) => user != null
+          ? AuthAuthenticated(user: user)
+          : const AuthError('Facebook sign in failed'),
+      onErr: (_, failure) {
+        final message = failure.message ?? failure.code;
+        emit(AuthError(message));
+        emitEffect(AuthShowErrorEffect(message));
+      },
+      trackKey: 'signInFacebook',
+      spanName: 'auth.signIn.facebook',
     );
   }
 
   Future<void> _onSignOut(SignOut event, Emitter<AuthState> emit) async {
-    emit(const AuthLoading());
-    (await runAsyncCatching<void>(
-      action: () => _authRepository.signOut(),
-    ))
-        .when(
-      success: (_) => emit(const AuthUnauthenticated()),
-      failure: (e) => emit(AuthError(e.toString())),
+    await runResult<void>(
+      emit: emit,
+      task: () => Result.guard<void>(
+        () => _authRepository.signOut(),
+        (error, stackTrace) => UnknownFailure(
+          message: error.toString(),
+          cause: error,
+          stackTrace: stackTrace,
+        ),
+      ),
+      onStart: (_) => const AuthLoading(),
+      onOk: (_, __) => const AuthUnauthenticated(),
+      onErr: (_, failure) {
+        final message = failure.message ?? failure.code;
+        emit(AuthError(message));
+        emitEffect(AuthShowErrorEffect(message));
+      },
+      trackKey: 'signOut',
+      spanName: 'auth.signOut',
     );
   }
 

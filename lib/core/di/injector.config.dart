@@ -12,6 +12,10 @@
 import 'package:expense_manager/core/routing/app_router.dart' as _i861;
 import 'package:expense_manager/features/auth/domain/repositories/auth_repository.dart'
     as _i740;
+import 'package:expense_manager/features/auth/domain/usecases/sign_in_with_fb_usecase.dart'
+    as _i35;
+import 'package:expense_manager/features/auth/domain/usecases/sign_in_with_google_usecase.dart'
+    as _i864;
 import 'package:expense_manager/features/auth/presentation/login/bloc/auth_bloc.dart'
     as _i68;
 import 'package:expense_manager/features/home/presentation/home/bloc/home_bloc.dart'
@@ -39,10 +43,22 @@ extension GetItInjectableX on _i174.GetIt {
     await _i400.FlutterCommonPackageModule().init(gh);
     await _i134.FlutterResourcePackageModule().init(gh);
     gh.singleton<_i861.AppRouter>(() => _i861.AppRouter());
-    gh.factory<_i68.AuthBloc>(() => _i68.AuthBloc(gh<_i740.AuthRepository>()));
+    gh.factory<_i68.AuthBloc>(
+      () => _i68.AuthBloc(
+        gh<_i740.AuthRepository>(),
+        gh<_i864.SignInWithGoogleUseCase>(),
+        gh<_i35.SignInWithFacebookUseCase>(),
+      ),
+    );
     gh.singleton<_i959.UserRepository>(() => _i179.UserRepositoryImpl());
     gh.factory<_i1019.GetUserUseCase>(
       () => _i1019.GetUserUseCase(gh<_i959.UserRepository>()),
+    );
+    gh.singleton<_i864.SignInWithGoogleUseCase>(
+      () => _i864.SignInWithGoogleUseCase(gh<_i740.AuthRepository>()),
+    );
+    gh.singleton<_i35.SignInWithFacebookUseCase>(
+      () => _i35.SignInWithFacebookUseCase(gh<_i740.AuthRepository>()),
     );
     gh.factory<_i32.HomeBloc>(() => _i32.HomeBloc(gh<_i1019.GetUserUseCase>()));
     return this;

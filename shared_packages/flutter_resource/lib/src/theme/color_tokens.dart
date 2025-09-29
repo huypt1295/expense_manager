@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'colors.dart';
 
-/// Color tokens for the application
+/// Defines the MaterialColor tokens used throughout the application.
 class ColorTokens {
   ColorTokens._();
 
@@ -147,7 +147,7 @@ class ColorTokens {
     },
   );
 
-    static const neutral = MaterialColor(
+  static const neutral = MaterialColor(
     0xFF9758d0, // purple-branding.500
     <int, Color>{
       50: AppColors.purpleBranding50,

@@ -1,15 +1,20 @@
+import 'package:expense_manager/features/auth/presentation/login/bloc/auth_effect.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart'
-    show BlocListener, EasyLoading, ReadContext, BlocProvider, tpGetIt;
+    show BaseStatefulWidget, BlocBuilder, BlocListener, BlocProvider, EasyLoading, EffectBlocListener, ReadContext, tpGetIt;
 import 'package:flutter_resource/flutter_resource.dart';
 import 'bloc/auth_bloc.dart';
 import 'bloc/auth_event.dart';
 import 'bloc/auth_state.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends BaseStatefulWidget {
   const LoginPage({super.key});
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AuthBloc>(
@@ -24,6 +29,32 @@ class _LoginPageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return EffectBlocListener<AuthState, AuthEffect, AuthBloc>(
+      listener: (eff, ui) {
+        if (eff case AuthShowErrorEffect(:final message)) {
+          ui.showDialogSafe(
+            builder: (_) => AlertDialog(
+              content: Text(message),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK'))
+              ],
+            ),
+          );
+        } else if (eff case NavigateToHomePage()) {
+          ui.navigate((ctx) => Navigator.of(ctx).pushReplacementNamed('/home'));
+        }
+      },
+      child: BlocBuilder<AuthBloc, AuthState>(
+        buildWhen: (p, c) => p.runtimeType != c.runtimeType,
+        builder: (ctx, state) {
+          final isLoading = state is LoginLoading;
+          // ... build form giống trên và overlay loading theo state
+          return const Placeholder(); // rút gọn cho ngắn
+        },
+      ),
+    );
     return Scaffold(
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -91,8 +122,8 @@ class _LoginPageContent extends StatelessWidget {
                     TPAssets.logoFB,
                     AppColors.blue600,
                     () => context.read<AuthBloc>().add(
-                      const SignInWithFacebook(),
-                    ),
+                          const SignInWithFacebook(),
+                        ),
                   ),
                 ],
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_core/flutter_core.dart';
-import 'package:flutter_core/src/foundation/stream/dispose_bag.dart' show DisposeBag;
+import 'package:flutter_core/src/foundation/stream/dispose_bag.dart'
+    show DisposeBag;
 
 /// Base class for stateful widgets providing common lifecycle hooks and utilities.
 ///
@@ -13,6 +14,7 @@ abstract class BaseStatefulWidget extends StatefulWidget {
   const BaseStatefulWidget({super.key});
 }
 
+/// Shared base [State] that exposes lifecycle hooks and a [DisposeBag].
 abstract class BaseState<T extends BaseStatefulWidget> extends State<T> {
   final DisposeBag disposeBag = DisposeBag();
 

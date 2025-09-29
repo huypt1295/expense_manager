@@ -1,11 +1,13 @@
 import 'dart:async' show TimeoutException;
 
-import 'package:flutter_core/src/data/exceptions/exceptions.dart';
 import 'package:flutter_core/src/data/exceptions/error_codes.dart' show ErrorCodes;
+import 'package:flutter_core/src/data/exceptions/exceptions.dart';
 import 'package:flutter_core/src/foundation/failure.dart';
 import 'package:flutter_core/src/foundation/result.dart';
 
+/// Provides reusable mapping helpers from low-level exceptions to [Failure] types.
 mixin RepoErrorMapper {
+  /// Converts any thrown error [e] (plus optional [st]) into a domain [Failure].
   Failure toFailure(Object e, [StackTrace? st]) {
     if (e is TimeoutException) {
       return TimeoutFailure(message: e.toString());
@@ -50,6 +52,7 @@ mixin RepoErrorMapper {
     return UnknownFailure(message: e.toString(), cause: e, stackTrace: st);
   }
 
+  /// Wraps [block] and maps thrown errors to [Failure] using [toFailure].
   Future<Result<T>> guard<T>(Future<T> Function() block) =>
       Result.guard(block, toFailure);
 }

@@ -1,3 +1,4 @@
+/// Shared timeout settings for HTTP clients.
 class ApiConstant {
   const ApiConstant._();
 

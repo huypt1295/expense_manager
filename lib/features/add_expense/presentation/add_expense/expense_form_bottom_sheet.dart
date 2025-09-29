@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
 import 'package:expense_manager/features/add_expense/presentation/add_expense/bloc/expense_bloc.dart';
 import 'package:expense_manager/features/add_expense/presentation/add_expense/bloc/expense_event.dart';
@@ -106,7 +105,6 @@ class _ExpenseFormBottomSheetState extends BaseState<ExpenseFormBottomSheet> {
   }
 
   Future<void> _pickFromGallery() async {
-    Log.d('pickFromGallery');
     try {
       setState(() {
         _isProcessingImage = true;

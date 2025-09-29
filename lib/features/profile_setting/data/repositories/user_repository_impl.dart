@@ -1,18 +1,46 @@
-import 'package:expense_manager/core/constants/data_constant.dart';
-import 'package:expense_manager/core/constants/mock_data.dart';
 import 'package:expense_manager/core/domain/entities/user_entity.dart';
 import 'package:expense_manager/features/profile_setting/data/models/user_model.dart';
 import 'package:expense_manager/features/profile_setting/domain/repositories/user_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 @Singleton(as: UserRepository)
 class UserRepositoryImpl implements UserRepository {
+  UserRepositoryImpl({FirebaseAuth? firebaseAuth})
+      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+
+  final FirebaseAuth _firebaseAuth;
+
   @override
   Future<UserEntity> getUser() async {
-    final result = kMock ? MockData.mockUser : null;
-    if (result != null) {
-      return UserModel.fromJson(result).toEntity();
+    try {
+      final firebaseUser = _firebaseAuth.currentUser;
+      if (firebaseUser == null) {
+        throw AuthException('User not authenticated', tokenExpired: true);
+      }
+
+      return _mapFirebaseUserToEntity(firebaseUser);
+    } on FirebaseAuthException catch (error) {
+      throw AuthException(
+        error.message ?? 'Unable to retrieve user profile',
+        tokenExpired: error.code == 'user-not-found' ||
+            error.code == 'user-token-expired',
+      );
     }
-    return Future.error('No data found');
+  }
+
+  UserEntity _mapFirebaseUserToEntity(User user) {
+    final metadata = user.metadata;
+    return UserModel(
+      id: user.uid,
+      email: user.email ?? '',
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      providerId: user.providerData.isNotEmpty
+          ? user.providerData.first.providerId
+          : null,
+      createdAt: metadata.creationTime?.toIso8601String(),
+      updatedAt: metadata.lastSignInTime?.toIso8601String(),
+    ).toEntity();
   }
 }

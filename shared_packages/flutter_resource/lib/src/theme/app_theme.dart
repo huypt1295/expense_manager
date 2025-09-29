@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'app_color_extension.dart';
 
+/// Supported visual themes for the application.
 enum ThemeType { light, dark, premier }
 
-/// Factory for creating app themes
+/// Factory for creating the Material theme configurations used by the app.
 class AppTheme {
   AppTheme._();
 
-  /// Creates the light theme for the app
+  /// Builds the light theme configuration.
   static ThemeData light() {
     return ThemeData(
       useMaterial3: true,
@@ -16,7 +17,7 @@ class AppTheme {
     );
   }
 
-  /// Creates the dark theme for the app
+  /// Builds the dark theme configuration.
   static ThemeData dark() {
     return ThemeData(
       useMaterial3: true,
@@ -25,18 +26,19 @@ class AppTheme {
     );
   }
 
-  /// Creates the premier theme for the app
+  /// Builds the premier theme configuration.
   static ThemeData premier() {
     return ThemeData(
       useMaterial3: true,
       extensions: [AppColorSchemeExtension.premier],
-      brightness: Brightness.light
+      brightness: Brightness.light,
     );
   }
 }
 
+/// Convenience helpers for converting a [ThemeType] into usable data.
 extension ThemeTypeX on ThemeType {
-  // Helper method to get the appropriate theme based on theme type
+  /// Returns the [ThemeData] associated with this theme type.
   ThemeData get themeData {
     switch (this) {
       case ThemeType.light:
@@ -45,8 +47,6 @@ extension ThemeTypeX on ThemeType {
         return AppTheme.dark();
       case ThemeType.premier:
         return AppTheme.premier();
-      default:
-        return AppTheme.light();
-    }
+      }
   }
 }

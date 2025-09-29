@@ -2,10 +2,15 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_core/flutter_core.dart';
 
+/// Utility helpers for reading, writing, and managing files on disk.
 class FileUtils {
   /// If set, we want to save all files into a specific folder
   static String? defaultDir;
 
+  /// Downloads the file at [imageUrl] into the cache and returns it when
+  /// successful.
+  ///
+  /// Returns `null` if the file cannot be retrieved.
   static Future<File?> getImageFileFromUrl(String imageUrl) async {
     try {
       return DefaultCacheManager().getSingleFile(imageUrl);
@@ -32,7 +37,8 @@ class FileUtils {
     return null;
   }
 
-  /// Write content to a file by file-name
+  /// Writes [buffer] to a file with [filename], optionally using a temporary
+  /// directory or generating a unique name when [override] is `false`.
   static Future<File> writeFile(
     String filename,
     Uint8List buffer, {
@@ -62,18 +68,23 @@ class FileUtils {
     }
   }
 
+  /// Returns the MIME type for the provided [file], or `null` if unknown.
   static String? getMimeType(File file) {
     return lookupMimeType(file.path);
   }
 
+  /// Checks whether a file exists at [filePath].
   static bool isExist(String filePath) {
     return File(filePath).existsSync();
   }
 
+  /// Checks whether the path at [filePath] points to a directory.
   static bool isFolder(String filePath) {
     return FileSystemEntity.typeSync(filePath) == FileSystemEntityType.directory;
   }
 
+  /// Deletes the file or directory at [filePath]. Returns `true` when the
+  /// operation succeeds.
   static Future<bool> removeFile(String filePath) async {
     try {
       await File(filePath).delete(recursive: true);
@@ -84,12 +95,11 @@ class FileUtils {
     return false;
   }
 
-  /// Get temporary directory for App. If `defaultDir` is not set, all files will not be save into
-  /// a specific folder.
+  /// Gets the app's temporary directory, optionally nested under [defaultDir].
   ///
   /// A temporary directory (cache) that the system can clear at any time.
   ///
-  /// Return `null` if there are any exception
+  /// Returns `null` if the directory cannot be obtained.
   static Future<Directory?> _getTemporaryDir() async {
     try {
       final directory = await getTemporaryDirectory();
@@ -105,12 +115,11 @@ class FileUtils {
     return null;
   }
 
-  /// Get document directory for App. If `defaultDir` is not set, all files will not be save into
-  /// a specific folder.
+  /// Gets the app's documents directory, optionally nested under [defaultDir].
   ///
   /// The system clears the directory only when the app is deleted.
   ///
-  /// Return `null` if there are any exception
+  /// Returns `null` if the directory cannot be obtained.
   static Future<Directory?> _getDocumentDir() async {
     try {
       final directory = await getApplicationDocumentsDirectory();
@@ -126,7 +135,8 @@ class FileUtils {
     return null;
   }
 
-  /// Get file object from filename. If file is not exists, return `null`
+  /// Resolves [filename] into a [File]. Returns `null` when the file does not
+  /// exist on disk.
   static Future<File?> _getFile(String filename, {bool temporary = false}) async {
     final filePath = await _filePath(filename, temporary: temporary);
     final file = File(filePath);
@@ -134,7 +144,8 @@ class FileUtils {
     return (await file.exists()) ? file : null;
   }
 
-  /// Return `file-path` according to either temporary folder or document folder
+  /// Returns a fully qualified file path for [filename] based on the selected
+  /// storage location.
   static Future<String> _filePath(String filename, {bool temporary = false}) async {
     return temporary
         ? "${(await _getTemporaryDir())?.path ?? ''}/$filename"

@@ -10,4 +10,5 @@ export './model/error_ui_model.dart';
 export 'base_bloc.dart'; 
 export 'base_bloc_event.dart'; 
 export 'base_bloc_state.dart'; 
-export 'base_cubit.dart'; 
+export 'base_cubit.dart';
+export 'crash_bloc_observer.dart';

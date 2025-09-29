@@ -3,7 +3,7 @@ import 'expense_event.dart';
 import 'expense_state.dart';
 
 // Bloc
-class ExpenseBloc extends BaseBloc<ExpenseEvent, ExpenseState> {
+class ExpenseBloc extends BaseBloc<ExpenseEvent, ExpenseState, NoopEffect> {
   ExpenseBloc() : super(ExpenseFormData(date: DateTime.now())) {
     on<ExpenseFormSubmitted>(_onFormSubmitted);
     on<ExpenseFormReset>(_onFormReset);

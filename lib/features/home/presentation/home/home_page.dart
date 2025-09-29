@@ -6,7 +6,6 @@ import 'package:expense_manager/features/profile_setting/presentation/profile/pr
 import 'package:expense_manager/features/transactions/presentation/transactions/transaction_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_core/flutter_core.dart';
-import 'package:expense_manager/core/config/app_config_cubit.dart';
 import 'package:flutter_resource/flutter_resource.dart';
 
 class HomePage extends BaseStatefulWidget {

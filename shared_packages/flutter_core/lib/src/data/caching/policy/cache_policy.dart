@@ -2,7 +2,7 @@
 /// Cache policy for **persistent** storage (DB/file).
 ///
 /// Two notions:
-/// - `ttl` (soft TTL): beyond this, the snapshot is considered *stale*—you may still
+/// - `ttl` (soft TTL): beyond this, the snapshot is considered *stale* - you may still
 ///   render it immediately for UX and then revalidate in the background.
 /// - `hardTtl` (hard expiry): beyond this, the snapshot is **not** safe for initial render;
 ///   you must fetch remotely (unless you intentionally allow a "grace mode" offline).

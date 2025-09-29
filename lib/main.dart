@@ -13,36 +13,43 @@ import 'core/firebase/firebase_options.dart';
 void main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    LoggerProvider.instance?.error('flutter.error', {
-      'exception': details.exceptionAsString(),
-      'stack': details.stack?.toString(),
-    });
+    if (tpGetIt.isRegistered<CrashReporter>()) {
+      tpGetIt.get<CrashReporter>().recordFlutterError(details);
+    }
   };
 
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform);
-    await configureDependencies();
-    _configLoading();
-    runApp(
-      BlocProvider(
-        create: (_) => ConfigCubit(),
-        child: const TPContainerApp(),
-      ),
-    );
-  }, (error, stack) {
-    LoggerProvider.instance?.error('zone.error', {
-      'exception': error.toString(),
-      'stack': stack.toString(),
-    });
-  });
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      await configureDependencies();
+
+      await tpGetIt.get<CrashReporter>().init();
+      await tpGetIt.get<Analytics>().init();
+
+      Bloc.observer = tpGetIt.get<CrashBlocObserver>();
+
+      _configLoading();
+      runApp(
+        BlocProvider(
+          create: (_) => ConfigCubit(),
+          child: const TPContainerApp(),
+        ),
+      );
+    },
+    (error, stack) {
+      if (tpGetIt.isRegistered<CrashReporter>()) {
+        tpGetIt<CrashReporter>().recordError(error, stack, fatal: true);
+      }
+    },
+  );
 
   PlatformDispatcher.instance.onError = (error, stack) {
-    LoggerProvider.instance?.error('platform.error', {
-      'exception': error.toString(),
-      'stack': stack.toString(),
-    });
+    if (tpGetIt.isRegistered<CrashReporter>()) {
+      tpGetIt<CrashReporter>().recordError(error, stack, fatal: true);
+    }
     return true;
   };
 }

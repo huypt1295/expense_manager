@@ -8,7 +8,12 @@ import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_resource/flutter_resource.dart';
 
 class TPContainerApp extends StatefulWidget {
-  const TPContainerApp({super.key});
+  final List<NavigatorObserver> navigatorObservers;
+
+  const TPContainerApp({
+    super.key,
+    this.navigatorObservers = const <NavigatorObserver>[],
+  });
 
   @override
   State<TPContainerApp> createState() => _TPContainerAppState();
@@ -38,7 +43,10 @@ class _TPContainerAppState extends State<TPContainerApp> {
             ],
             supportedLocales: L10n.supportedLocales,
             locale: config.locale,
-            routerConfig: tpGetIt.get<AppRouter>().router,
+            routerConfig: tpGetIt.get<AppRouter>().router(
+              tpGetIt.get<GARouteObserver>(),
+              tpGetIt.get<CrashRouteObserver>(),
+            ),
             builder: (context, child) {
               return MediaQuery(
                 data: MediaQuery.of(

@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 
-/// Thực thi hành động UI *ngay lập tức* nếu State còn mounted.
-/// Không expose BuildContext ra ngoài.
+/// Executes UI actions immediately while keeping access to [BuildContext]
+/// scoped to the owning [State].
 class UiActions {
   UiActions(this._state);
+
   final State _state;
 
+  /// Whether the underlying state is still mounted.
   bool get mounted => _state.mounted;
 
-  /// Thực thi một action đồng bộ sử dụng context an toàn.
-  /// YÊU CẦU: [action] phải là SYNC (không await bên trong).
+  /// Runs a synchronous [action] using the state's context if it is mounted.
   void call(void Function(BuildContext ctx) action) {
     if (!_state.mounted) return;
     action(_state.context);
   }
 
-  /// SnackBar helper
+  /// Shows a [SnackBar] via the nearest [ScaffoldMessenger].
   void showSnackBar(SnackBar bar) {
     if (!_state.mounted) return;
     ScaffoldMessenger.of(_state.context).showSnackBar(bar);
   }
 
-  /// Dialog helper (vẫn an toàn vì context chỉ dùng tại thời điểm gọi)
+  /// Displays a dialog safely using the stored context.
   Future<T?> showDialogSafe<T>({
     required WidgetBuilder builder,
     bool barrierDismissible = true,
@@ -34,12 +35,13 @@ class UiActions {
     );
   }
 
-  /// Navigator helpers (tuỳ app dùng Navigator hay go_router, truyền closure sync)
+  /// Executes navigation logic synchronously with the current context.
   void navigate(void Function(BuildContext ctx) go) {
     if (!_state.mounted) return;
-    go(_state.context); // ví dụ: (ctx) => context.push('/route')
+    go(_state.context);
   }
 
+  /// Attempts to pop the current route if possible.
   void maybePop() {
     if (!_state.mounted) return;
     Navigator.of(_state.context).maybePop();

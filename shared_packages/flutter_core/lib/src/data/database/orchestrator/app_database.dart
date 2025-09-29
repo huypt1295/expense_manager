@@ -29,21 +29,21 @@ class AppDatabase {
     final db = await openDatabase(
       path,
       onConfigure: (db) async {
-        // Bật ràng buộc nếu cần
+        // Enable foreign-key constraints for SQLite.
         await db.execute('PRAGMA foreign_keys = ON');
       },
-      // Không set version ở đây để tránh “global version conflict”
+      // Database version is coordinated per-module, so we skip the global version.
     );
 
-    await _ensureBaseTables(db);        // bảng chung
-    await _runModuleMigrations(db);     // chạy create/migrate theo module
+    await _ensureBaseTables(db);
+    await _runModuleMigrations(db);
     _db = db;
     return db;
   }
 
   /// Creates base tables used by the migration system and KV cache.
   static Future<void> _ensureBaseTables(Database db) async {
-    // Bảng meta để theo dõi version theo module
+    // Module version metadata (module -> schema version).
     await db.execute('''
       CREATE TABLE IF NOT EXISTS schema_meta(
         module TEXT PRIMARY KEY,
@@ -51,7 +51,7 @@ class AppDatabase {
       )
     ''');
 
-    // Bảng KV cache dùng chung cho mọi feature
+    // Shared key-value cache table available to all features.
     await db.execute('''
       CREATE TABLE IF NOT EXISTS kv_cache(
         k TEXT PRIMARY KEY,
@@ -64,7 +64,7 @@ class AppDatabase {
   /// Executes `onCreate`/`migrate` for each registered module
   /// inside a single transaction to guarantee all-or-nothing.
   static Future<void> _runModuleMigrations(Database db) async {
-    // Chạy trong transaction để all-or-nothing
+    // Process every module within a single transaction for atomicity.
     await db.transaction((txn) async {
       for (final m in _modules) {
         final rows = await txn.query('schema_meta',
@@ -72,12 +72,12 @@ class AppDatabase {
         final current = rows.isEmpty ? 0 : (rows.first['version'] as int);
 
         if (current == 0) {
-          // Lần đầu cài module
+          // First-time installation for this module.
           await m.onCreate(txn);
           await txn.insert('schema_meta', {'module': m.name, 'version': m.schemaVersion},
               conflictAlgorithm: ConflictAlgorithm.replace);
         } else if (current < m.schemaVersion) {
-          // Nâng cấp nhiều bước: from -> to
+          // Upgrade multiple steps: from -> to.
           await m.migrate(txn, current, m.schemaVersion);
           await txn.update('schema_meta', {'version': m.schemaVersion},
               where: 'module = ?', whereArgs: [m.name]);

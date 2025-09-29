@@ -8,7 +8,12 @@ extension TPThemeColors on ThemeData {
       extension<AppColorSchemeExtension>();
 }
 
+/// Utility extension for converting hex color strings into [Color] values.
 extension HexColorExtension on String {
+  /// Parses the string as a hex color and returns a [Color] when successful.
+  ///
+  /// Returns `null` when the string cannot be parsed as a valid 6 or 8 digit
+  /// hexadecimal color.
   Color? toColor() {
     // Remove the '#' if present and normalize the string
     String hexColor = replaceAll('#', '');

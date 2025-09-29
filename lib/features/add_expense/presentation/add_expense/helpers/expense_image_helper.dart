@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_common/flutter_common.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/expense_ai_service.dart';
 
@@ -55,7 +54,6 @@ class ExpenseImageHelper {
         'date': expenseData.date,
       };
     } catch (e) {
-      Log.e('Error processing image with AI: $e');
       // Fallback to simulation if AI fails
       return _getFallbackData();
     }
