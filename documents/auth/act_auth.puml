@@ -1,0 +1,173 @@
+@startuml
+title Unified Activity Diagram — Auth Flows (Startup, Google/Facebook Sign-in, Sign-out, Error/Retry)
+
+|UI|
+start
+:Launch App / Open Login Screen;
+
+|AuthBloc|
+:Init AuthBloc;
+:Dispatch AuthEventWatchAuthState;
+
+|UseCases|
+:WatchAuthState();
+
+|Repository|
+:AuthRepository.watchAuthState();
+
+|DataSource / SDK|
+:FirebaseAuthDataSource.authStateChanges();
+
+|Firebase Auth|
+:Emit initial user OR null;
+
+|AuthBloc|
+if (user != null?) then (yes)
+  :state.status = signedIn;\nstate.user = user;
+  :Navigate -> Home/Shell;
+else (no)
+  :state.status = signedOut;\nstate.user = null;
+  :Navigate -> /login;
+endif
+
+' ===========================
+'       Google Sign-in
+' ===========================
+|UI|
+:Tap "Continue with Google";
+
+|AuthBloc|
+:state.loading = true;
+
+|UseCases|
+:SignInWithGoogle();
+
+|Repository|
+:signInWithGoogle();
+
+|DataSource / SDK|
+:GoogleSignIn.signIn();
+
+if (User cancels?) then (cancel)
+  |AuthBloc|
+  :state.loading = false;
+  :No state change (stay on login);
+else (success)
+  |DataSource / SDK|
+  :FirebaseAuth.signInWithCredential(Google);
+
+  |Firebase Auth|
+  :Issue UserCredential(user);\nAuth state becomes signed-in;
+
+  |AuthBloc|
+  :state.loading = false;
+
+  :Handle authStateChanges ->\n_Authority update to signedIn;
+endif
+
+' ===========================
+'      Facebook Sign-in
+' ===========================
+|UI|
+:Tap "Continue with Facebook";
+
+|AuthBloc|
+:state.loading = true;
+
+|UseCases|
+:SignInWithFacebook();
+
+|Repository|
+:signInWithFacebook();
+
+|DataSource / SDK|
+:FacebookAuth.login();
+
+if (User cancels?) then (cancel)
+  |AuthBloc|
+  :state.loading = false;
+  :No state change;
+else (success)
+  |DataSource / SDK|
+  :FirebaseAuth.signInWithCredential(Facebook);
+
+  |Firebase Auth|
+  :Issue UserCredential(user);\nAuth state becomes signed-in;
+
+  |AuthBloc|
+  :state.loading = false;
+
+  :Handle authStateChanges ->\n_Authority update to signedIn;
+endif
+
+' ===========================
+'           Sign-out
+' ===========================
+|UI|
+:Tap "Sign Out";
+
+|UseCases|
+:SignOut();
+
+|Repository|
+:signOut();
+
+|DataSource / SDK|
+:FirebaseAuth.signOut();
+
+|Firebase Auth|
+:Auth state becomes signed-out (null);
+
+|AuthBloc|
+:state.status = signedOut;\nstate.user = null;
+:Navigate -> /login;
+
+' ===========================
+'       Error & Retry
+' ===========================
+|UI|
+:Tap "Continue with Google" (again / first time);
+
+|AuthBloc|
+:state.loading = true;
+
+|UseCases|
+:SignInWithGoogle();
+
+|Repository|
+:signInWithGoogle();
+
+|DataSource / SDK|
+:Attempt GoogleSignIn + signInWithCredential;
+
+if (Network error OR other error?) then (error)
+  |AuthBloc|
+  :state.loading = false;\nstate.error = errorCode;
+  |UI|
+  :Show snackbar/dialog;\nOffer Retry;
+  if (User taps Retry?) then (yes)
+    |UI|
+    :Dispatch AuthEventSignInGoogle again;
+    |AuthBloc|
+    :state.loading = true;
+    ' flow loops back to UseCases->Repository->SDK branch above
+  else (no)
+    :Stay on login;
+  endif
+else (success)
+  |AuthBloc|
+  :state.loading = false;
+  :Auth state updates via authStateChanges -> signedIn;
+endif
+
+' ===========================
+'   Silent ID Token Refresh
+' ===========================
+|Firebase Auth|
+:Silent ID Token refresh (~1h) handled by SDK;
+|UI|
+:App continues usage (no UI impact);
+
+|UI|
+stop
+@enduml

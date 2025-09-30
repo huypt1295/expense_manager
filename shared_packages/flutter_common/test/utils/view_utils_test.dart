@@ -80,21 +80,22 @@ void main() {
     expect(calls.first.arguments, <String>['DeviceOrientation.portraitUp']);
   });
 
-  testWidgets('setSystemUIOverlayStyle forwards to platform channel',
+  testWidgets('setSystemUIOverlayStyle applies the provided style',
       (tester) async {
-    final calls = <MethodCall>[];
-
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(platformChannel, (MethodCall call) async {
-      calls.add(call);
-      return null;
-    });
+    const fallbackStyle = SystemUiOverlayStyle.light;
+    final previousStyle = SystemChrome.latestStyle;
 
     ViewUtils.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+    await tester.idle();
 
-    expect(calls, hasLength(1));
-    expect(calls.first.method, 'SystemChrome.setSystemUIOverlayStyle');
-    expect(calls.first.arguments, isA<Map<Object?, Object?>>());
+    expect(SystemChrome.latestStyle, SystemUiOverlayStyle.dark);
+
+    // Reset to a known state to avoid leaking to other tests.
+    final resetStyle = previousStyle ?? fallbackStyle;
+    ViewUtils.setSystemUIOverlayStyle(resetStyle);
+    await tester.idle();
+
+    expect(SystemChrome.latestStyle, resetStyle);
   });
 
   testWidgets('getWidgetPosition, width and height return metrics',

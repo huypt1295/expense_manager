@@ -1,0 +1,47 @@
+@startuml
+title Class Diagram — Home/Summary
+
+package "app.router" {
+  class AppRouter {
+    +ShellRoute HomePage
+    +/home/summary
+    +/home/transactions
+    +/home/budget
+    +/home/profile
+  }
+}
+
+package "features.home" {
+  class HomePage {
+    +child: Widget
+    +BottomNavigationBar
+    +FloatingActionButton (open AddExpenseBottomSheet)
+  }
+}
+
+package "features.summary" {
+  class SummaryPage
+}
+
+package "core" {
+  class CurrentUserSnapshot {
+    +uid: String?
+    +displayName: String?
+    +email: String?
+  }
+  interface CurrentUser {
+    +now(): CurrentUserSnapshot?
+    +watch(): Stream<CurrentUserSnapshot?>
+  }
+}
+
+package "features.transactions.presentation" {
+  class TransactionsBloc
+  class TransactionsState { +items: List<TransactionEntity>; +loading: bool }
+}
+
+HomePage --> AppRouter
+SummaryPage ..> CurrentUser
+SummaryPage ..> TransactionsBloc
+
+@enduml

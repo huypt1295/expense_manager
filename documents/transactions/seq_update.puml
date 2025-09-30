@@ -1,0 +1,25 @@
+@startuml
+title Transactions - Update
+
+actor User as U
+participant "TransactionsPage" as UI
+participant "TransactionsBloc" as B
+participant "UpdateTransaction (UC)" as UC
+participant "Repository" as Repo
+participant "RemoteDataSource" as DS
+database "Firestore" as FS
+
+U -> UI : Edit item -> Save
+UI -> B : TransactionsUpdated(txEntity)
+B -> UC : call(txEntity)
+UC -> Repo : update(txEntity)
+Repo -> DS : update(model)
+DS -> FS : update doc
+FS --> DS : ok
+... snapshot emits ...
+FS --> DS : change
+DS --> Repo : map
+Repo --> B : _TxStreamArrived(list)
+B -> B : state updated
+
+@enduml

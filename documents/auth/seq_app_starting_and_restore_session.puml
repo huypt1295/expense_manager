@@ -1,0 +1,26 @@
+@startuml
+title Auth - App Startup (Restore Session)
+actor User as U
+participant "Flutter App" as App
+participant "AuthBloc" as B
+participant "WatchAuthState (UC)" as W
+participant "AuthRepository" as R
+participant "FirebaseAuthDataSource" as DS
+database "Firebase Auth" as FA
+
+U -> App : Launch App
+App -> B : create/start
+B -> W : call()
+W -> R : watchAuthState()
+R -> DS : authStateChanges()
+DS -> FA : subscribe authStateChanges()
+FA --> DS : [initial emission]\nuser | null
+DS --> R : Stream<User?>
+R --> W : Stream<UserEntity?>
+W --> B : _AuthStateChanged(user)
+B -> B : reduce -> AuthState(status, user)
+
+note over B
+Nếu null -> status=signedOut\nNếu user -> status=signedIn
+end note
+@enduml

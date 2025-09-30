@@ -1,0 +1,17 @@
+@startuml
+title Summary - Greeting & Monthly Totals
+
+participant "SummaryPage" as Sum
+participant "CurrentUser (core)" as CU
+participant "TransactionsBloc" as TBloc
+
+Sum -> CU : watch()
+CU --> Sum : Stream<CurrentUserSnapshot?>
+
+Sum -> TBloc : subscribe state
+TBloc --> Sum : state.items (List<TransactionEntity>)
+
+Sum -> Sum : fold(items) -> monthTotal
+Sum -> Sum : render "Hello, {name}" + charts
+
+@enduml

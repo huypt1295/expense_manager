@@ -13,7 +13,7 @@ class FileUtils {
   /// Returns `null` if the file cannot be retrieved.
   static Future<File?> getImageFileFromUrl(String imageUrl) async {
     try {
-      return DefaultCacheManager().getSingleFile(imageUrl);
+      return await DefaultCacheManager().getSingleFile(imageUrl);
     } catch (_) {
       return null;
     }

@@ -63,10 +63,13 @@ class TestPathProviderPlatform extends PathProviderPlatform {
   TestPathProviderPlatform({
     required this.temporaryPath,
     required this.applicationDocumentsPath,
-  });
+    String? applicationSupportPath,
+  }) : applicationSupportPath =
+            applicationSupportPath ?? applicationDocumentsPath;
 
   final String temporaryPath;
   final String applicationDocumentsPath;
+  final String applicationSupportPath;
 
   @override
   Future<String?> getTemporaryPath() async => temporaryPath;
@@ -83,7 +86,7 @@ class TestPathProviderPlatform extends PathProviderPlatform {
   Future<String?> getLibraryPath() async => null;
 
   @override
-  Future<String?> getApplicationSupportPath() async => null;
+  Future<String?> getApplicationSupportPath() async => applicationSupportPath;
 
   @override
   Future<List<String>?> getExternalStoragePaths(

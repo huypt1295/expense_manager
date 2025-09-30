@@ -1,0 +1,48 @@
+@startuml
+title Class Diagram — Budget
+
+package "features.budget.domain" {
+  class BudgetEntity {
+    +id: String
+    +category: String
+    +limitAmount: double
+    +startDate: DateTime
+    +endDate: DateTime
+  }
+  interface BudgetRepository {
+    +watchAll(): Stream<List<BudgetEntity>>
+    +add(entity): Future<void>
+    +update(entity): Future<void>
+    +deleteById(id): Future<void>
+  }
+  class WatchBudgets
+  class AddBudget
+  class UpdateBudget
+  class DeleteBudget
+}
+
+package "features.budget.data" {
+  class BudgetRemoteDataSource {
+    +watchBudgets(uid): Stream<List<BudgetModel>>
+    +upsert(model)
+    +update(model)
+    +delete(id)
+  }
+  class BudgetRepositoryRemote
+  class BudgetModel { +toEntity(); +fromEntity() }
+}
+
+package "features.budget.presentation" {
+  class BudgetBloc {
+    +state: {budgets, progressByBudgetId}
+  }
+}
+
+BudgetRepositoryRemote ..|> BudgetRepository
+BudgetRepositoryRemote ..> BudgetRemoteDataSource
+BudgetBloc --> WatchBudgets
+BudgetBloc --> AddBudget
+BudgetBloc --> UpdateBudget
+BudgetBloc --> DeleteBudget
+
+@enduml

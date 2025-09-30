@@ -1,0 +1,32 @@
+@startuml
+title Auth - Error Handling & Retry (Sign in)
+actor User as U
+participant "Login UI" as UI
+participant "AuthBloc" as B
+participant "SignInWithGoogle" as G
+participant "AuthRepository" as R
+participant "FirebaseAuthDataSource" as DS
+
+U -> UI : Tap Google
+UI -> B : AuthEventSignInGoogle
+B -> B : loading=true
+B -> G : call()
+G -> R : signInWithGoogle()
+R -> DS : signInWithGoogle()
+
+alt network error
+  DS --> R : throw AuthFailure(code="auth.network", msg)
+  R --> G : rethrow
+  G --> B : error
+  B -> B : loading=false; state.error="auth.network"
+  B -> UI : show SnackBar "Kiểm tra kết nối"
+  U -> UI : Tap Retry
+  UI -> B : AuthEventSignInGoogle
+  ... (retry flow) ...
+else account exists with different cred
+  DS --> R : throw AuthFailure(code="auth.account-exists-with-different-credential")
+  R --> G : rethrow
+  G --> B : error
+  B -> UI : show dialog: "Đã liên kết email với provider khác"
+end
+@enduml

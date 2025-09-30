@@ -1,0 +1,18 @@
+@startuml
+title Profile - Sign Out
+
+actor User as U
+participant "ProfilePage" as UI
+participant "ProfileBloc" as B
+participant "AccountActions (core)" as AA
+participant "Auth SignOut (UC)" as SO
+
+U -> UI : Tap Sign Out
+UI -> B : SignOutRequested
+B -> AA : signOut()
+AA -> SO : call()
+SO --> AA : ok
+AA --> B : ok
+B -> UI : navigate /login (auth state will emit null)
+
+@enduml

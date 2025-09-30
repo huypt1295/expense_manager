@@ -1,0 +1,25 @@
+@startuml
+title Transactions - Delete (soft)
+
+actor User as U
+participant "TransactionsPage" as UI
+participant "TransactionsBloc" as B
+participant "DeleteTransaction (UC)" as UC
+participant "Repository" as Repo
+participant "RemoteDataSource" as DS
+database "Firestore" as FS
+
+U -> UI : Swipe Delete
+UI -> B : TransactionsDeleted(id)
+B -> UC : call(id)
+UC -> Repo : deleteById(id)
+Repo -> DS : softDelete(id) -> {deleted:true}
+DS -> FS : update(doc, deleted=true)
+FS --> DS : ok
+... query excludes deleted=true ...
+FS --> DS : new snapshot (without item)
+DS --> Repo : map
+Repo --> B : _TxStreamArrived(list)
+B -> B : state.items pruned
+
+@enduml

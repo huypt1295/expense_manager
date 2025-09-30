@@ -1,0 +1,40 @@
+import 'package:expense_manager/features/budget/domain/entities/budget_entity.dart';
+import 'package:expense_manager/features/budget/domain/entities/budget_progress.dart';
+import 'package:flutter_core/flutter_core.dart';
+
+class BudgetState extends BaseBlocState with EquatableMixin {
+  const BudgetState({
+    this.budgets = const <BudgetEntity>[],
+    this.progress = const <String, BudgetProgress>{},
+    this.isLoading = false,
+    this.errorMessage,
+  });
+
+  final List<BudgetEntity> budgets;
+  final Map<String, BudgetProgress> progress;
+  final bool isLoading;
+  final String? errorMessage;
+
+  BudgetState copyWith({
+    List<BudgetEntity>? budgets,
+    Map<String, BudgetProgress>? progress,
+    bool? isLoading,
+    bool clearError = false,
+    String? errorMessage,
+  }) {
+    return BudgetState(
+      budgets: budgets ?? this.budgets,
+      progress: progress ?? this.progress,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+    );
+  }
+
+  @override
+  List<Object?> get props => <Object?>[
+        budgets,
+        progress,
+        isLoading,
+        errorMessage,
+      ];
+}

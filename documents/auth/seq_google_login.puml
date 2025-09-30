@@ -1,0 +1,42 @@
+@startuml
+title Auth - Sign in with Google
+actor User as U
+participant "Login UI" as UI
+participant "AuthBloc" as B
+participant "SignInWithGoogle (UC)" as G
+participant "AuthRepository" as R
+participant "FirebaseAuthDataSource" as DS
+participant "GoogleSignIn SDK" as GS
+database "Firebase Auth" as FA
+
+U -> UI : Tap "Continue with Google"
+UI -> B : AuthEventSignInGoogle
+B -> B : state.loading = true
+B -> G : call(NoParams)
+G -> R : signInWithGoogle()
+R -> DS : signInWithGoogle()
+
+DS -> GS : GoogleSignIn.signIn()
+alt user cancels
+  GS --> DS : null
+  DS --> R : return null
+  R --> G : null
+  G --> B : null
+  B -> B : state.loading=false (no change user)
+  B -> UI : show cancel/idle
+else success (acc, authTokens)
+  GS --> DS : account + idToken/accessToken
+  DS -> FA : signInWithCredential(Google)
+  FA --> DS : UserCredential(user)
+  DS --> R : UserModel
+  R --> G : UserEntity
+  G --> B : user
+  B -> B : state.loading=false; dispatch handled
+end
+
+... Meanwhile WatchAuthState stream ...
+FA --> DS : authStateChanges emits User
+DS --> R : map
+R --> B : _AuthStateChanged(UserEntity)
+B -> B : status=signedIn; user=entity
+@enduml

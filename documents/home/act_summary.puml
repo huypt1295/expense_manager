@@ -1,0 +1,17 @@
+@startuml
+title Activity — Summary (Greeting + Totals)
+
+start
+:Build SummaryPage;
+:Subscribe CurrentUser.watch();
+if (snapshot has user?) then (yes)
+  :name = user.displayName or email;
+else (no)
+  :name = "Guest";
+endif
+:Subscribe TransactionsBloc.state;
+:Compute monthTotal from items;
+:Render greeting + charts;
+
+stop
+@enduml

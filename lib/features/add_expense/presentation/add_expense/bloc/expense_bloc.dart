@@ -1,44 +1,61 @@
+import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
+import 'package:expense_manager/features/transactions/domain/usecases/add_transaction_usecase.dart';
 import 'package:flutter_core/flutter_core.dart';
+
 import 'expense_event.dart';
 import 'expense_state.dart';
 
-// Bloc
+@injectable
 class ExpenseBloc extends BaseBloc<ExpenseEvent, ExpenseState, NoopEffect> {
-  ExpenseBloc() : super(ExpenseFormData(date: DateTime.now())) {
+  ExpenseBloc(this._addTransactionUseCase)
+      : super(ExpenseFormData(date: DateTime.now())) {
     on<ExpenseFormSubmitted>(_onFormSubmitted);
     on<ExpenseFormReset>(_onFormReset);
     on<ExpenseFormClosed>(_onFormClosed);
   }
 
-  void _onFormSubmitted(
-      ExpenseFormSubmitted event, Emitter<ExpenseState> emit) async {
-    emit(const ExpenseFormLoading());
+  final AddTransactionUseCase _addTransactionUseCase;
 
-    try {
-      // Simulate API call to save expense
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      // Validate form data
-      if (event.title.isEmpty) {
-        emit(const ExpenseFormError('Title is required'));
-        return;
-      }
-
-      if (event.amount <= 0) {
-        emit(const ExpenseFormError('Amount must be greater than 0'));
-        return;
-      }
-
-      if (event.category.isEmpty) {
-        emit(const ExpenseFormError('Category is required'));
-        return;
-      }
-
-      // Success - expense saved
-      emit(const ExpenseFormSuccess());
-    } catch (e) {
-      emit(ExpenseFormError(e.toString()));
+  Future<void> _onFormSubmitted(
+    ExpenseFormSubmitted event,
+    Emitter<ExpenseState> emit,
+  ) async {
+    if (event.title.trim().isEmpty) {
+      emit(const ExpenseFormError('Title is required'));
+      return;
     }
+
+    if (event.amount <= 0) {
+      emit(const ExpenseFormError('Amount must be greater than 0'));
+      return;
+    }
+
+    if (event.category.trim().isEmpty) {
+      emit(const ExpenseFormError('Category is required'));
+      return;
+    }
+
+    final entity = TransactionEntity(
+      id: '',
+      title: event.title.trim(),
+      amount: event.amount,
+      category: event.category.trim(),
+      note: event.description.trim().isEmpty ? null : event.description.trim(),
+      date: event.date,
+    );
+
+    await runResult<void>(
+      emit: emit,
+      task: () => _addTransactionUseCase(AddTransactionParams(entity)),
+      onStart: (_) => const ExpenseFormLoading(),
+      onOk: (_, __) => const ExpenseFormSuccess(),
+      onErr: (_, failure) {
+        final message = failure.message ?? failure.code;
+        emit(ExpenseFormError(message));
+      },
+      trackKey: 'expense.submit',
+      spanName: 'transactions.add',
+    );
   }
 
   void _onFormReset(ExpenseFormReset event, Emitter<ExpenseState> emit) {

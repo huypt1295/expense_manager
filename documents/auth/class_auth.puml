@@ -1,0 +1,115 @@
+@startuml
+title Class Diagram — Auth Module (Clean Architecture)
+
+package "core" {
+  class CurrentUserSnapshot {
+    +uid: String?
+    +displayName: String?
+    +email: String?
+    +photoUrl: String?
+  }
+
+  interface CurrentUser {
+    +now(): CurrentUserSnapshot?
+    +watch(): Stream<CurrentUserSnapshot?>
+  }
+
+  interface AccountActions {
+    +signOut(): Future<void>
+  }
+
+  class UseCase<Out, In> { +call(In): Future<Out> }
+  class StreamUseCase<Out, In> { +call(In): Stream<Out> }
+  class NoParams
+}
+
+package "features.auth.domain" {
+  class UserEntity {
+    +uid: String
+    +displayName: String?
+    +photoUrl: String?
+    +email: String?
+  }
+
+  interface AuthRepository {
+    +watchAuthState(): Stream<UserEntity?>
+    +signInWithGoogle(): Future<UserEntity?>
+    +signInWithFacebook(): Future<UserEntity?>
+    +signOut(): Future<void>
+  }
+
+  class SignInWithGoogle extends UseCase<UserEntity?, NoParams>
+  class SignInWithFacebook extends UseCase<UserEntity?, NoParams>
+  class SignOut extends UseCase<void, NoParams>
+  class WatchAuthState extends StreamUseCase<UserEntity?, NoParams>
+}
+
+package "features.auth.data" {
+  class FirebaseAuthDataSource {
+    +authStateChanges(): Stream<UserModel?>
+    +signInWithGoogle(): Future<UserModel?>
+    +signInWithFacebook(): Future<UserModel?>
+    +signOut(): Future<void>
+  }
+
+  class AuthRepositoryImpl
+  AuthRepositoryImpl ..|> AuthRepository
+  AuthRepositoryImpl ..> FirebaseAuthDataSource
+
+  class UserModel {
+    +uid: String
+    +displayName: String?
+    +photoUrl: String?
+    +email: String?
+    +toEntity(): UserEntity
+    {static} +fromFirebaseUser(u): UserModel
+  }
+}
+
+package "features.auth.presentation" {
+  class AuthBloc {
+    -watchSub: StreamSubscription
+    +add(event)
+    +state: AuthState
+  }
+
+  class AuthState {
+    +status: AuthStatus
+    +user: UserEntity?
+    +loading: bool
+    +error: String?
+  }
+
+  enum AuthStatus { unknown; signedIn; signedOut }
+
+  class AuthEvent { <<abstract>> }
+  class AuthEventSignInGoogle
+  class AuthEventSignInFacebook
+  class AuthEventSignOut
+  class AuthEventWatchAuthState
+  class _AuthStateChanged { +user: UserEntity? }
+
+  AuthBloc --> AuthState
+  AuthBloc ..> AuthEvent
+  AuthBloc --> SignInWithGoogle
+  AuthBloc --> SignInWithFacebook
+  AuthBloc --> SignOut
+  AuthBloc --> WatchAuthState
+}
+
+package "features.auth.adapters" {
+  class CurrentUserFromAuthBloc implements CurrentUser {
+    -authBloc: AuthBloc
+  }
+  class AccountActionsFromAuth implements AccountActions {
+    -signOutUC: SignOut
+  }
+}
+
+' Cross-package relations
+CurrentUserFromAuthBloc ..|> CurrentUser
+CurrentUserFromAuthBloc --> AuthBloc
+AccountActionsFromAuth ..|> AccountActions
+AccountActionsFromAuth --> SignOut
+
+@enduml

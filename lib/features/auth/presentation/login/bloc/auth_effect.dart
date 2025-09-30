@@ -9,7 +9,3 @@ class AuthShowErrorEffect extends AuthEffect {
 
   final String message;
 }
-
-class NavigateToHomePage extends AuthEffect {
-  const NavigateToHomePage();
-}

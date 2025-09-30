@@ -1,8 +1,6 @@
- import 'package:expense_manager/core/domain/entities/user_entity.dart';
+import 'package:expense_manager/core/domain/entities/user_entity.dart';
 import 'package:expense_manager/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
-import 'package:flutter_core/src/data/exceptions/exceptions.dart'
-    show AuthException;
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuthException;
 
 @singleton

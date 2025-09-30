@@ -26,6 +26,11 @@ abstract class BaseStatelessWidget extends StatelessWidget {
     EasyLoading.dismiss(animation: animation);
   }
 
+  @protected
+  void showError({required String message}) {
+    EasyLoading.showError(message);
+  }
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {

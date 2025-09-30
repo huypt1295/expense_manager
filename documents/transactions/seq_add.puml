@@ -1,0 +1,33 @@
+@startuml
+title Transactions - Add
+
+actor User as U
+participant "AddExpenseBottomSheet" as Sheet
+participant "TransactionsBloc" as B
+participant "AddTransaction (UC)" as UC
+participant "TransactionsRepository" as Repo
+participant "RemoteDataSource (Firestore)" as DS
+participant "Firebase Auth" as FA
+database "Firestore: users/{uid}/transactions" as FS
+
+U -> Sheet : Submit form
+Sheet -> B : TransactionsAdded(txEntity)
+B -> UC : call(txEntity)
+UC -> Repo : add(txEntity)
+Repo -> DS : upsert(model)
+
+DS -> FA : get currentUser.uid
+DS -> FS : set doc users/{uid}/transactions/{id}
+FS --> DS : ok
+DS --> Repo : ok
+Repo --> UC : ok
+UC --> B : ok
+B -> B : (no state push here; stream will update)
+
+... Firestore emits snapshot ...
+FS --> DS : change (new doc)
+DS --> Repo : model->entity
+Repo --> B : _TxStreamArrived([entities...])
+B -> B : state.items = new list
+
+@enduml

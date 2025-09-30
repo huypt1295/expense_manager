@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter_common/src/utils/file_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'test_utils.dart';
 
@@ -12,20 +13,30 @@ void main() {
 
   late Directory tempDir;
   late Directory documentsDir;
+  late Directory supportDir;
   late Directory tempRoot;
   late Directory docsRoot;
+  late Directory supportRoot;
   late PathProviderPlatform originalPlatform;
+
+  setUpAll(() {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  });
 
   setUp(() {
     originalPlatform = PathProviderPlatform.instance;
     tempDir = createTempDir('temp');
     documentsDir = createTempDir('docs');
+    supportDir = createTempDir('support');
     tempRoot = tempDir.parent;
     docsRoot = documentsDir.parent;
+    supportRoot = supportDir.parent;
 
     PathProviderPlatform.instance = TestPathProviderPlatform(
       temporaryPath: tempDir.path,
       applicationDocumentsPath: documentsDir.path,
+      applicationSupportPath: supportDir.path,
     );
 
     FileUtils.defaultDir = null;
@@ -38,6 +49,9 @@ void main() {
     }
     if (await docsRoot.exists()) {
       await docsRoot.delete(recursive: true);
+    }
+    if (await supportRoot.exists()) {
+      await supportRoot.delete(recursive: true);
     }
   });
 

@@ -1,0 +1,40 @@
+@startuml
+title Auth - Sign in with Facebook
+actor User as U
+participant "Login UI" as UI
+participant "AuthBloc" as B
+participant "SignInWithFacebook (UC)" as F
+participant "AuthRepository" as R
+participant "FirebaseAuthDataSource" as DS
+participant "FacebookAuth SDK" as FB
+database "Firebase Auth" as FA
+
+U -> UI : Tap "Continue with Facebook"
+UI -> B : AuthEventSignInFacebook
+B -> B : loading=true
+B -> F : call(NoParams)
+F -> R : signInWithFacebook()
+R -> DS : signInWithFacebook()
+
+DS -> FB : FacebookAuth.login()
+alt cancel
+  FB --> DS : accessToken=null
+  DS --> R : null
+  R --> F : null
+  F --> B : null
+  B -> B : loading=false
+else success
+  FB --> DS : accessToken
+  DS -> FA : signInWithCredential(Facebook)
+  FA --> DS : UserCredential(user)
+  DS --> R : UserModel
+  R --> F : UserEntity
+  F --> B : user
+  B -> B : loading=false
+end
+
+FA --> DS : authStateChanges emits User
+DS --> R : map
+R --> B : _AuthStateChanged(UserEntity)
+B -> B : status=signedIn
+@enduml

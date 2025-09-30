@@ -1,0 +1,24 @@
+@startuml
+title Auth - Sign Out
+actor User as U
+participant "Profile UI" as UI
+participant "AuthBloc" as B
+participant "SignOut (UC)" as SO
+participant "AuthRepository" as R
+participant "FirebaseAuthDataSource" as DS
+database "Firebase Auth" as FA
+
+U -> UI : Tap "Sign Out"
+UI -> B : AuthEventSignOut
+B -> SO : call(NoParams)
+SO -> R : signOut()
+R -> DS : signOut()
+DS -> FA : signOut()
+FA --> DS : ok
+
+... authStateChanges emits null ...
+FA --> DS : User=null
+DS --> R : map -> null
+R --> B : _AuthStateChanged(null)
+B -> B : status=signedOut; user=null
+@enduml

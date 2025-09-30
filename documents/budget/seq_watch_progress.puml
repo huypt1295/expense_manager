@@ -1,0 +1,26 @@
+@startuml
+title Budget - Watch & Progress
+
+participant "BudgetBloc" as B
+participant "WatchBudgets (UC)" as Wb
+participant "BudgetRepository" as Rb
+participant "BudgetRemoteDataSource" as DSb
+database "Firestore budgets" as FB
+
+participant "TransactionsBloc" as T
+participant "UI" as UI
+
+B -> Wb : call(NoParams)
+Wb -> Rb : watchAll()
+Rb -> DSb : watchBudgets(uid)
+DSb -> FB : query users/{uid}/budgets
+FB --> DSb : snapshots (List<BudgetModel>)
+DSb --> Rb : map -> List<BudgetEntity>
+Rb --> B : stream list
+B -> T : subscribe TransactionsBloc.state
+T --> B : items (transactions)
+
+B -> B : compute progress per budget\n(sum amounts in range/category)
+B -> UI : state {budgets, progressMap}
+
+@enduml

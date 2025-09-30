@@ -112,7 +112,6 @@ class _ExpenseFormBottomSheetState extends BaseState<ExpenseFormBottomSheet> {
 
       final File? imageFile = await ExpenseImageHelper.pickImageFromGallery();
       if (imageFile != null) {
-        print('imageFile: $imageFile');
         await _processSelectedImage(imageFile);
       }
     } catch (e) {

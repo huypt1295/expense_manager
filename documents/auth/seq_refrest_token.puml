@@ -1,0 +1,18 @@
+@startuml
+title Auth - Silent ID Token Refresh (Implicit)
+participant "App" as App
+participant "Firebase SDK" as SDK
+database "Firebase Auth" as FA
+
+App -> SDK : call protected resource (e.g., Firestore)
+SDK -> FA : check ID token expiry
+alt expired
+  SDK -> FA : use refresh token to get new ID token
+  FA --> SDK : new ID token
+end
+SDK --> App : continue call (no UI impact)
+note over App,SDK
+App không cần can thiệp.
+Không phát event authStateChanges trừ khi user đổi.
+end note
+@enduml

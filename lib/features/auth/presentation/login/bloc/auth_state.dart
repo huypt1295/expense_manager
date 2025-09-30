@@ -1,43 +1,44 @@
 import 'package:expense_manager/core/domain/entities/user_entity.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-abstract class AuthState extends BaseBlocState with EquatableMixin {
-  const AuthState();
+enum AuthStatus { unknown, signedIn, signedOut }
 
-  @override
-  List<Object?> get props => [];
-}
+class AuthState extends BaseBlocState with EquatableMixin {
+  const AuthState({
+    required this.status,
+    required this.user,
+    required this.isLoading,
+    required this.errorMessage,
+  });
 
-class AuthInitial extends AuthState {
-  const AuthInitial();
-}
+  const AuthState.initial()
+    : status = AuthStatus.unknown,
+      user = null,
+      isLoading = false,
+      errorMessage = null;
 
-class AuthLoading extends AuthState {
-  const AuthLoading();
-}
+  final AuthStatus status;
+  final UserEntity? user;
+  final bool isLoading;
+  final String? errorMessage;
 
-class AuthAuthenticated extends AuthState {
-  final UserEntity user;
+  bool get isAuthenticated => status == AuthStatus.signedIn;
 
-  const AuthAuthenticated({required this.user});
-
-  @override
-  List<Object?> get props => [user];
-
-  AuthAuthenticated copyWith({UserEntity? user}) {
-    return AuthAuthenticated(user: user ?? this.user);
+  AuthState copyWith({
+    AuthStatus? status,
+    UserEntity? user,
+    bool? isLoading,
+    String? errorMessage,
+    bool clearError = false,
+  }) {
+    return AuthState(
+      status: status ?? this.status,
+      user: user ?? this.user,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+    );
   }
-}
-
-class AuthUnauthenticated extends AuthState {
-  const AuthUnauthenticated();
-}
-
-class AuthError extends AuthState {
-  final String message;
-
-  const AuthError(this.message);
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [status, user, isLoading, errorMessage];
 }

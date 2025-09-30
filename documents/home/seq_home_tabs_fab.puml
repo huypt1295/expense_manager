@@ -1,0 +1,25 @@
+@startuml
+title Home Shell - Tabs & FAB
+
+actor User as U
+participant "HomePage (Shell)" as Home
+participant "GoRouter" as Router
+participant "AddExpenseBottomSheet" as Sheet
+participant "TransactionsBloc" as TBloc
+
+U -> Home : Launch (after signed-in)
+Home -> Router : initialLocation=/home/summary
+Router --> Home : child=SummaryPage
+
+U -> Home : Tap "Transactions" tab
+Home -> Router : go('/home/transactions')
+Router --> Home : child=TransactionsPage
+
+U -> Home : Tap FAB (+)
+Home -> Sheet : showModalBottomSheet()
+U -> Sheet : Fill form (title, amount, date...)
+Sheet -> TBloc : add(TransactionsAdded(txEntity))
+TBloc --> Sheet : ack (UI closes)
+Sheet -> Home : Navigator.pop()
+
+@enduml

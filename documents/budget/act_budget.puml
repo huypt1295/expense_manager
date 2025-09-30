@@ -1,0 +1,20 @@
+@startuml
+title Activity — Budget (Watch + Progress + CRUD)
+
+start
+:Start BudgetBloc;
+:Subscribe watchBudgets();
+:Subscribe TransactionsBloc.state;
+:Compute progress for each budget\n(using current transactions);
+:Render list + progress bars;
+
+fork
+  :On AddBudget -> call use case -> snapshot -> state update;
+fork again
+  :On UpdateBudget -> call use case -> snapshot -> state update;
+fork again
+  :On DeleteBudget -> call use case -> snapshot -> state update;
+end fork
+
+stop
+@enduml

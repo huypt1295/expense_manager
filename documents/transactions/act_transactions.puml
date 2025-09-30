@@ -1,0 +1,29 @@
+@startuml
+title Activity — Transactions (Watch + Add/Update/Delete)
+
+start
+:Start TransactionsBloc;
+:Dispatch TransactionsStarted;
+:Subscribe repository.watchAll();
+
+:Render list from state.items;
+
+fork
+  ' Add
+  :On TransactionsAdded(tx);
+  :call AddTransaction(tx);
+  :Firestore snapshot updates -> state.items;
+fork again
+  ' Update
+  :On TransactionsUpdated(tx);
+  :call UpdateTransaction(tx);
+  :Snapshot updates -> state.items;
+fork again
+  ' Delete
+  :On TransactionsDeleted(id);
+  :call DeleteTransaction(id);
+  :Snapshot updates -> state.items;
+end fork
+
+stop
+@enduml

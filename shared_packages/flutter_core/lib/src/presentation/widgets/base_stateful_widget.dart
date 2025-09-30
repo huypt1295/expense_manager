@@ -48,6 +48,11 @@ abstract class BaseState<T extends BaseStatefulWidget> extends State<T> {
     EasyLoading.dismiss(animation: animation);
   }
 
+  @protected
+  void showError({required String message}) {
+    EasyLoading.showError(message);
+  }
+
   @override
   void initState() {
     super.initState();

@@ -1,0 +1,32 @@
+@startuml
+title Profile - Upload Avatar
+
+actor User as U
+participant "ProfilePage" as UI
+participant "ProfileBloc" as B
+participant "UpdateAvatar (UC)" as Ua
+participant "UserProfileRepository" as Rp
+participant "ProfileRemoteDataSource" as Dp
+database "Firebase Storage" as ST
+database "Firestore users/{uid}" as FU
+
+U -> UI : Pick image
+UI -> B : AvatarSelected(bytes)
+B -> Ua : call(uid, bytes)
+Ua -> Rp : uploadAvatar(uid, bytes)
+Rp -> Dp : storage.putData -> getDownloadURL
+Dp -> ST : putData -> URL
+ST --> Dp : downloadURL
+Dp --> Rp : url
+Rp --> Ua : url
+Ua --> B : url
+B -> Rp : updateProfile({avatarUrl:url})
+Rp -> Dp : set merge
+Dp -> FU : write
+FU --> Dp : ack
+... snapshot emits ...
+Dp --> Rp : map
+Rp --> B : stream updated profile
+B -> UI : state updated (new avatar)
+
+@enduml

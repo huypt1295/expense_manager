@@ -1,0 +1,25 @@
+@startuml
+title Budget - CRUD
+
+actor User as U
+participant "BudgetPage" as UI
+participant "BudgetBloc" as B
+participant "AddBudget/UpdateBudget/DeleteBudget" as UC
+participant "BudgetRepository" as R
+participant "BudgetRemoteDataSource" as DS
+database "Firestore budgets" as FB
+
+U -> UI : Add/Update/Delete budget
+UI -> B : BudgetEvent(...)
+B -> UC : call(params)
+UC -> R : repo call
+R -> DS : upsert/update/delete
+DS -> FB : write
+FB --> DS : ok
+... snapshot emits ...
+FB --> DS : list
+DS --> R : map
+R --> B : new list
+B -> UI : state updated
+
+@enduml

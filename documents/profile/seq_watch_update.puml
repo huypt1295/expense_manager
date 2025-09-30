@@ -1,0 +1,34 @@
+@startuml
+title Profile - Watch & Update
+
+participant "ProfileBloc" as B
+participant "CurrentUser (core)" as CU
+participant "WatchProfile (UC)" as Wp
+participant "UserProfileRepository" as Rp
+participant "ProfileRemoteDataSource" as Dp
+database "Firestore users/{uid}" as FU
+participant "UI" as UI
+
+B -> CU : now()/watch()
+CU --> B : uid
+B -> Wp : call(uid)
+Wp -> Rp : watchProfile(uid)
+Rp -> Dp : doc(uid).snapshots()
+Dp -> FU : subscribe
+FU --> Dp : profile data
+Dp --> Rp : map -> UserProfileEntity
+Rp --> B : stream entity
+B -> UI : state.profile
+
+== Update ==
+UI -> B : ProfileUpdated(newEntity)
+B -> Rp : updateProfile(entity)
+Rp -> Dp : set(merge)
+Dp -> FU : write
+FU --> Dp : ack
+... snapshots emits new profile ...
+Dp --> Rp : map
+Rp --> B : stream new entity
+B -> UI : state updated
+
+@enduml

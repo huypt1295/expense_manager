@@ -1,105 +1,36 @@
-import 'package:expense_manager/features/auth/domain/repositories/auth_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_core/flutter_core.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:expense_manager/core/domain/entities/user_entity.dart';
+import 'package:expense_manager/features/auth/data/datasources/firebase_auth_data_source.dart';
+import 'package:expense_manager/features/auth/data/models/user_model.dart';
+import 'package:expense_manager/features/auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final FirebaseAuth _firebaseAuth;
-  final GoogleSignIn _googleSignIn;
-  final FacebookAuth _facebookAuth;
+  AuthRepositoryImpl(this._dataSource);
 
-  AuthRepositoryImpl({
-    FirebaseAuth? firebaseAuth,
-    GoogleSignIn? googleSignIn,
-    FacebookAuth? facebookAuth,
-  })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn.instance,
-        _facebookAuth = facebookAuth ?? FacebookAuth.instance;
+  final FirebaseAuthDataSource _dataSource;
+
+  @override
+  Stream<UserEntity?> watchAuthState() {
+    return _dataSource.authStateChanges().map(_mapModelToEntity);
+  }
 
   @override
   Future<UserEntity?> signInWithGoogle() async {
-    try {
-      await _googleSignIn.initialize();
-      if (!_googleSignIn.supportsAuthenticate()) {
-        throw AuthException(
-          'Google sign-in failed',
-        );
-      }
-      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate(
-        scopeHint: ['email', 'profile'],
-      );
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
-
-      final UserCredential userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
-      return _mapFirebaseUserToEntity(userCredential.user);
-    } on FirebaseAuthException catch (e) {
-      throw AuthException(
-        e.message ?? 'Google sign-in failed',
-        tokenExpired: e.code == 'user-token-expired',
-      );
-    } catch (e) {
-      throw AuthException(e.toString());
-    }
+    final user = await _dataSource.signInWithGoogle();
+    return _mapModelToEntity(user);
   }
 
   @override
   Future<UserEntity?> signInWithFacebook() async {
-    try {
-      final LoginResult result =
-          await _facebookAuth.login(permissions: ['email', 'public_profile']);
-      if (result.status != LoginStatus.success) return null;
-
-      final OAuthCredential credential = FacebookAuthProvider.credential(
-        result.accessToken!.tokenString,
-      );
-      final UserCredential userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
-      return _mapFirebaseUserToEntity(userCredential.user);
-    } on FirebaseAuthException catch (e) {
-      throw AuthException(
-        e.message ?? 'Google sign-in failed',
-        tokenExpired: e.code == 'user-token-expired',
-      );
-    } catch (e) {
-      throw AuthException(e.toString());
-    }
+    final user = await _dataSource.signInWithFacebook();
+    return _mapModelToEntity(user);
   }
 
   @override
-  Future<void> signOut() async {
-    await Future.wait([
-      _firebaseAuth.signOut(),
-      _googleSignIn.signOut(),
-      _facebookAuth.logOut(),
-    ]);
+  Future<void> signOut() {
+    return _dataSource.signOut();
   }
 
-  @override
-  Stream<UserEntity?> get authStateChanges {
-    return _firebaseAuth.authStateChanges().map(_mapFirebaseUserToEntity);
-  }
-
-  @override
-  UserEntity? get currentUser =>
-      _mapFirebaseUserToEntity(_firebaseAuth.currentUser);
-
-  UserEntity? _mapFirebaseUserToEntity(User? user) {
-    if (user == null) return null;
-    return UserEntity(
-      id: user.uid,
-      email: user.email ?? '',
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      providerId: user.providerData.isNotEmpty
-          ? user.providerData.first.providerId
-          : null,
-    );
+  UserEntity? _mapModelToEntity(UserModel? model) {
+    return model?.toEntity();
   }
 }

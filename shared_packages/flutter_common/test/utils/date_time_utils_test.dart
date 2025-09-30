@@ -1,7 +1,13 @@
 import 'package:flutter_common/src/utils/date_time_utils.dart';
+import 'package:flutter_resource/flutter_resource.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() {
+
+  setUpAll(() async {
+    await initializeDateFormatting(LocaleConstants.defaultLocale, null);
+  });
 
   group('DateTimeUtils.daysBetween', () {
     test('ignores time component and rounds the result', () {
@@ -97,8 +103,9 @@ void main() {
     });
   });
 
-  group('DateTimeUtils.tryParse', () async {
-    // await initializeDateFormatting('vi', "");
+  group('DateTimeUtils.tryParse', () {
+    // initializeDateFormatting('vi', '') can be added here if locale-specific
+    // parsing is required.
 
     test('parses date using DateTime.tryParse when format is not provided', () {
       final date = DateTimeUtils.tryParse(date: '2024-06-01T00:00:00');

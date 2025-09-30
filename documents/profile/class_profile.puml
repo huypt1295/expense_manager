@@ -1,0 +1,52 @@
+@startuml
+title Class Diagram — Profile Settings
+
+package "shared.user.domain" {
+  class UserProfileEntity {
+    +uid: String
+    +displayName: String?
+    +email: String
+    +address: String?
+    +avatarUrl: String?
+  }
+  interface UserProfileRepository {
+    +getProfile(uid): Future<UserProfileEntity?>
+    +watchProfile(uid): Stream<UserProfileEntity?>
+    +updateProfile(entity): Future<void>
+    +uploadAvatar(uid, bytes, fileName?): Future<String?>
+  }
+  class GetProfile
+  class WatchProfile
+  class UpdateProfile
+  class UpdateAvatar
+}
+
+package "shared.user.data" {
+  class ProfileRemoteDataSource {
+    +watch(uid)
+    +set(uid, map)
+    +uploadAvatar(uid, bytes)
+  }
+  class UserProfileRepositoryImpl
+}
+
+package "features.profile.presentation" {
+  class ProfileBloc {
+    +state: {profile, loading, error}
+  }
+}
+
+package "core" {
+  interface CurrentUser { +now(); +watch(); }
+  interface AccountActions { +signOut(): Future<void> }
+}
+
+UserProfileRepositoryImpl ..|> UserProfileRepository
+UserProfileRepositoryImpl ..> ProfileRemoteDataSource
+ProfileBloc --> WatchProfile
+ProfileBloc --> UpdateProfile
+ProfileBloc --> UpdateAvatar
+ProfileBloc ..> AccountActions
+ProfileBloc ..> CurrentUser
+
+@enduml

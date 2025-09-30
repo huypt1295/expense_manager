@@ -1,24 +1,43 @@
+import 'package:expense_manager/core/domain/entities/user_entity.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-abstract class AuthEvent extends BaseBlocEvent with EquatableMixin {
+sealed class AuthEvent extends BaseBlocEvent with EquatableMixin {
   const AuthEvent();
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => const [];
 }
 
-class SignInWithGoogle extends AuthEvent {
-  const SignInWithGoogle();
+class AuthEventWatchAuthState extends AuthEvent {
+  const AuthEventWatchAuthState();
 }
 
-class SignInWithFacebook extends AuthEvent {
-  const SignInWithFacebook();
+class AuthEventSignInWithGoogle extends AuthEvent {
+  const AuthEventSignInWithGoogle();
 }
 
-class SignOut extends AuthEvent {
-  const SignOut();
+class AuthEventSignInWithFacebook extends AuthEvent {
+  const AuthEventSignInWithFacebook();
 }
 
-class CheckAuthState extends AuthEvent {
-  const CheckAuthState();
+class AuthEventSignOut extends AuthEvent {
+  const AuthEventSignOut();
+}
+
+class AuthEventStateChanged extends AuthEvent {
+  const AuthEventStateChanged(this.user);
+
+  final UserEntity? user;
+
+  @override
+  List<Object?> get props => [user];
+}
+
+class AuthEventStreamFailed extends AuthEvent {
+  const AuthEventStreamFailed(this.message);
+
+  final String message;
+
+  @override
+  List<Object?> get props => [message];
 }

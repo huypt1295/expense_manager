@@ -1,0 +1,26 @@
+@startuml
+title Activity — Profile (Watch, Update, Avatar, Sign-out)
+
+start
+:Start ProfileBloc;
+:Get uid from CurrentUser;
+:Subscribe watchProfile(uid);
+:Render profile;
+
+fork
+  :On ProfileUpdated(new values);
+  :call UpdateProfile;
+  :Snapshot emits -> state.profile updated;
+fork again
+  :On AvatarSelected(bytes);
+  :call UpdateAvatar -> upload to Storage -> url;
+  :UpdateProfile({avatarUrl:url});
+  :Snapshot emits -> state.profile updated;
+fork again
+  :On SignOutRequested;
+  :AccountActions.signOut();
+  :Navigate /login (auth null);
+end fork
+
+stop
+@enduml

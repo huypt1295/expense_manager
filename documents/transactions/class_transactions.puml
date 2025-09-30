@@ -1,0 +1,53 @@
+@startuml
+title Class Diagram — Transactions
+
+package "features.transactions.domain" {
+  class TransactionEntity {
+    +id: String
+    +title: String
+    +amount: double
+    +date: DateTime
+    +category: String?
+    +note: String?
+  }
+
+  interface TransactionsRepository {
+    +watchAll(): Stream<List<TransactionEntity>>
+    +getAllOnce(): Future<List<TransactionEntity>>
+    +add(tx): Future<void>
+    +update(tx): Future<void>
+    +deleteById(id): Future<void>
+  }
+
+  class WatchTransactions
+  class GetTransactionsOnce
+  class AddTransaction
+  class UpdateTransaction
+  class DeleteTransaction
+}
+
+package "features.transactions.data" {
+  class TransactionsRemoteDataSource {
+    +watchAll(uid): Stream<List<TransactionModel>>
+    +upsert(model): Future<void>
+    +update(model): Future<void>
+    +softDelete(id): Future<void>
+  }
+  class TransactionsRepositoryRemote
+  class TransactionModel { +toEntity(); +fromEntity() }
+}
+
+package "features.transactions.presentation" {
+  class TransactionsBloc
+  class TransactionsEvent
+  class TransactionsState
+}
+
+TransactionsRepositoryRemote ..|> TransactionsRepository
+TransactionsRepositoryRemote ..> TransactionsRemoteDataSource
+TransactionsBloc --> WatchTransactions
+TransactionsBloc --> AddTransaction
+TransactionsBloc --> UpdateTransaction
+TransactionsBloc --> DeleteTransaction
+
+@enduml
