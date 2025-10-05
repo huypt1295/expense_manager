@@ -58,7 +58,7 @@ class _LoginPageContent extends BaseStatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'Expense Manager',
+                    'POC',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,

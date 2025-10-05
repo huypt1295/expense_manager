@@ -56,5 +56,17 @@
         </array>
       </dict>
     </array>
+    <key>GIDClientID</key>
+    <string>42962786345-i1o0ivvggbbu8m0h279ko3r6fem31goi.apps.googleusercontent.com</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+      <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>com.googleusercontent.apps.42962786345-i1o0ivvggbbu8m0h279ko3r6fem31goi</string>
+        </array>
+      </dict>
+    </array>
+    <key>NSCameraUsageDescription</key><string>We need camera access to scan the bill</string>
 </dict>
 </plist>

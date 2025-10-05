@@ -21,25 +21,6 @@ lib
 │   └── routing
 │       └── app_router.dart
 ├── features
-│   ├── add_expense
-│   │   └── presentation
-│   │       └── add_expense
-│   │           ├── bloc
-│   │           │   ├── expense_bloc.dart
-│   │           │   ├── expense_event.dart
-│   │           │   └── expense_state.dart
-│   │           ├── constants
-│   │           │   └── expense_constants.dart
-│   │           ├── helpers
-│   │           │   └── expense_image_helper.dart
-│   │           ├── services
-│   │           │   ├── README.md
-│   │           │   └── expense_ai_service.dart
-│   │           ├── widgets
-│   │           │   ├── expense_form_fields.dart
-│   │           │   ├── expense_scan_section.dart
-│   │           │   └── image_source_bottom_sheet.dart
-│   │           └── expense_form_bottom_sheet.dart
 │   ├── auth
 │   │   ├── data
 │   │   │   └── repositories
@@ -92,7 +73,29 @@ lib
 │   │           └── profile_setting_page.dart
 │   └── transactions
 │       └── presentation
+│           ├── add_transaction
+│           │   ├── bloc
+│           │   │   ├── expense_bloc.dart
+│           │   │   ├── expense_event.dart
+│           │   │   └── expense_state.dart
+│           │   ├── constants
+│           │   │   └── expense_constants.dart
+│           │   ├── helpers
+│           │   │   └── expense_image_helper.dart
+│           │   ├── services
+│           │   │   ├── README.md
+│           │   │   └── expense_ai_service.dart
+│           │   ├── widgets
+│           │   │   ├── expense_form_fields.dart
+│           │   │   ├── expense_scan_section.dart
+│           │   │   └── image_source_bottom_sheet.dart
+│           │   └── expense_form_bottom_sheet.dart
 │           └── transactions
+│               ├── bloc
+│               │   ├── transactions_bloc.dart
+│               │   ├── transactions_effect.dart
+│               │   ├── transactions_event.dart
+│               │   └── transactions_state.dart
 │               └── transaction_page.dart
 └── main.dart
 

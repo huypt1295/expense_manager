@@ -23,10 +23,10 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     this._addBudgetUseCase,
     this._updateBudgetUseCase,
     this._deleteBudgetUseCase,
-    this._watchTransactionsUseCase, {
-    Logger? logger,
-  }) : super(const BudgetState(), logger: logger) {
+    this._watchTransactionsUseCase,
+  ) : super(const BudgetState()) {
     on<BudgetStarted>(_onStarted);
+    on<BudgetShowDialogAdd>(_showDialogAddBudget);
     on<BudgetStreamUpdated>(_onBudgetsUpdated);
     on<BudgetTransactionsUpdated>(_onTransactionsUpdated);
     on<BudgetStreamFailed>(_onStreamFailed);
@@ -71,8 +71,7 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     }
 
     try {
-      _transactionsSubscription ??=
-          _watchTransactionsUseCase(NoParam()).listen(
+      _transactionsSubscription ??= _watchTransactionsUseCase(NoParam()).listen(
         (transactions) => add(BudgetTransactionsUpdated(transactions)),
         onError: (Object error, StackTrace stackTrace) {
           final failure = mapTransactionsError(error, stackTrace);
@@ -84,6 +83,13 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
       emit(_errorState(failure.message ?? failure.code));
       emitEffect(BudgetShowErrorEffect(failure.message ?? failure.code));
     }
+  }
+
+  void _showDialogAddBudget(
+    BudgetShowDialogAdd event,
+    Emitter<BudgetState> emit,
+  ) {
+    emitEffect(BudgetShowDialogAddEffect(budget: event.budget));
   }
 
   void _onBudgetsUpdated(
@@ -188,10 +194,9 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
       final double spent = transactions
           .where((transaction) => _matchesBudget(transaction, budget))
           .fold<double>(0, (sum, tx) => sum + max(tx.amount, 0.0));
-      final double remaining = max(budget.limitAmount - spent, 0.0).toDouble();
-      final double percentage = budget.limitAmount <= 0
-          ? 0
-          : (spent / budget.limitAmount).clamp(0.0, 1.0).toDouble();
+      final double remaining = budget.limitAmount - spent;
+      final double percentage =
+          budget.limitAmount <= 0 ? 0 : spent / budget.limitAmount;
 
       result[budget.id] = BudgetProgress(
         budgetId: budget.id,
@@ -206,7 +211,9 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
   bool _matchesBudget(TransactionEntity transaction, BudgetEntity budget) {
     final category = (transaction.category ?? '').toLowerCase().trim();
     final budgetCategory = budget.category.toLowerCase().trim();
-    final inCategory = category == budgetCategory;
+    final budgetCategoryId = budget.categoryId.toLowerCase().trim();
+    final inCategory = category == budgetCategory ||
+        (budgetCategoryId.isNotEmpty && category == budgetCategoryId);
     final inRange = !transaction.date.isBefore(budget.startDate) &&
         !transaction.date.isAfter(budget.endDate);
     return inCategory && inRange;

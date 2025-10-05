@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:expense_manager/core/auth/current_user.dart';
 import 'package:expense_manager/features/auth/presentation/login/bloc/auth_bloc.dart';
 import 'package:expense_manager/features/auth/presentation/login/bloc/auth_state.dart';
+import 'package:flutter_core/flutter_core.dart';
 
+@Singleton(as: CurrentUser)
 class CurrentUserFromAuthBloc implements CurrentUser {
   CurrentUserFromAuthBloc(this._authBloc);
 

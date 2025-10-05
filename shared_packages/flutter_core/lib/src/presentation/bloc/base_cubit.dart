@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_core/flutter_core.dart'
-    show Logger, Result, Failure, StateUpdater, ValueReducer;
+    show Logger, LoggerProvider, Result, Failure, StateUpdater, ValueReducer;
 
 import 'effect/effect.dart';
 
@@ -12,7 +12,7 @@ abstract class BaseCubit<S, E extends Effect> extends Cubit<S>
   BaseCubit(
     super.initialState, {
     Logger? logger,
-  }) : _logger = logger;
+  }) : _logger = logger ?? LoggerProvider.instance;
 
   final Logger? _logger;
 

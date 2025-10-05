@@ -18,9 +18,8 @@ class TransactionsBloc
     this._watchTransactionsUseCase,
     this._addTransactionUseCase,
     this._updateTransactionUseCase,
-    this._deleteTransactionUseCase, {
-    Logger? logger,
-  }) : super(const TransactionsState(), logger: logger) {
+    this._deleteTransactionUseCase,
+  ) : super(const TransactionsState()) {
     on<TransactionsStarted>(_onStarted);
     on<TransactionsStreamChanged>(_onStreamChanged);
     on<TransactionsStreamFailed>(_onStreamFailed);
@@ -135,8 +134,7 @@ class TransactionsBloc
   ) async {
     await runResult<void>(
       emit: emit,
-      task: () =>
-          _deleteTransactionUseCase(DeleteTransactionParams(event.id)),
+      task: () => _deleteTransactionUseCase(DeleteTransactionParams(event.id)),
       onStart: (state) => state.copyWith(isLoading: true, clearError: true),
       onOk: (state, _) => state.copyWith(isLoading: false),
       onErr: (currentState, failure) {

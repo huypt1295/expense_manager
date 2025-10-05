@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:expense_manager/core/auth/current_user.dart';
+import 'package:expense_manager/core/routing/app_routes.dart';
 import 'package:expense_manager/features/auth/presentation/login/login_page.dart';
 import 'package:expense_manager/features/budget/presentation/budget/budget_page.dart';
 import 'package:expense_manager/features/home/presentation/home/home_page.dart';
@@ -16,6 +17,12 @@ class AppRouter {
 
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _homeNavigatorKey = GlobalKey<NavigatorState>();
+  bool _allowLoginGuardBypassOnce = false;
+
+  /// Allows the next navigation to `/login` to bypass the authenticated guard.
+  void allowLoginGuardBypassOnce() {
+    _allowLoginGuardBypassOnce = true;
+  }
 
   GoRouter router(GARouteObserver gaObs, CrashRouteObserver crashObs) {
     final currentUser = tpGetIt.get<CurrentUser>();
@@ -23,33 +30,37 @@ class AppRouter {
 
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
-      initialLocation: '/login',
+      initialLocation: AppRoute.login.path,
       refreshListenable: refresh,
       redirect: (context, state) {
         final snapshot = currentUser.now();
         final isAuthenticated = snapshot?.isAuthenticated ?? false;
         final location = state.uri.path;
-        final loggingIn = location == '/login';
-        final atHome = location.startsWith('/home');
-
-        if (!isAuthenticated && atHome) {
-          return '/login';
+        final loggingIn = location == AppRoute.login.path;
+        final atHome = location.startsWith(AppRoute.home.path);
+        final skipLoginGuard = _allowLoginGuardBypassOnce;
+        if (_allowLoginGuardBypassOnce) {
+          _allowLoginGuardBypassOnce = false;
         }
 
-        if (isAuthenticated && loggingIn) {
-          return '/home/summary';
+        if (!isAuthenticated && atHome) {
+          return AppRoute.login.path;
+        }
+
+        if (isAuthenticated && loggingIn && !skipLoginGuard) {
+          return AppRoute.homeSummary.path;
         }
 
         return null;
       },
       routes: [
         GoRoute(
-          path: '/login',
+          path: AppRoute.login.path,
           builder: (context, state) => const LoginPage(),
         ),
         GoRoute(
-          path: '/home',
-          redirect: (context, state) => '/home/summary',
+          path: AppRoute.home.path,
+          redirect: (context, state) => AppRoute.homeSummary.path,
         ),
         ShellRoute(
           navigatorKey: _homeNavigatorKey,
@@ -58,19 +69,19 @@ class AppRouter {
           },
           routes: [
             GoRoute(
-              path: '/home/summary',
+              path: AppRoute.homeSummary.path,
               builder: (context, state) => const SummaryPage(),
             ),
             GoRoute(
-              path: '/home/transactions',
+              path: AppRoute.homeTransactions.path,
               builder: (context, state) => const TransactionPage(),
             ),
             GoRoute(
-              path: '/home/budget',
+              path: AppRoute.homeBudget.path,
               builder: (context, state) => const BudgetPage(),
             ),
             GoRoute(
-              path: '/home/profile',
+              path: AppRoute.homeProfile.path,
               builder: (context, state) => const ProfilePage(),
             ),
           ],

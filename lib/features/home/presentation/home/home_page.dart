@@ -1,5 +1,6 @@
-import 'package:expense_manager/features/add_expense/presentation/add_expense/bloc/expense_bloc.dart';
-import 'package:expense_manager/features/add_expense/presentation/add_expense/expense_form_bottom_sheet.dart';
+import 'package:expense_manager/core/routing/app_routes.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/expense_bloc.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/add_expense_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_core/flutter_core.dart';
 
@@ -13,24 +14,24 @@ class HomePage extends StatelessWidget {
   final GoRouterState state;
   final Widget child;
 
-  static const _destinations = <_HomeDestination>[
+  static final _destinations = <_HomeDestination>[
     _HomeDestination(
-      path: '/home/summary',
+      path: AppRoute.homeSummary.path,
       icon: Icons.home,
       label: 'Home',
     ),
     _HomeDestination(
-      path: '/home/transactions',
+      path: AppRoute.homeTransactions.path,
       icon: Icons.money,
       label: 'Transactions',
     ),
     _HomeDestination(
-      path: '/home/budget',
+      path: AppRoute.homeBudget.path,
       icon: Icons.wallet,
       label: 'Budget',
     ),
     _HomeDestination(
-      path: '/home/profile',
+      path: AppRoute.homeProfile.path,
       icon: Icons.person,
       label: 'Profile',
     ),
@@ -45,7 +46,7 @@ class HomePage extends StatelessWidget {
     final selectedIndex = currentIndex == -1 ? 0 : currentIndex;
 
     return Scaffold(
-      body: child,
+      body: SafeArea(child: child),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
         type: BottomNavigationBarType.fixed,
@@ -79,7 +80,7 @@ class HomePage extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => BlocProvider(
         create: (context) => tpGetIt.get<ExpenseBloc>(),
-        child: const ExpenseFormBottomSheet(),
+        child: const AddExpenseBottomSheet(),
       ),
     );
   }

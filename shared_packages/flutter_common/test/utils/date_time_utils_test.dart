@@ -134,7 +134,7 @@ void main() {
     test('formats date time using provided format', () {
       final date = DateTime(2024, 7, 8, 9, 10, 11);
 
-      expect(date.toStringWithFormat('yyyy-MM-dd'), '2024-07-08');
+      expect(date.toStringWithFormat(DateFormat.MMMd()), '2024-07-08');
     });
 
     test('returns last date of month', () {

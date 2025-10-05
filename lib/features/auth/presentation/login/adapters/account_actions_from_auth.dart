@@ -2,6 +2,7 @@ import 'package:expense_manager/core/auth/current_user.dart';
 import 'package:expense_manager/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:flutter_core/flutter_core.dart';
 
+@Singleton(as: AccountActions)
 class AccountActionsFromAuth implements AccountActions {
   AccountActionsFromAuth(this._signOutUseCase);
 

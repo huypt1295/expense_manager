@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_core/src/foundation/failure.dart';
 import 'package:flutter_core/src/foundation/result.dart';
-import 'package:flutter_core/src/foundation/logger.dart';
+import 'package:flutter_core/src/foundation/logging/logger.dart';
 import 'package:flutter_core/src/presentation/bloc/base_cubit.dart';
 import 'package:flutter_core/src/presentation/bloc/effect/effect.dart';
 import 'package:flutter_test/flutter_test.dart';

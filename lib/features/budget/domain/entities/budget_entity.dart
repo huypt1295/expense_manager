@@ -7,6 +7,7 @@ class BudgetEntity extends BaseEntity with EquatableMixin {
     required this.limitAmount,
     required this.startDate,
     required this.endDate,
+    this.categoryId = '',
   });
 
   final String id;
@@ -14,6 +15,7 @@ class BudgetEntity extends BaseEntity with EquatableMixin {
   final double limitAmount;
   final DateTime startDate;
   final DateTime endDate;
+  final String categoryId;
 
   @override
   List<Object?> get props => <Object?>[
@@ -22,6 +24,7 @@ class BudgetEntity extends BaseEntity with EquatableMixin {
         limitAmount,
         startDate,
         endDate,
+        categoryId,
       ];
 
   @override
@@ -31,6 +34,7 @@ class BudgetEntity extends BaseEntity with EquatableMixin {
         'limitAmount': limitAmount,
         'startDate': startDate.toIso8601String(),
         'endDate': endDate.toIso8601String(),
+        'categoryId': categoryId,
       };
 
   BudgetEntity copyWith({
@@ -39,6 +43,7 @@ class BudgetEntity extends BaseEntity with EquatableMixin {
     double? limitAmount,
     DateTime? startDate,
     DateTime? endDate,
+    String? categoryId,
   }) {
     return BudgetEntity(
       id: id ?? this.id,
@@ -46,6 +51,7 @@ class BudgetEntity extends BaseEntity with EquatableMixin {
       limitAmount: limitAmount ?? this.limitAmount,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      categoryId: categoryId ?? this.categoryId,
     );
   }
 }

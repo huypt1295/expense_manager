@@ -12,7 +12,20 @@
           "package_name": "com.huypt.expense.expense_manager"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "42962786345-5mq1am2hjtn9t8ko3bfth22i3830b8kf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.huypt.expense.expense_manager",
+            "certificate_hash": "419966d0294f1fec55694485adb80aa710dd4ae1"
+          }
+        },
+        {
+          "client_id": "42962786345-368pu8vqr6efhh1ihm06u91ike9ukhbv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBJupuepMIHHr7A7QSDgRyz0nHiZaV4-Mw"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "42962786345-368pu8vqr6efhh1ihm06u91ike9ukhbv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "42962786345-i1o0ivvggbbu8m0h279ko3r6fem31goi.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.huypt.expense.expenseManager"
+              }
+            }
+          ]
         }
       }
     }

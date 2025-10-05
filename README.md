@@ -23,9 +23,8 @@ A modular Flutter application for managing expenses. The project separates core 
     - `features/`
         - `home/`: `HomePage`, `HomeBloc`.
         - `budget/`: `budget_page.dart`.
-        - `transactions/`: `transaction_page.dart`.
+        - `transactions/`: `transaction_page.dart` plus `presentation/add_transaction/` for the add-expense flow (widgets, helpers, OCR service README).
         - `profile_setting/`: Domain (entities/repositories/usecases) + data + presentation.
-        - `add_expense/`: UI, widgets, helpers, and `services/expense_ai_service.dart` for OCR (with local README).
 - `shared_packages/`
     - `flutter_core/`: Core foundations (base classes, navigation, network, exception handling, base bloc, DI module).
     - `flutter_common/`: Shared utilities and components, DI module.
@@ -70,9 +69,9 @@ A modular Flutter application for managing expenses. The project separates core 
 - **Theme/Locale**: Driven by `AppConfig` via `ConfigCubit`; defaults to `ThemeType.light` and locale `vi`.
 
 ### OCR (receipt scanning)
-- Source: `lib/features/add_expense/presentation/add_expense/services/expense_ai_service.dart`
+- Source: `lib/features/transactions/presentation/add_transaction/services/expense_ai_service.dart`
 - Uses `google_ml_kit` for text recognition, with image pre-processing and fallback methods.
-- See the detailed guide: `lib/features/add_expense/presentation/add_expense/services/README.md`.
+- See the detailed guide: `lib/features/transactions/presentation/add_transaction/services/README.md`.
 
 ### Shared Packages (detailed)
 - **flutter_core**

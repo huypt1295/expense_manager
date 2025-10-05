@@ -17,9 +17,9 @@ class AuthBloc extends BaseBloc<AuthEvent, AuthState, AuthEffect> {
     this._signInWithGoogleUseCase,
     this._signInWithFacebookUseCase,
     this._signOutUseCase,
-    this._watchAuthStateUseCase, {
+    this._watchAuthStateUseCase,
     Logger? logger,
-  }) : super(const AuthState.initial(), logger: logger) {
+  ) : super(const AuthState.initial(), logger: logger) {
     on<AuthEventWatchAuthState>(_onWatchAuthState);
     on<AuthEventStateChanged>(_onAuthStateChanged);
     on<AuthEventStreamFailed>(_onAuthStreamFailed);
@@ -46,9 +46,8 @@ class AuthBloc extends BaseBloc<AuthEvent, AuthState, AuthEffect> {
     _authStateSubscription = _watchAuthStateUseCase(NoParam()).listen(
       (user) => add(AuthEventStateChanged(user)),
       onError: (error, stackTrace) {
-        final message = error is Failure
-            ? (error.message ?? error.code)
-            : error.toString();
+        final message =
+            error is Failure ? (error.message ?? error.code) : error.toString();
         add(AuthEventStreamFailed(message));
       },
     );
@@ -58,9 +57,8 @@ class AuthBloc extends BaseBloc<AuthEvent, AuthState, AuthEffect> {
     AuthEventStateChanged event,
     Emitter<AuthState> emit,
   ) {
-    final status = event.user == null
-        ? AuthStatus.signedOut
-        : AuthStatus.signedIn;
+    final status =
+        event.user == null ? AuthStatus.signedOut : AuthStatus.signedIn;
     emit(
       state.copyWith(
         status: status,

@@ -8,6 +8,7 @@ class BudgetModel {
     required this.limitAmount,
     required this.startDate,
     required this.endDate,
+    this.categoryId = '',
   });
 
   final String id;
@@ -15,6 +16,7 @@ class BudgetModel {
   final double limitAmount;
   final DateTime startDate;
   final DateTime endDate;
+  final String categoryId;
 
   BudgetEntity toEntity() {
     return BudgetEntity(
@@ -23,6 +25,7 @@ class BudgetModel {
       limitAmount: limitAmount,
       startDate: startDate,
       endDate: endDate,
+      categoryId: categoryId,
     );
   }
 
@@ -32,6 +35,7 @@ class BudgetModel {
     double? limitAmount,
     DateTime? startDate,
     DateTime? endDate,
+    String? categoryId,
   }) {
     return BudgetModel(
       id: id ?? this.id,
@@ -39,17 +43,22 @@ class BudgetModel {
       limitAmount: limitAmount ?? this.limitAmount,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      categoryId: categoryId ?? this.categoryId,
     );
   }
 
   Map<String, dynamic> toFirestore({bool merge = false}) {
     final map = <String, dynamic>{
       'category': category,
+      'categoryName': category,
       'limitAmount': limitAmount,
       'startDate': Timestamp.fromDate(startDate),
       'endDate': Timestamp.fromDate(endDate),
       'updatedAt': FieldValue.serverTimestamp(),
     };
+    if (categoryId.isNotEmpty) {
+      map['categoryId'] = categoryId;
+    }
     if (!merge) {
       map['createdAt'] = FieldValue.serverTimestamp();
     }
@@ -75,10 +84,15 @@ class BudgetModel {
 
     return BudgetModel(
       id: doc.id,
-      category: (data['category'] as String?) ?? '',
+      category: (data['categoryName'] as String?) ??
+          (data['category'] as String?) ??
+          '',
       limitAmount: (data['limitAmount'] as num?)?.toDouble() ?? 0,
       startDate: parseDate(data['startDate']),
       endDate: parseDate(data['endDate']),
+      categoryId: (data['categoryId'] as String?) ??
+          (data['category'] as String?) ??
+          '',
     );
   }
 
@@ -89,6 +103,7 @@ class BudgetModel {
       limitAmount: entity.limitAmount,
       startDate: entity.startDate,
       endDate: entity.endDate,
+      categoryId: entity.categoryId,
     );
   }
 }

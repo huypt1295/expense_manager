@@ -13,6 +13,15 @@ class BudgetStarted extends BudgetEvent {
   const BudgetStarted();
 }
 
+class BudgetShowDialogAdd extends BudgetEvent {
+  final BudgetEntity? budget;
+
+  BudgetShowDialogAdd({this.budget});
+
+  @override
+  List<Object?> get props => [budget];
+}
+
 class BudgetAdded extends BudgetEvent {
   const BudgetAdded(this.entity);
 

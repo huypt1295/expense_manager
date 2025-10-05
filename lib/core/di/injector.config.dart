@@ -12,8 +12,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:expense_manager/core/auth/current_user.dart' as _i79;
 import 'package:expense_manager/core/routing/app_router.dart' as _i861;
-import 'package:expense_manager/features/add_expense/presentation/add_expense/bloc/expense_bloc.dart'
-    as _i1026;
 import 'package:expense_manager/features/auth/domain/repositories/auth_repository.dart'
     as _i740;
 import 'package:expense_manager/features/auth/domain/usecases/sign_in_with_fb_usecase.dart'
@@ -24,6 +22,10 @@ import 'package:expense_manager/features/auth/domain/usecases/sign_out_usecase.d
     as _i1070;
 import 'package:expense_manager/features/auth/domain/usecases/watch_auth_state_usecase.dart'
     as _i553;
+import 'package:expense_manager/features/auth/presentation/login/adapters/account_actions_from_auth.dart'
+    as _i655;
+import 'package:expense_manager/features/auth/presentation/login/adapters/current_user_from_auth_bloc.dart'
+    as _i524;
 import 'package:expense_manager/features/auth/presentation/login/bloc/auth_bloc.dart'
     as _i68;
 import 'package:expense_manager/features/budget/data/datasources/budget_remote_data_source.dart'
@@ -42,6 +44,16 @@ import 'package:expense_manager/features/budget/domain/usecases/watch_budgets_us
     as _i192;
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_bloc.dart'
     as _i494;
+import 'package:expense_manager/features/categories/application/categories_service.dart'
+    as _i49;
+import 'package:expense_manager/features/categories/data/datasources/category_remote_data_source.dart'
+    as _i892;
+import 'package:expense_manager/features/categories/data/repositories/category_repository_impl.dart'
+    as _i939;
+import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart'
+    as _i482;
+import 'package:expense_manager/features/categories/domain/usecases/load_categories_usecase.dart'
+    as _i823;
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_bloc.dart'
     as _i983;
 import 'package:expense_manager/features/profile_setting/data/datasources/profile_remote_data_source.dart'
@@ -76,6 +88,8 @@ import 'package:expense_manager/features/transactions/domain/usecases/update_tra
     as _i288;
 import 'package:expense_manager/features/transactions/domain/usecases/watch_transactions_usecase.dart'
     as _i717;
+import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/expense_bloc.dart'
+    as _i626;
 import 'package:expense_manager/features/transactions/presentation/transactions/bloc/transactions_bloc.dart'
     as _i551;
 import 'package:firebase_storage/firebase_storage.dart' as _i457;
@@ -111,14 +125,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i376.TransactionsRemoteDataSource>(
       () => _i376.TransactionsRemoteDataSource(gh<_i974.FirebaseFirestore>()),
     );
+    gh.lazySingleton<_i892.CategoryRemoteDataSource>(
+      () => _i892.CategoryRemoteDataSource(gh<_i974.FirebaseFirestore>()),
+    );
     gh.lazySingleton<_i78.BudgetRemoteDataSource>(
       () => _i78.BudgetRemoteDataSource(gh<_i974.FirebaseFirestore>()),
-    );
-    gh.lazySingleton<_i995.ProfileRemoteDataSource>(
-      () => _i995.ProfileRemoteDataSource(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i457.FirebaseStorage>(),
-      ),
     );
     gh.singleton<_i68.AuthBloc>(
       () => _i68.AuthBloc(
@@ -126,42 +137,28 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i35.SignInWithFacebookUseCase>(),
         gh<_i1070.SignOutUseCase>(),
         gh<_i553.WatchAuthStateUseCase>(),
-        logger: gh<_i453.Logger>(),
+        gh<_i453.Logger>(),
       ),
     );
-    gh.lazySingleton<_i496.TransactionsRepository>(
-      () => _i596.TransactionsRepositoryImpl(
-        gh<_i376.TransactionsRemoteDataSource>(),
-        gh<_i79.CurrentUser>(),
+    gh.lazySingleton<_i995.ProfileRemoteDataSource>(
+      () => _i995.ProfileRemoteDataSource(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i457.FirebaseStorage>(),
       ),
+    );
+    gh.lazySingleton<_i482.CategoryRepository>(
+      () => _i939.CategoryRepositoryImpl(gh<_i892.CategoryRemoteDataSource>()),
+    );
+    gh.singleton<_i79.AccountActions>(
+      () => _i655.AccountActionsFromAuth(gh<_i1070.SignOutUseCase>()),
+    );
+    gh.singleton<_i79.CurrentUser>(
+      () => _i524.CurrentUserFromAuthBloc(gh<_i68.AuthBloc>()),
     );
     gh.lazySingleton<_i639.BudgetRepository>(
       () => _i932.BudgetRepositoryImpl(
         gh<_i78.BudgetRemoteDataSource>(),
         gh<_i79.CurrentUser>(),
-      ),
-    );
-    gh.singleton<_i717.WatchTransactionsUseCase>(
-      () => _i717.WatchTransactionsUseCase(gh<_i496.TransactionsRepository>()),
-    );
-    gh.factory<_i189.GetTransactionsOnceUseCase>(
-      () =>
-          _i189.GetTransactionsOnceUseCase(gh<_i496.TransactionsRepository>()),
-    );
-    gh.factory<_i892.AddTransactionUseCase>(
-      () => _i892.AddTransactionUseCase(gh<_i496.TransactionsRepository>()),
-    );
-    gh.factory<_i288.UpdateTransactionUseCase>(
-      () => _i288.UpdateTransactionUseCase(gh<_i496.TransactionsRepository>()),
-    );
-    gh.factory<_i27.DeleteTransactionUseCase>(
-      () => _i27.DeleteTransactionUseCase(gh<_i496.TransactionsRepository>()),
-    );
-    gh.factory<_i983.SummaryBloc>(
-      () => _i983.SummaryBloc(
-        gh<_i79.CurrentUser>(),
-        gh<_i717.WatchTransactionsUseCase>(),
-        logger: gh<_i453.Logger>(),
       ),
     );
     gh.lazySingleton<_i884.UserProfileRepository>(
@@ -192,8 +189,40 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i192.WatchBudgetsUseCase>(
       () => _i192.WatchBudgetsUseCase(gh<_i639.BudgetRepository>()),
     );
-    gh.factory<_i1026.ExpenseBloc>(
-      () => _i1026.ExpenseBloc(gh<_i892.AddTransactionUseCase>()),
+    gh.singleton<_i823.LoadCategoriesUseCase>(
+      () => _i823.LoadCategoriesUseCase(gh<_i482.CategoryRepository>()),
+    );
+    gh.lazySingleton<_i496.TransactionsRepository>(
+      () => _i596.TransactionsRepositoryImpl(
+        gh<_i376.TransactionsRemoteDataSource>(),
+        gh<_i79.CurrentUser>(),
+      ),
+    );
+    gh.lazySingleton<_i49.CategoriesService>(
+      () => _i49.CategoriesService(gh<_i823.LoadCategoriesUseCase>()),
+    );
+    gh.singleton<_i717.WatchTransactionsUseCase>(
+      () => _i717.WatchTransactionsUseCase(gh<_i496.TransactionsRepository>()),
+    );
+    gh.factory<_i189.GetTransactionsOnceUseCase>(
+      () =>
+          _i189.GetTransactionsOnceUseCase(gh<_i496.TransactionsRepository>()),
+    );
+    gh.factory<_i892.AddTransactionUseCase>(
+      () => _i892.AddTransactionUseCase(gh<_i496.TransactionsRepository>()),
+    );
+    gh.factory<_i288.UpdateTransactionUseCase>(
+      () => _i288.UpdateTransactionUseCase(gh<_i496.TransactionsRepository>()),
+    );
+    gh.factory<_i27.DeleteTransactionUseCase>(
+      () => _i27.DeleteTransactionUseCase(gh<_i496.TransactionsRepository>()),
+    );
+    gh.factory<_i983.SummaryBloc>(
+      () => _i983.SummaryBloc(
+        gh<_i79.CurrentUser>(),
+        gh<_i717.WatchTransactionsUseCase>(),
+        logger: gh<_i453.Logger>(),
+      ),
     );
     gh.factory<_i439.ProfileBloc>(
       () => _i439.ProfileBloc(
@@ -205,15 +234,6 @@ extension GetItInjectableX on _i174.GetIt {
         logger: gh<_i453.Logger>(),
       ),
     );
-    gh.factory<_i551.TransactionsBloc>(
-      () => _i551.TransactionsBloc(
-        gh<_i717.WatchTransactionsUseCase>(),
-        gh<_i892.AddTransactionUseCase>(),
-        gh<_i288.UpdateTransactionUseCase>(),
-        gh<_i27.DeleteTransactionUseCase>(),
-        logger: gh<_i453.Logger>(),
-      ),
-    );
     gh.factory<_i494.BudgetBloc>(
       () => _i494.BudgetBloc(
         gh<_i192.WatchBudgetsUseCase>(),
@@ -221,8 +241,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i740.UpdateBudgetUseCase>(),
         gh<_i1032.DeleteBudgetUseCase>(),
         gh<_i717.WatchTransactionsUseCase>(),
-        logger: gh<_i453.Logger>(),
       ),
+    );
+    gh.factory<_i551.TransactionsBloc>(
+      () => _i551.TransactionsBloc(
+        gh<_i717.WatchTransactionsUseCase>(),
+        gh<_i892.AddTransactionUseCase>(),
+        gh<_i288.UpdateTransactionUseCase>(),
+        gh<_i27.DeleteTransactionUseCase>(),
+      ),
+    );
+    gh.factory<_i626.ExpenseBloc>(
+      () => _i626.ExpenseBloc(gh<_i892.AddTransactionUseCase>()),
     );
     return this;
   }

@@ -15,10 +15,8 @@ typedef ValueReducer<S, R> = S Function(S, R);
 /// - Optionally logs successes and failures through [Logger].
 abstract class BaseBloc<EVENT, S, FX extends Effect> extends Bloc<EVENT, S>
     with EffectEmitter<FX> {
-  BaseBloc(
-    super.initialState, {
-    Logger? logger,
-  }) : _logger = logger;
+  BaseBloc(super.initialState, {Logger? logger})
+      : _logger = logger ?? LoggerProvider.instance;
 
   final Logger? _logger;
 
@@ -80,7 +78,7 @@ abstract class BaseBloc<EVENT, S, FX extends Effect> extends Bloc<EVENT, S>
         }
       },
       err: (f) {
-        _logger?.warn('bloc.err', {
+        _logger?.warn('bloc.err -> ${f.message}', {
           'span': spanName ?? runtimeType.toString(),
           'code': f.code,
           'retryable': f.retryable,

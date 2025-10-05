@@ -1,4 +1,6 @@
 import 'package:expense_manager/core/config/app_config_cubit.dart';
+import 'package:expense_manager/core/routing/app_router.dart';
+import 'package:expense_manager/core/routing/app_routes.dart';
 import 'package:expense_manager/features/profile_setting/domain/entities/user_profile_entity.dart';
 import 'package:expense_manager/features/profile_setting/presentation/profile/bloc/profile_bloc.dart';
 import 'package:expense_manager/features/profile_setting/presentation/profile/bloc/profile_effect.dart';
@@ -39,10 +41,14 @@ class _ProfilePageState extends BaseState<ProfilePage> {
                 SnackBar(content: Text(effect.message)),
               ),
             );
+          } else if (effect is ProfileSignedOutEffect) {
+            tpGetIt.get<AppRouter>().allowLoginGuardBypassOnce();
+            emitUi((uiContext) => uiContext.go(AppRoute.login.path));
           }
         },
         child: BlocConsumer<ProfileBloc, ProfileState>(
-          listenWhen: (previous, current) => previous.profile != current.profile,
+          listenWhen: (previous, current) =>
+              previous.profile != current.profile,
           listener: (context, state) {
             final profile = state.profile;
             if (profile != null) {
@@ -57,7 +63,8 @@ class _ProfilePageState extends BaseState<ProfilePage> {
             return Stack(
               children: [
                 SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -67,11 +74,13 @@ class _ProfilePageState extends BaseState<ProfilePage> {
                         onChangeAvatar: () => _pickAvatar(context),
                       ),
                       const SizedBox(height: 24),
-                      Text('Profile details', style: theme.textTheme.titleMedium),
+                      Text('Profile details',
+                          style: theme.textTheme.titleMedium),
                       const SizedBox(height: 12),
                       TextField(
                         controller: _nameController,
-                        decoration: const InputDecoration(labelText: 'Display name'),
+                        decoration:
+                            const InputDecoration(labelText: 'Display name'),
                       ),
                       const SizedBox(height: 12),
                       TextField(
@@ -96,7 +105,8 @@ class _ProfilePageState extends BaseState<ProfilePage> {
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
                                 )
                               : const Text('Save changes'),
                         ),
@@ -176,7 +186,13 @@ class _ProfileHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final avatarUrl = profile?.avatarUrl;
     final initials = (profile?.displayName?.isNotEmpty ?? false)
-        ? profile!.displayName!.trim().split(' ').map((p) => p.isNotEmpty ? p[0] : '').take(2).join().toUpperCase()
+        ? profile!.displayName!
+            .trim()
+            .split(' ')
+            .map((p) => p.isNotEmpty ? p[0] : '')
+            .take(2)
+            .join()
+            .toUpperCase()
         : (profile?.email.isNotEmpty ?? false)
             ? profile!.email[0].toUpperCase()
             : '?';
@@ -237,7 +253,8 @@ class _LanguageSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final configCubit = context.read<ConfigCubit>();
-    final currentLocale = context.watch<ConfigCubit>().state.locale.languageCode;
+    final currentLocale =
+        context.watch<ConfigCubit>().state.locale.languageCode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -270,8 +287,10 @@ class _ThemeSelector extends StatelessWidget {
         const SizedBox(height: 12),
         SegmentedButton<ThemeMode>(
           segments: const <ButtonSegment<ThemeMode>>[
-            ButtonSegment<ThemeMode>(value: ThemeMode.light, label: Text('Light')),
-            ButtonSegment<ThemeMode>(value: ThemeMode.dark, label: Text('Dark')),
+            ButtonSegment<ThemeMode>(
+                value: ThemeMode.light, label: Text('Light')),
+            ButtonSegment<ThemeMode>(
+                value: ThemeMode.dark, label: Text('Dark')),
           ],
           selected: {themeMode},
           onSelectionChanged: (selection) {

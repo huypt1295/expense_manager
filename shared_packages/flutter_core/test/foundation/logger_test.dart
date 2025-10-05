@@ -1,4 +1,5 @@
-import 'package:flutter_core/src/foundation/logger.dart';
+import 'package:flutter_core/src/foundation/logging/console_logger.dart';
+import 'package:flutter_core/src/foundation/logging/logger.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _RecordingLogger extends Logger {
@@ -35,6 +36,21 @@ void main() {
 
       expect(logger.entries[3].$1, LogLevel.error);
       expect(logger.entries[3].$3, {'message': 'oops'});
+    });
+  });
+
+  group('ConsoleLogger', () {
+    test('prints structured payload', () {
+      String? captured;
+      final logger = ConsoleLogger(printer: (message) => captured = message);
+
+      logger.warn('demo.event', {'id': 42, 'meta': {'flag': true}});
+
+      expect(captured, isNotNull);
+      expect(captured, contains('[WARN]'));
+      expect(captured, contains('demo.event'));
+      expect(captured, contains('"id":42'));
+      expect(captured, contains('"flag":true'));
     });
   });
 }

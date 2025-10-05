@@ -116,8 +116,8 @@ class DateTimeUtils {
 /// Extension that provides convenience formatting and derived values on [DateTime].
 extension DateTimeExtensions on DateTime {
   /// Formats this [DateTime] using the provided [format] string.
-  String toStringWithFormat(String format) {
-    return DateFormat(format).format(this);
+  String toStringWithFormat(DateFormat format) {
+    return format.format(this);
   }
 
   /// Returns the last day of the month for this [DateTime].

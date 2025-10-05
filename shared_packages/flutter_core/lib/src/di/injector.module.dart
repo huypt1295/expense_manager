@@ -15,6 +15,7 @@ import 'package:flutter_core/src/data/monitoring/ga/firebase_ga_analytics.dart'
 import 'package:flutter_core/src/data/network/http_client.dart' as _i1007;
 import 'package:flutter_core/src/data/network/interceptor/breadcrumb_interceptor.dart'
     as _i814;
+import 'package:flutter_core/src/di/module/logging_module.dart' as _i605;
 import 'package:flutter_core/src/di/module/network_module.dart' as _i581;
 import 'package:flutter_core/src/di/module/third_party_module.dart' as _i706;
 import 'package:flutter_core/src/domain/analytics/analytics_service.dart'
@@ -40,6 +41,7 @@ class FlutterCorePackageModule extends _i526.MicroPackageModule {
   _i687.FutureOr<void> init(_i526.GetItHelper gh) {
     final networkModule = _$NetworkModule();
     final thirdPartyModule = _$ThirdPartyModule();
+    final loggingModule = _$LoggingModule();
     gh.lazySingleton<_i453.ExponentialBackoff>(
         () => networkModule.networkRetryBackoff);
     gh.lazySingleton<_i361.Dio>(() => networkModule.dio());
@@ -61,6 +63,10 @@ class FlutterCorePackageModule extends _i526.MicroPackageModule {
       () => networkModule.networkRetryNonIdempotent,
       instanceName: 'networkRetryNonIdempotent',
     );
+    gh.lazySingleton<_i453.Logger>(() => loggingModule.logger(
+          gh<_i453.CrashReporter>(),
+          gh<_i453.Analytics>(),
+        ));
     gh.lazySingleton<_i814.CrashBreadcrumbInterceptor>(
         () => _i814.CrashBreadcrumbInterceptor(
               gh<_i453.CrashReporter>(),
@@ -87,3 +93,5 @@ class FlutterCorePackageModule extends _i526.MicroPackageModule {
 class _$NetworkModule extends _i581.NetworkModule {}
 
 class _$ThirdPartyModule extends _i706.ThirdPartyModule {}
+
+class _$LoggingModule extends _i605.LoggingModule {}

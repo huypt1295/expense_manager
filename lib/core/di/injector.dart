@@ -51,6 +51,8 @@ Future<GetIt> configureDependencies() async {
 
   await getIt.init();
 
+  LoggerProvider.instance ??= getIt<Logger>();
+
   if (!getIt.isRegistered<CurrentUser>()) {
     getIt.registerLazySingleton<CurrentUser>(
       () => CurrentUserFromAuthBloc(getIt<AuthBloc>()),
