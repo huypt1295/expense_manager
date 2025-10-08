@@ -292,7 +292,7 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
       if (category.id.toLowerCase().trim() == normalized) {
         return category;
       }
-      final matchesName = category.names.values.any(
+      final matchesName = category.name.values.any(
         (value) => value.toLowerCase().trim() == normalized,
       );
       if (matchesName) {

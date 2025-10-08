@@ -158,7 +158,7 @@ class _AddBudgetDialogState extends BaseState<AddBudgetDialog> {
     } else if ((nextInitialName?.isNotEmpty ?? false)) {
       final initialName = nextInitialName!;
       final matchByName = categories.firstWhere(
-        (category) => category.names.values.any(
+        (category) => category.name.values.any(
           (value) =>
               value.toLowerCase().trim() == initialName.toLowerCase().trim(),
         ),

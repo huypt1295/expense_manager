@@ -64,7 +64,7 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
 
     if ((_initialCategoryName?.isNotEmpty ?? false)) {
       final matchByName = _categories.firstWhere(
-        (category) => category.names.values.any(
+        (category) => category.name.values.any(
           (value) =>
               value.toLowerCase().trim() ==
               _initialCategoryName!.toLowerCase().trim(),

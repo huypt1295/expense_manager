@@ -29,9 +29,8 @@ class CategoryModel {
   static CategoryModel fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> doc,
   ) {
-    print("doc: ${doc}");
     final data = doc.data() ?? <String, dynamic>{};
-    final rawNames = data['names'];
+    final rawNames = data['name'];
     Map<String, String> parsedNames;
     if (rawNames is Map) {
       parsedNames = rawNames.map((key, value) {
