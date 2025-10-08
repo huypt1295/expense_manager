@@ -4,10 +4,11 @@ import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_event.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_state.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/add_budget_button.dart';
-import 'package:expense_manager/features/budget/presentation/budget/widget/add_budget_dialog.dart';
-import 'package:expense_manager/features/budget/presentation/budget/widget/empty_budget_widget.dart';
-import 'package:expense_manager/features/budget/presentation/budget/widget/list_budget_widget.dart';
+import 'package:expense_manager/features/budget/presentation/budget/widget/add_budget/add_budget_dialog.dart';
+import 'package:expense_manager/features/budget/presentation/budget/widget/budget_empty_widget.dart';
+import 'package:expense_manager/features/budget/presentation/budget/widget/budget_list_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_common/flutter_common.dart' show UndoSnackBarContent;
 import 'package:flutter_core/flutter_core.dart';
 
 class BudgetPage extends BaseStatelessWidget {
@@ -25,13 +26,12 @@ class BudgetPage extends BaseStatelessWidget {
             if (state.isLoading && state.budgets.isEmpty) {
               return const Center(child: CircularProgressIndicator());
             }
-
             return Column(
               children: [
                 Expanded(
                   child: state.budgets.isEmpty
-                      ? EmptyBudgetWidget()
-                      : ListBudgetWidget(
+                      ? BudgetEmptyWidget()
+                      : BudgetListWidget(
                           budgets: state.budgets,
                           progress: state.progress,
                         ),
@@ -50,9 +50,30 @@ class BudgetPage extends BaseStatelessWidget {
       emitUi.showSnackBar(SnackBar(content: Text(effect.message)));
     } else if (effect is BudgetShowDialogAddEffect) {
       emitUi.showDialogSafe(
-          builder: (ctx) => BlocProvider.value(
-              value: ctx.read<BudgetBloc>(),
-              child: AddBudgetDialog(initial: effect.budget)));
+        builder: (ctx) => BlocProvider.value(
+          value: ctx.read<BudgetBloc>(),
+          child: AddBudgetDialog(initial: effect.budget),
+        ),
+      );
+    } else if (effect is BudgetShowUndoDeleteEffect) {
+      emitUi.showSnackBar(
+        SnackBar(
+          duration: effect.duration,
+          content: UndoSnackBarContent(
+            message: effect.message,
+            label: effect.actionLabel,
+            duration: effect.duration,
+            onUndo: () {
+              emitUi.call((context) {
+                context.read<BudgetBloc>().add(
+                  const BudgetDeleteUndoRequested(),
+                );
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              });
+            },
+          ),
+        ),
+      );
     }
   }
 }

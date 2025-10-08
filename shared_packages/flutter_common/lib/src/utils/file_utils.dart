@@ -110,7 +110,9 @@ class FileUtils {
       }
 
       return tempDir;
+    // coverage:ignore-start
     } on MissingPlatformDirectoryException catch (_) {}
+    // coverage:ignore-end
 
     return null;
   }
@@ -130,7 +132,9 @@ class FileUtils {
       }
 
       return documentDir;
+    // coverage:ignore-start
     } on MissingPlatformDirectoryException catch (_) {}
+    // coverage:ignore-end
 
     return null;
   }

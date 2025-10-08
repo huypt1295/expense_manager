@@ -31,7 +31,7 @@ class UiActions {
     return showDialog<T>(
       context: _state.context,
       barrierDismissible: barrierDismissible,
-      builder: builder,
+      builder: (_) => builder(_state.context),
     );
   }
 

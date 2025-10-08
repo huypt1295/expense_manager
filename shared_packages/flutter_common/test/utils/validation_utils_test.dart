@@ -2,6 +2,10 @@ import 'package:flutter_common/src/utils/validation_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('ensureInitializedForTesting does not throw', () {
+    expect(ValidationUtils.ensureInitializedForTesting, returnsNormally);
+  });
+
   group('ValidationUtils.isValidPassword', () {
     test('returns true when password is not empty', () {
       expect(ValidationUtils.isValidPassword('password'), isTrue);
@@ -26,6 +30,7 @@ void main() {
     test('returns true for numbers with 10 or 11 digits', () {
       expect(ValidationUtils.isValidPhoneNumber('0123456789'), isTrue);
       expect(ValidationUtils.isValidPhoneNumber('01234567890'), isTrue);
+      expect(ValidationUtils.isValidPhoneNumber(' 0123456789 '), isTrue);
     });
 
     test('returns false for invalid patterns', () {
@@ -47,6 +52,7 @@ void main() {
   group('ValidationUtils.isValidEmail', () {
     test('returns true for valid email addresses', () {
       expect(ValidationUtils.isValidEmail('user@example.com'), isTrue);
+      expect(ValidationUtils.isValidEmail('  user@example.com  '), isTrue);
     });
 
     test('returns false for invalid email addresses', () {
@@ -79,6 +85,7 @@ void main() {
   group('ValidationUtils.isAlphanumeric', () {
     test('returns true for alphanumeric input', () {
       expect(ValidationUtils.isAlphanumeric('Abc123'), isTrue);
+      expect(ValidationUtils.isAlphanumeric(' Abc123 '), isTrue);
     });
 
     test('returns false when input contains separators', () {
@@ -89,6 +96,7 @@ void main() {
   group('ValidationUtils.isLink', () {
     test('returns true for absolute URIs', () {
       expect(ValidationUtils.isLink('https://example.com'), isTrue);
+      expect(ValidationUtils.isLink('  https://example.com  '), isTrue);
     });
 
     test('returns false for relative URIs', () {

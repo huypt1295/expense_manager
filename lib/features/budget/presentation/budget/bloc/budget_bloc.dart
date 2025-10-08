@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:expense_manager/core/constants/data_constant.dart';
 import 'package:expense_manager/features/budget/domain/entities/budget_entity.dart';
 import 'package:expense_manager/features/budget/domain/entities/budget_progress.dart';
 import 'package:expense_manager/features/budget/domain/usecases/add_budget_usecase.dart';
@@ -11,6 +12,8 @@ import 'package:expense_manager/features/budget/domain/usecases/watch_budgets_us
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_effect.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_event.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_state.dart';
+import 'package:expense_manager/features/categories/application/categories_service.dart';
+import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/watch_transactions_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/transactions_failure_mapper.dart';
@@ -24,6 +27,7 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     this._updateBudgetUseCase,
     this._deleteBudgetUseCase,
     this._watchTransactionsUseCase,
+    this._categoriesService,
   ) : super(const BudgetState()) {
     on<BudgetStarted>(_onStarted);
     on<BudgetShowDialogAdd>(_showDialogAddBudget);
@@ -32,7 +36,10 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     on<BudgetStreamFailed>(_onStreamFailed);
     on<BudgetAdded>(_onAdded);
     on<BudgetUpdated>(_onUpdated);
+    on<BudgetDeleteRequested>(_onDeleteRequested);
+    on<BudgetDeleteUndoRequested>(_onDeleteUndoRequested);
     on<BudgetDeleted>(_onDeleted);
+    on<BudgetCategoriesRequested>(_onCategoriesRequested);
   }
 
   final WatchBudgetsUseCase _watchBudgetsUseCase;
@@ -40,11 +47,16 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
   final UpdateBudgetUseCase _updateBudgetUseCase;
   final DeleteBudgetUseCase _deleteBudgetUseCase;
   final WatchTransactionsUseCase _watchTransactionsUseCase;
+  final CategoriesService _categoriesService;
 
   StreamSubscription<List<BudgetEntity>>? _budgetsSubscription;
   StreamSubscription<List<TransactionEntity>>? _transactionsSubscription;
   List<BudgetEntity> _budgets = const <BudgetEntity>[];
   List<TransactionEntity> _transactions = const <TransactionEntity>[];
+
+  _PendingDeletion? _pendingDeletion;
+  _PendingDeletion? _committingDeletion;
+  Timer? _pendingDeletionTimer;
 
   Future<void> _onStarted(
     BudgetStarted event,
@@ -92,11 +104,22 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     emitEffect(BudgetShowDialogAddEffect(budget: event.budget));
   }
 
-  void _onBudgetsUpdated(
-    BudgetStreamUpdated event,
-    Emitter<BudgetState> emit,
-  ) {
-    _budgets = event.budgets;
+  void _onBudgetsUpdated(BudgetStreamUpdated event, Emitter<BudgetState> emit) {
+    final idsToOmit = <String>{};
+    final pending = _pendingDeletion;
+    final committing = _committingDeletion;
+    if (pending != null) {
+      idsToOmit.add(pending.entity.id);
+    }
+    if (committing != null) {
+      idsToOmit.add(committing.entity.id);
+    }
+
+    final items = idsToOmit.isEmpty
+        ? event.budgets
+        : event.budgets.where((item) => !idsToOmit.contains(item.id)).toList();
+
+    _budgets = items;
     _refreshState(emit);
   }
 
@@ -108,18 +131,12 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     _refreshState(emit);
   }
 
-  void _onStreamFailed(
-    BudgetStreamFailed event,
-    Emitter<BudgetState> emit,
-  ) {
+  void _onStreamFailed(BudgetStreamFailed event, Emitter<BudgetState> emit) {
     emit(_errorState(event.message));
     emitEffect(BudgetShowErrorEffect(event.message));
   }
 
-  Future<void> _onAdded(
-    BudgetAdded event,
-    Emitter<BudgetState> emit,
-  ) async {
+  Future<void> _onAdded(BudgetAdded event, Emitter<BudgetState> emit) async {
     await runResult<void>(
       emit: emit,
       task: () => _addBudgetUseCase(AddBudgetParams(event.entity)),
@@ -154,6 +171,72 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     );
   }
 
+  void _onDeleteRequested(
+    BudgetDeleteRequested event,
+    Emitter<BudgetState> emit,
+  ) {
+    _commitPendingDeletion();
+
+    final currentItems = state.budgets;
+    final index = currentItems.indexWhere((item) => item.id == event.entity.id);
+    if (index == -1) {
+      return;
+    }
+
+    final updatedItems = List<BudgetEntity>.of(currentItems)..removeAt(index);
+    emit(state.copyWith(budgets: updatedItems, clearError: true));
+
+    _pendingDeletion = _PendingDeletion(entity: event.entity, index: index);
+    _startPendingDeletionTimer();
+
+    emitEffect(
+      BudgetShowUndoDeleteEffect(
+        message: 'Budget deleted',
+        actionLabel: 'Undo',
+        duration: kUndoDuration,
+      ),
+    );
+  }
+
+  void _onDeleteUndoRequested(
+    BudgetDeleteUndoRequested event,
+    Emitter<BudgetState> emit,
+  ) {
+    final pending = _pendingDeletion;
+    if (pending == null) {
+      return;
+    }
+
+    _pendingDeletionTimer?.cancel();
+    _pendingDeletionTimer = null;
+    _pendingDeletion = null;
+
+    final updatedItems = List<BudgetEntity>.of(state.budgets)
+      ..removeWhere((item) => item.id == pending.entity.id);
+    final insertIndex = pending.index.clamp(0, updatedItems.length);
+    updatedItems.insert(insertIndex, pending.entity);
+
+    emit(state.copyWith(budgets: updatedItems, clearError: true));
+  }
+
+  void _startPendingDeletionTimer() {
+    _pendingDeletionTimer?.cancel();
+    _pendingDeletionTimer = Timer(kUndoDuration, _commitPendingDeletion);
+  }
+
+  void _commitPendingDeletion() {
+    final pending = _pendingDeletion;
+    if (pending == null) {
+      return;
+    }
+
+    _pendingDeletionTimer?.cancel();
+    _pendingDeletionTimer = null;
+    _pendingDeletion = null;
+    _committingDeletion = pending;
+    add(BudgetDeleted(pending.entity.id));
+  }
+
   Future<void> _onDeleted(
     BudgetDeleted event,
     Emitter<BudgetState> emit,
@@ -162,15 +245,73 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
       emit: emit,
       task: () => _deleteBudgetUseCase(DeleteBudgetParams(event.id)),
       onStart: (state) => state.copyWith(isLoading: true, clearError: true),
-      onOk: (state, _) => state.copyWith(isLoading: false),
+      onOk: (state, _) {
+        _committingDeletion = null;
+        return state.copyWith(isLoading: false);
+      },
       onErr: (currentState, failure) {
+        final committing = _committingDeletion;
         final message = failure.message ?? failure.code;
+
+        if (committing != null) {
+          final items = List<BudgetEntity>.of(state.budgets)
+            ..removeWhere((item) => item.id == committing.entity.id);
+          final insertIndex = committing.index.clamp(0, items.length);
+          items.insert(insertIndex, committing.entity);
+          _committingDeletion = null;
+
+          emit(
+            currentState.copyWith(
+              budgets: items,
+              isLoading: false,
+              errorMessage: message,
+            ),
+          );
+        } else {
+          emit(currentState.copyWith(isLoading: false, errorMessage: message));
+        }
+
         emitEffect(BudgetShowErrorEffect(message));
-        emit(currentState.copyWith(isLoading: false, errorMessage: message));
       },
       trackKey: 'budget.delete',
       spanName: 'budget.delete',
     );
+  }
+
+  Future<void> _onCategoriesRequested(
+    BudgetCategoriesRequested event,
+    Emitter<BudgetState> emit,
+  ) async {
+    if (state.areCategoriesLoading) {
+      return;
+    }
+    if (!event.forceRefresh && state.categories.isNotEmpty) {
+      return;
+    }
+
+    emit(
+      state.copyWith(areCategoriesLoading: true, clearCategoriesError: true),
+    );
+
+    try {
+      final categories = await _categoriesService.getCategories(
+        forceRefresh: event.forceRefresh,
+      );
+      emit(
+        state.copyWith(
+          categories: List<CategoryEntity>.unmodifiable(categories),
+          areCategoriesLoading: false,
+          clearCategoriesError: true,
+        ),
+      );
+    } catch (error) {
+      final message = error is Failure
+          ? (error.message ?? error.code)
+          : 'Failed to load categories';
+      emit(
+        state.copyWith(areCategoriesLoading: false, categoriesError: message),
+      );
+    }
   }
 
   void _refreshState(Emitter<BudgetState> emit) {
@@ -195,8 +336,9 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
           .where((transaction) => _matchesBudget(transaction, budget))
           .fold<double>(0, (sum, tx) => sum + max(tx.amount, 0.0));
       final double remaining = budget.limitAmount - spent;
-      final double percentage =
-          budget.limitAmount <= 0 ? 0 : spent / budget.limitAmount;
+      final double percentage = budget.limitAmount <= 0
+          ? 0
+          : spent / budget.limitAmount;
 
       result[budget.id] = BudgetProgress(
         budgetId: budget.id,
@@ -212,9 +354,11 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     final category = (transaction.category ?? '').toLowerCase().trim();
     final budgetCategory = budget.category.toLowerCase().trim();
     final budgetCategoryId = budget.categoryId.toLowerCase().trim();
-    final inCategory = category == budgetCategory ||
+    final inCategory =
+        category == budgetCategory ||
         (budgetCategoryId.isNotEmpty && category == budgetCategoryId);
-    final inRange = !transaction.date.isBefore(budget.startDate) &&
+    final inRange =
+        !transaction.date.isBefore(budget.startDate) &&
         !transaction.date.isAfter(budget.endDate);
     return inCategory && inRange;
   }
@@ -227,6 +371,14 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
   Future<void> close() async {
     await _budgetsSubscription?.cancel();
     await _transactionsSubscription?.cancel();
+    _pendingDeletionTimer?.cancel();
     return super.close();
   }
+}
+
+class _PendingDeletion {
+  _PendingDeletion({required this.entity, required this.index});
+
+  final BudgetEntity entity;
+  final int index;
 }

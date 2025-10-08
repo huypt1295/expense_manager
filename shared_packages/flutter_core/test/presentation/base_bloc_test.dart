@@ -197,7 +197,7 @@ void main() {
 
       expect(emittedEffects.single.label, 'cache.error');
       expect(logger.entries.single.$1, LogLevel.warn);
-      expect(logger.entries.single.$2, 'bloc.err');
+      expect(logger.entries.single.$2, 'bloc.err -> oops');
 
       await sub.cancel();
     });

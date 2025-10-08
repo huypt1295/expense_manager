@@ -8,6 +8,10 @@ void main() {
 
   const MethodChannel platformChannel = SystemChannels.platform;
 
+  test('ensureInitializedForTesting does not throw', () {
+    expect(ViewUtils.ensureInitializedForTesting, returnsNormally);
+  });
+
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(platformChannel, null);
@@ -39,6 +43,28 @@ void main() {
 
     expect(find.text('Updated Message'), findsOneWidget);
     expect(find.text('Hello SnackBar'), findsNothing);
+  });
+
+  testWidgets('showAppSnackBar gracefully returns when messenger missing',
+      (tester) async {
+    late BuildContext capturedContext;
+
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Builder(
+          builder: (context) {
+            capturedContext = context;
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+
+    ViewUtils.showAppSnackBar(capturedContext, 'No Messenger');
+    await tester.pump();
+
+    expect(find.text('No Messenger'), findsNothing);
   });
 
   testWidgets('hideKeyboard unfocuses the current focus node', (tester) async {

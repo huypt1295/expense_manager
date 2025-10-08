@@ -14,40 +14,48 @@ class TransactionItem extends BaseStatelessWidget {
 
   final TransactionEntity transaction;
   final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final ValueChanged<TransactionEntity> onDelete;
 
   @override
   Widget buildContent(BuildContext context) {
     return Dismissible(
       key: ValueKey<String>(transaction.id),
       direction: DismissDirection.endToStart,
-      onDismissed: (_) => onDelete(),
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: context.tpColors.surfaceNegative,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(Icons.delete, color: context.tpColors.iconNegative),
-      ),
+      onDismissed: (_) => onDelete(transaction),
+      background: _buildBackground(context),
       child: Material(
         color: context.tpColors.surfaceMain,
         borderRadius: BorderRadius.circular(12),
-        child: ListTile(
-          onTap: onEdit,
-          title: Text(transaction.title, style: TPTextStyle.bodyM),
-          subtitle: Text(
-            [
-              transaction.date.toStringWithFormat(DateFormat.yMMMd()),
-              if ((transaction.category ?? '').isNotEmpty) transaction.category,
-            ].whereType<String>().join(' · '),
-          ),
-          trailing: Text(
-            CurrencyUtils.formatVndFromDouble(transaction.amount),
-            style: TPTextStyle.bodyL,
-          ),
-        ),
+        child: _buildItem(),
+      ),
+    );
+  }
+
+  Widget _buildBackground(BuildContext context) {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: context.tpColors.surfaceNegative,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(Icons.delete, color: context.tpColors.iconNegative),
+    );
+  }
+
+  ListTile _buildItem() {
+    return ListTile(
+      onTap: onEdit,
+      title: Text(transaction.title, style: TPTextStyle.bodyM),
+      subtitle: Text(
+        [
+          transaction.date.toStringWithFormat(DateFormat.yMMMd()),
+          if ((transaction.category ?? '').isNotEmpty) transaction.category,
+        ].whereType<String>().join(' · '),
+      ),
+      trailing: Text(
+        CurrencyUtils.formatVndFromDouble(transaction.amount),
+        style: TPTextStyle.bodyL,
       ),
     );
   }

@@ -35,6 +35,30 @@ void main() {
     });
   });
 
+  group('CurrencyUtils.formatVndFromDouble', () {
+    test('rounds double values and preserves suffix by default', () {
+      expect(CurrencyUtils.formatVndFromDouble(1234.4), '1,234 VND');
+      expect(CurrencyUtils.formatVndFromDouble(1234.6), '1,235 VND');
+    });
+
+    test('omits suffix when disabled', () {
+      expect(CurrencyUtils.formatVndFromDouble(999.9, includeSuffix: false), '1,000');
+    });
+
+    test('returns zero for NaN or infinite values', () {
+      expect(CurrencyUtils.formatVndFromDouble(double.nan), '0 VND');
+      expect(CurrencyUtils.formatVndFromDouble(double.infinity), '0 VND');
+      expect(CurrencyUtils.formatVndFromDouble(double.negativeInfinity), '0 VND');
+    });
+  });
+
+  group('CurrencyUtils.digitsOnly', () {
+    test('returns only numeric characters', () {
+      expect(CurrencyUtils.digitsOnly('abc123xyz'), '123');
+      expect(CurrencyUtils.digitsOnly('-9,876 VND'), '9876');
+    });
+  });
+
   group('CurrencyUtils.parseVndToDouble', () {
     test('parses formatted text into raw numeric double', () {
       expect(CurrencyUtils.parseVndToDouble('1,234 VND'), 1234);

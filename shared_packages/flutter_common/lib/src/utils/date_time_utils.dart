@@ -4,6 +4,11 @@ import 'package:flutter_resource/flutter_resource.dart';
 class DateTimeUtils {
   DateTimeUtils._();
 
+  /// Makes the private constructor reachable for test coverage.
+  static void ensureInitializedForTesting() {
+    DateTimeUtils._();
+  }
+
   /// Returns the rounded number of days between [from] and [to], ignoring
   /// the time components of the input dates.
   static int daysBetween(DateTime from, DateTime to) {

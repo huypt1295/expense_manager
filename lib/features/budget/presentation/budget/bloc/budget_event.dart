@@ -40,6 +40,19 @@ class BudgetUpdated extends BudgetEvent {
   List<Object?> get props => <Object?>[entity];
 }
 
+class BudgetDeleteRequested extends BudgetEvent {
+  final BudgetEntity entity;
+
+  BudgetDeleteRequested(this.entity);
+
+  @override
+  List<Object?> get props => [entity];
+}
+
+class BudgetDeleteUndoRequested extends BudgetEvent {
+  const BudgetDeleteUndoRequested();
+}
+
 class BudgetDeleted extends BudgetEvent {
   const BudgetDeleted(this.id);
 
@@ -74,4 +87,13 @@ class BudgetStreamFailed extends BudgetEvent {
 
   @override
   List<Object?> get props => <Object?>[message];
+}
+
+class BudgetCategoriesRequested extends BudgetEvent {
+  const BudgetCategoriesRequested({this.forceRefresh = false});
+
+  final bool forceRefresh;
+
+  @override
+  List<Object?> get props => <Object?>[forceRefresh];
 }

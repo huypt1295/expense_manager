@@ -82,7 +82,11 @@ class ExpenseAIService {
   }
 
   /// Analyze extracted text with Gemini AI to identify expense details
-  static Future<ExpenseData> analyzeExpenseWithAI(String extractedText) async {
+  static Future<ExpenseData> analyzeExpenseWithAI(
+    String extractedText, {
+    http.Client? client,
+  }) async {
+    final httpClient = client ?? http.Client();
     try {
       final String prompt = '''
 Analyze the following receipt/transaction text and extract expense information:
@@ -116,7 +120,7 @@ Rules:
         ]
       });
 
-      final response = await http.post(
+      final response = await httpClient.post(
         Uri.parse(_geminiUrl),
         headers: {
           'Content-Type': 'application/json',
@@ -138,6 +142,10 @@ Rules:
     } catch (e) {
       // Fallback to local analysis if AI fails
       return _fallbackAnalysis(extractedText);
+    } finally {
+      if (client == null) {
+        httpClient.close();
+      }
     }
   }
 
@@ -178,7 +186,9 @@ Rules:
 
   /// Main method to process image and extract expense data
   static Future<ExpenseData> processImageAndExtractExpense(
-      File imageFile) async {
+    File imageFile, {
+    http.Client? client,
+  }) async {
     try {
       // Step 1: Extract text using OCR
       final String extractedText = await extractTextFromImage(imageFile);
@@ -187,7 +197,8 @@ Rules:
         throw Exception('No text found in image');
       }
       // Step 2: Analyze with AI
-      final ExpenseData expenseData = await analyzeExpenseWithAI(extractedText);
+      final ExpenseData expenseData =
+          await analyzeExpenseWithAI(extractedText, client: client);
       return expenseData;
     } catch (e) {
       throw Exception('Failed to process image: ${e.toString()}');

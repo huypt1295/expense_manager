@@ -30,6 +30,19 @@ class TransactionsUpdated extends TransactionsEvent {
   List<Object?> get props => <Object?>[entity];
 }
 
+class TransactionsDeleteRequested extends TransactionsEvent {
+  const TransactionsDeleteRequested(this.entity);
+
+  final TransactionEntity entity;
+
+  @override
+  List<Object?> get props => <Object?>[entity];
+}
+
+class TransactionsDeleteUndoRequested extends TransactionsEvent {
+  const TransactionsDeleteUndoRequested();
+}
+
 class TransactionsDeleted extends TransactionsEvent {
   const TransactionsDeleted(this.id);
 

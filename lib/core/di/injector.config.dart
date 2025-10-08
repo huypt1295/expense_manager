@@ -241,6 +241,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i740.UpdateBudgetUseCase>(),
         gh<_i1032.DeleteBudgetUseCase>(),
         gh<_i717.WatchTransactionsUseCase>(),
+        gh<_i49.CategoriesService>(),
       ),
     );
     gh.factory<_i551.TransactionsBloc>(

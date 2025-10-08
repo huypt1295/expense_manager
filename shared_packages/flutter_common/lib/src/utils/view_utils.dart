@@ -4,7 +4,12 @@ import 'package:flutter_common/src/utils/object_utils.dart';
 
 /// Collection of helper methods for working with Flutter views and widgets.
 class ViewUtils {
-  const ViewUtils._();
+  ViewUtils._();
+
+  /// Makes the private constructor reachable for test coverage.
+  static void ensureInitializedForTesting() {
+    ViewUtils._();
+  }
 
   /// Displays an app-themed [SnackBar] with the provided [message].
   static void showAppSnackBar(

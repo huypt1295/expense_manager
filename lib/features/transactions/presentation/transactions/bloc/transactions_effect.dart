@@ -15,3 +15,15 @@ class TransactionsShowSuccessEffect extends TransactionsEffect {
 
   final String message;
 }
+
+class TransactionsShowUndoDeleteEffect extends TransactionsEffect {
+  const TransactionsShowUndoDeleteEffect({
+    required this.message,
+    required this.actionLabel,
+    required this.duration,
+  });
+
+  final String message;
+  final String actionLabel;
+  final Duration duration;
+}

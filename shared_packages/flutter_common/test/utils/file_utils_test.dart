@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_common/src/utils/file_utils.dart';
+import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -73,6 +74,35 @@ void main() {
     expect(file.existsSync(), isTrue);
     expect(file.path, '${tempDir.path}/temp.dat');
     expect(file.readAsBytesSync(), bytes);
+  });
+
+  test('writeFile applies defaultDir for temporary and document directories',
+      () async {
+    FileUtils.defaultDir = 'custom';
+    final bytes = Uint8List.fromList([1, 2, 3]);
+
+    // remove custom directories to exercise creation paths
+    final customTempPath = '${tempDir.path}/custom';
+    final customDocsPath = '${documentsDir.path}/custom';
+    final customTempDir = Directory(customTempPath);
+    if (customTempDir.existsSync()) {
+      await customTempDir.delete(recursive: true);
+    }
+    final customDocsDir = Directory(customDocsPath);
+    if (customDocsDir.existsSync()) {
+      await customDocsDir.delete(recursive: true);
+    }
+
+    final tempFile =
+        await FileUtils.writeFile('temp.txt', bytes, temporary: true);
+    final docsFile = await FileUtils.writeFile('doc.txt', bytes);
+
+    expect(tempFile.path, '$customTempPath/temp.txt');
+    expect(docsFile.path, '$customDocsPath/doc.txt');
+    expect(tempFile.existsSync(), isTrue);
+    expect(docsFile.existsSync(), isTrue);
+
+    FileUtils.defaultDir = null;
   });
 
   test('writeFile creates a new file when override is false and file exists',
@@ -175,4 +205,28 @@ void main() {
 
     expect(file, isNull);
   });
+
+  test('readFile handles missing platform directories gracefully', () async {
+    PathProviderPlatform.instance = ThrowingPathProviderPlatform();
+
+    final tempResult = await FileUtils.readFile('missing.txt', temporary: true);
+    final docsResult = await FileUtils.readFile('missing.txt');
+
+    expect(tempResult, isNull);
+    expect(docsResult, isNull);
+  });
+}
+
+class ThrowingPathProviderPlatform extends PathProviderPlatform {
+  @override
+  Future<String?> getTemporaryPath() async =>
+      throw MissingPlatformDirectoryException('temp');
+
+  @override
+  Future<String?> getApplicationDocumentsPath() async =>
+      throw MissingPlatformDirectoryException('docs');
+
+  @override
+  Future<String?> getApplicationSupportPath() async =>
+      throw MissingPlatformDirectoryException('support');
 }

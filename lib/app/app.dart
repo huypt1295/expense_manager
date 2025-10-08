@@ -40,8 +40,8 @@ class _TPContainerAppState extends State<TPContainerApp> {
         child: BlocBuilder<ConfigCubit, AppConfig>(
           builder: (context, config) {
             return MaterialApp.router(
-              theme: ThemeData.light(),
-              darkTheme: ThemeData.dark(),
+              theme: ThemeType.light.themeData,
+              darkTheme: ThemeType.dark.themeData,
               themeMode: config.themeMode,
               localizationsDelegates: const [
                 ...L10n.localizationsDelegates,

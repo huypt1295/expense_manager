@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'db_module.dart';
@@ -90,5 +91,15 @@ class AppDatabase {
     final db = _db;
     if (db == null) throw StateError('AppDatabase not opened yet');
     return db;
+  }
+
+  /// Resets cached state so tests can reopen the database with a fresh module registry.
+  @visibleForTesting
+  static Future<void> resetForTest() async {
+    if (_db != null && _db!.isOpen) {
+      await _db!.close();
+    }
+    _db = null;
+    _modules.clear();
   }
 }
