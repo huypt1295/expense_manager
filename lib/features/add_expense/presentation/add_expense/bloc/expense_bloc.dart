@@ -1,3 +1,4 @@
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/add_transaction_usecase.dart';
 import 'package:flutter_core/flutter_core.dart';
@@ -8,7 +9,7 @@ import 'expense_state.dart';
 @injectable
 class ExpenseBloc extends BaseBloc<ExpenseEvent, ExpenseState, NoopEffect> {
   ExpenseBloc(this._addTransactionUseCase)
-      : super(ExpenseFormData(date: DateTime.now())) {
+    : super(ExpenseFormData(date: DateTime.now())) {
     on<ExpenseFormSubmitted>(_onFormSubmitted);
     on<ExpenseFormReset>(_onFormReset);
     on<ExpenseFormClosed>(_onFormClosed);
@@ -39,9 +40,13 @@ class ExpenseBloc extends BaseBloc<ExpenseEvent, ExpenseState, NoopEffect> {
       id: '',
       title: event.title.trim(),
       amount: event.amount,
+      type: TransactionType.expense,
       category: event.category.trim(),
       note: event.description.trim().isEmpty ? null : event.description.trim(),
       date: event.date,
+      categoryIcon: event.categoryIcon.trim().isEmpty
+          ? null
+          : event.categoryIcon.trim(),
     );
 
     await runResult<void>(

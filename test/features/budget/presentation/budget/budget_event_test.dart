@@ -1,3 +1,4 @@
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/budget/domain/entities/budget_entity.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_event.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
@@ -17,6 +18,7 @@ TransactionEntity _transaction(String id) => TransactionEntity(
       title: 'Tx',
       amount: 10,
       date: DateTime(2024, 1, 1),
+      type: TransactionType.expense,
     );
 
 void main() {

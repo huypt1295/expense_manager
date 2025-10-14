@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/budget/domain/entities/budget_entity.dart';
 import 'package:expense_manager/features/budget/domain/repositories/budget_repository.dart';
 import 'package:expense_manager/features/budget/domain/usecases/add_budget_usecase.dart';
@@ -156,6 +157,7 @@ void main() {
         title: 'Dinner',
         amount: 2_000_000,
         date: DateTime(2024, 1, 10),
+        type: TransactionType.expense,
         category: 'Food',
       );
 
@@ -164,6 +166,7 @@ void main() {
         title: 'Late dinner',
         amount: 300_000,
         date: DateTime(2024, 2, 1),
+        type: TransactionType.expense,
         category: 'Food',
       );
 
@@ -172,6 +175,7 @@ void main() {
         title: 'Books',
         amount: 500_000,
         date: DateTime(2024, 1, 15),
+        type: TransactionType.expense,
         category: 'Education',
       );
 
@@ -219,6 +223,7 @@ void main() {
           title: 'Flight',
           amount: 1_000_000,
           date: DateTime(2024, 6, 5),
+          type: TransactionType.expense,
           category: 'Travel',
         ),
         TransactionEntity(
@@ -226,6 +231,7 @@ void main() {
           title: 'Hotel',
           amount: 900_000,
           date: DateTime(2024, 6, 12),
+          type: TransactionType.expense,
           category: 'Travel',
         ),
       ]);

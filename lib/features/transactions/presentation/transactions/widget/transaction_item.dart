@@ -1,3 +1,4 @@
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
@@ -26,7 +27,7 @@ class TransactionItem extends BaseStatelessWidget {
       child: Material(
         color: context.tpColors.surfaceMain,
         borderRadius: BorderRadius.circular(12),
-        child: _buildItem(),
+        child: _buildItem(context),
       ),
     );
   }
@@ -43,9 +44,24 @@ class TransactionItem extends BaseStatelessWidget {
     );
   }
 
-  ListTile _buildItem() {
+  ListTile _buildItem(BuildContext context) {
+    final icon = transaction.categoryIcon?.trim();
+    final amountPrefix = transaction.type.isExpense ? '-' : '+';
+
     return ListTile(
       onTap: onEdit,
+      leading: (icon == null || icon.isEmpty)
+          ? null
+          : Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: context.tpColors.surfaceNeutralComponent2,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              alignment: Alignment.center,
+              child: Text(icon, style: TPTextStyle.bodyL),
+            ),
       title: Text(transaction.title, style: TPTextStyle.bodyM),
       subtitle: Text(
         [
@@ -54,8 +70,12 @@ class TransactionItem extends BaseStatelessWidget {
         ].whereType<String>().join(' · '),
       ),
       trailing: Text(
-        CurrencyUtils.formatVndFromDouble(transaction.amount),
-        style: TPTextStyle.bodyL,
+        '$amountPrefix ${CurrencyUtils.formatVndFromDouble(transaction.amount)}',
+        style: TPTextStyle.bodyL.copyWith(
+          color: transaction.type.isExpense
+              ? context.tpColors.textNegative
+              : context.tpColors.textPositive,
+        ),
       ),
     );
   }

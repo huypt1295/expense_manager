@@ -14,6 +14,7 @@ class ExpenseFormSubmitted extends ExpenseEvent {
   final String category;
   final String description;
   final DateTime date;
+  final String categoryIcon;
 
   const ExpenseFormSubmitted({
     required this.title,
@@ -21,10 +22,18 @@ class ExpenseFormSubmitted extends ExpenseEvent {
     required this.category,
     required this.description,
     required this.date,
+    required this.categoryIcon,
   });
 
   @override
-  List<Object?> get props => [title, amount, category, description, date];
+  List<Object?> get props => [
+    title,
+    amount,
+    category,
+    description,
+    date,
+    categoryIcon,
+  ];
 }
 
 class ExpenseFormReset extends ExpenseEvent {

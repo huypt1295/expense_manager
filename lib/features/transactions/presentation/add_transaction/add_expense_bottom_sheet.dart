@@ -1,11 +1,15 @@
 import 'dart:io';
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/constants/expense_constants.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/helpers/expense_image_helper.dart';
-import 'package:expense_manager/features/categories/application/categories_service.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
-import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/expense_form_fields.dart';
-import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/expense_scan_section.dart';
-import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/image_source_bottom_sheet.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_divider.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_form_fields.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_or_income_selection.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_scan_section.dart';
+import 'package:flutter_resource/l10n/gen/l10n.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_submit_button.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_image_source_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
@@ -27,22 +31,12 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  late final CategoriesService _categoriesService;
-  List<CategoryEntity> _categories = const [];
-  bool _isCategoriesLoading = true;
-  String? _categoriesError;
   String? _selectedCategoryId;
   String? _pendingCategoryName;
   DateTime _selectedDate = DateTime.now();
+  TransactionType _type = TransactionType.expense;
   File? _selectedImage;
   bool _isProcessingImage = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _categoriesService = tpGetIt.get<CategoriesService>();
-    _loadCategories();
-  }
 
   @override
   void dispose() {
@@ -53,11 +47,140 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          tpGetIt.get<ExpenseBloc>()..add(ExpenseCategoriesRequested()),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<ExpenseBloc, ExpenseState>(
+            listenWhen: (previous, current) =>
+                previous.categories != current.categories,
+            listener: (context, state) {
+              _syncSelectedCategory(state.categories);
+            },
+          ),
+          BlocListener<ExpenseBloc, ExpenseState>(
+            listenWhen: (previous, current) =>
+                current is ExpenseFormSuccess || current is ExpenseFormError,
+            listener: (context, state) {
+              if (state is ExpenseFormSuccess) {
+                context.pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Expense saved successfully!')),
+                );
+              } else if (state is ExpenseFormError) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
+              }
+            },
+          ),
+        ],
+        child: CommonBottomSheet(
+          title: S.current.add_transaction,
+          heightFactor: 0.9,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () => ViewUtils.hideKeyboard(context),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildTypeSelection(),
+                  const SizedBox(height: 16),
+                  _buildAIScanWidget(),
+                  const SizedBox(height: 8),
+                  _buildDivider(),
+                  const SizedBox(height: 8),
+                  _buildFormSection(),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTypeSelection() {
+    return AddExpenseOrIncomeSelection(
+      onTypeChanged: (type) {
+        setState(() {
+          _type = type;
+        });
+      },
+    );
+  }
+
+  Widget _buildAIScanWidget() {
+    return AddExpenseScanSection(
+      onScanPressed: _showImageSourceOptions,
+      isProcessing: _isProcessingImage,
+      selectedImage: _selectedImage,
+      onRemoveImage: _removeSelectedImage,
+    );
+  }
+
+  Widget _buildDivider() {
+    return AddExpenseDivider();
+  }
+
+  Widget _buildFormSection() {
+    final localeCode =
+        Localizations.maybeLocaleOf(context)?.languageCode ?? 'en';
+
+    return BlocBuilder<ExpenseBloc, ExpenseState>(
+      buildWhen: (previous, current) =>
+          previous.categories != current.categories ||
+          previous.areCategoriesLoading != current.areCategoriesLoading ||
+          previous.categoriesError != current.categoriesError,
+      builder: (context, state) {
+        final categories = state.categories
+            .where((c) => (c.type == _type))
+            .toList();
+        return Column(
+          children: [
+            AddExpenseFormFields(
+              formKey: _formKey,
+              titleController: _titleController,
+              amountController: _amountController,
+              descriptionController: _descriptionController,
+              selectedCategoryId: _selectedCategoryId,
+              selectedDate: _selectedDate,
+              categories: categories,
+              localeCode: localeCode,
+              categoriesLoading: state.areCategoriesLoading,
+              categoriesError: state.categoriesError,
+              onRetryCategories: () => context.read<ExpenseBloc>().add(
+                const ExpenseCategoriesRequested(forceRefresh: true),
+              ),
+              onCategoryChanged: (value) {
+                setState(() {
+                  _selectedCategoryId = value;
+                });
+              },
+              onDateSelected: _selectDate,
+            ),
+            const SizedBox(height: 24),
+            AddExpenseSubmitButton(
+              type: _type,
+              onPressed: () => _submitForm(context),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _submitForm(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      final amount = CurrencyUtils.parseVndToDouble(_amountController.text) ?? 0.0;
+      final amount =
+          CurrencyUtils.parseVndToDouble(_amountController.text) ?? 0.0;
 
-      final selected = _findCategoryById(_selectedCategoryId);
+      final categories = context.read<ExpenseBloc>().state.categories;
+      final selected = _findCategoryById(_selectedCategoryId, categories);
 
       if (selected == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -77,6 +200,8 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
           category: categoryName,
           description: _descriptionController.text,
           date: _selectedDate,
+          type: _type,
+          categoryIcon: selected.icon,
         ),
       );
       context.pop();
@@ -156,38 +281,6 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
     }
   }
 
-  Future<void> _loadCategories({bool forceRefresh = false}) async {
-    setState(() {
-      _isCategoriesLoading = true;
-      _categoriesError = null;
-    });
-
-    try {
-      final categories = await _categoriesService.getCategories(
-        forceRefresh: forceRefresh,
-      );
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isCategoriesLoading = false;
-        _categories = categories;
-        _ensureSelectedCategory();
-      });
-    } catch (error) {
-      final message = error is Failure
-          ? (error.message ?? error.code)
-          : 'Failed to load categories';
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _isCategoriesLoading = false;
-        _categoriesError = message;
-      });
-    }
-  }
-
   Future<void> _processSelectedImage(File imageFile) async {
     setState(() {
       _selectedImage = imageFile;
@@ -220,10 +313,11 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
   }
 
   void _populateFormWithExtractedData(Map<String, dynamic> data) {
+    final categories = context.read<ExpenseBloc>().state.categories;
     setState(() {
       _titleController.text = data['title'] ?? '';
       _setFormattedAmount(data['amount']);
-      _selectCategoryByName(data['category'] as String?);
+      _selectCategoryByName(data['category'] as String?, categories);
       _descriptionController.text = data['description'] ?? '';
     });
   }
@@ -249,35 +343,43 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
     );
   }
 
-  void _ensureSelectedCategory() {
-    if (_categories.isEmpty) {
-      _selectedCategoryId = null;
-      return;
-    }
+  void _syncSelectedCategory(List<CategoryEntity> categories) {
+    String? nextSelected = _selectedCategoryId;
+    String? nextPending = _pendingCategoryName;
 
-    if (_selectedCategoryId != null &&
-        _categories.any((category) => category.id == _selectedCategoryId)) {
+    if (categories.isEmpty) {
+      nextSelected = null;
+    } else if (nextSelected != null &&
+        categories.any((category) => category.id == nextSelected) &&
+        (nextPending == null || nextPending.isEmpty)) {
       return;
-    }
-
-    if (_pendingCategoryName?.isNotEmpty ?? false) {
-      final match = _findCategoryByName(_pendingCategoryName!);
+    } else if ((nextPending?.isNotEmpty ?? false)) {
+      final match = _findCategoryByName(nextPending!, categories);
       if (match != null) {
-        _selectedCategoryId = match.id;
-        _pendingCategoryName = null;
-        return;
+        nextSelected = match.id;
+        nextPending = null;
+      } else {
+        nextSelected = categories.first.id;
       }
+    } else {
+      nextSelected = categories.first.id;
     }
 
-    _selectedCategoryId = _categories.first.id;
+    if (nextSelected != _selectedCategoryId ||
+        nextPending != _pendingCategoryName) {
+      setState(() {
+        _selectedCategoryId = nextSelected;
+        _pendingCategoryName = nextPending;
+      });
+    }
   }
 
-  void _selectCategoryByName(String? name) {
+  void _selectCategoryByName(String? name, List<CategoryEntity> categories) {
     if (name == null || name.trim().isEmpty) {
       _pendingCategoryName = null;
       return;
     }
-    final match = _findCategoryByName(name);
+    final match = _findCategoryByName(name, categories);
     if (match != null) {
       _pendingCategoryName = null;
       _selectedCategoryId = match.id;
@@ -286,13 +388,16 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
     }
   }
 
-  CategoryEntity? _findCategoryByName(String name) {
+  CategoryEntity? _findCategoryByName(
+    String name,
+    List<CategoryEntity> categories,
+  ) {
     final normalized = name.toLowerCase().trim();
-    for (final category in _categories) {
+    for (final category in categories) {
       if (category.id.toLowerCase().trim() == normalized) {
         return category;
       }
-      final matchesName = category.name.values.any(
+      final matchesName = category.names.values.any(
         (value) => value.toLowerCase().trim() == normalized,
       );
       if (matchesName) {
@@ -302,168 +407,18 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
     return null;
   }
 
-  CategoryEntity? _findCategoryById(String? id) {
+  CategoryEntity? _findCategoryById(
+    String? id,
+    List<CategoryEntity> categories,
+  ) {
     if (id == null || id.isEmpty) {
       return null;
     }
-    for (final category in _categories) {
+    for (final category in categories) {
       if (category.id == id) {
         return category;
       }
     }
     return null;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<ExpenseBloc, ExpenseState>(
-      listener: (context, state) {
-        if (state is ExpenseFormSuccess) {
-          Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Expense saved successfully!')),
-          );
-        } else if (state is ExpenseFormError) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        }
-      },
-      child: Container(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.8,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-          ),
-          child: Column(
-            children: [
-              _buildHandleBar(),
-              _buildHeader(),
-              ExpenseScanSection(
-                onScanPressed: _showImageSourceOptions,
-                isProcessing: _isProcessingImage,
-                selectedImage: _selectedImage,
-                onRemoveImage: _removeSelectedImage,
-              ),
-              _buildDivider(),
-              _buildFormSection(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHandleBar() {
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      width: 40,
-      height: 4,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(2),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Add New Expense',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          IconButton(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.close),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDivider() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        children: [
-          Expanded(child: Container(height: 1, color: Colors.grey[300])),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              'OR',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Expanded(child: Container(height: 1, color: Colors.grey[300])),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFormSection() {
-    final localeCode =
-        Localizations.maybeLocaleOf(context)?.languageCode ?? 'en';
-
-    return Expanded(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            ExpenseFormFields(
-              formKey: _formKey,
-              titleController: _titleController,
-              amountController: _amountController,
-              descriptionController: _descriptionController,
-              selectedCategoryId: _selectedCategoryId,
-              selectedDate: _selectedDate,
-              categories: _categories,
-              localeCode: localeCode,
-              categoriesLoading: _isCategoriesLoading,
-              categoriesError: _categoriesError,
-              onRetryCategories: () => _loadCategories(forceRefresh: true),
-              onCategoryChanged: (value) {
-                setState(() {
-                  _selectedCategoryId = value;
-                });
-              },
-              onDateSelected: _selectDate,
-            ),
-            const SizedBox(height: 24),
-            _buildSubmitButton(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubmitButton() {
-    return BlocBuilder<ExpenseBloc, ExpenseState>(
-      builder: (context, state) {
-        return ElevatedButton(
-          onPressed: () =>
-              state is ExpenseFormLoading ? null : _submitForm(context),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-          ),
-          child: state is ExpenseFormLoading
-              ? const CircularProgressIndicator()
-              : const Text('Save Expense', style: TextStyle(fontSize: 16)),
-        );
-      },
-    );
   }
 }

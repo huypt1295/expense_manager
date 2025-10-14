@@ -36,6 +36,7 @@ void main() async {
         BlocProvider(
           create: (_) => ConfigCubit(),
           child: const TPContainerApp(),
+
         ),
       );
     },

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 
 class TransactionModel {
@@ -7,18 +8,22 @@ class TransactionModel {
     required this.title,
     required this.amount,
     required this.date,
+    required this.type,
     this.category,
     this.note,
     this.deleted = false,
+    this.categoryIcon,
   });
 
   final String id;
   final String title;
   final double amount;
   final DateTime date;
+  final TransactionType type;
   final String? category;
   final String? note;
   final bool deleted;
+  final String? categoryIcon;
 
   TransactionEntity toEntity() {
     return TransactionEntity(
@@ -26,8 +31,10 @@ class TransactionModel {
       title: title,
       amount: amount,
       date: date,
+      type: type,
       category: category,
       note: note,
+      categoryIcon: categoryIcon,
     );
   }
 
@@ -36,18 +43,22 @@ class TransactionModel {
     String? title,
     double? amount,
     DateTime? date,
+    TransactionType? type,
     String? category,
     String? note,
     bool? deleted,
+    String? categoryIcon,
   }) {
     return TransactionModel(
       id: id ?? this.id,
       title: title ?? this.title,
       amount: amount ?? this.amount,
       date: date ?? this.date,
+      type: type ?? this.type,
       category: category ?? this.category,
       note: note ?? this.note,
       deleted: deleted ?? this.deleted,
+      categoryIcon: categoryIcon ?? this.categoryIcon,
     );
   }
 
@@ -56,10 +67,12 @@ class TransactionModel {
       'title': title,
       'amount': amount,
       'date': Timestamp.fromDate(date),
+      'type': transactionTypeToJson(type),
       'category': category,
       'note': note,
       'deleted': deleted,
       'updatedAt': FieldValue.serverTimestamp(),
+      'categoryIcon': categoryIcon,
     };
 
     if (!merge) {
@@ -68,7 +81,9 @@ class TransactionModel {
     return map;
   }
 
-  static TransactionModel fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+  static TransactionModel fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
     final data = doc.data() ?? <String, dynamic>{};
     final timestamp = data['date'];
     DateTime? parsedDate;
@@ -85,9 +100,11 @@ class TransactionModel {
       title: (data['title'] as String?) ?? '',
       amount: (data['amount'] as num?)?.toDouble() ?? 0,
       date: parsedDate ?? DateTime.now(),
+      type: parseTransactionType(data['type']),
       category: data['category'] as String?,
       note: data['note'] as String?,
       deleted: (data['deleted'] as bool?) ?? false,
+      categoryIcon: data['categoryIcon'] as String?,
     );
   }
 
@@ -97,8 +114,10 @@ class TransactionModel {
       title: entity.title,
       amount: entity.amount,
       date: entity.date,
+      type: entity.type,
       category: entity.category,
       note: entity.note,
+      categoryIcon: entity.categoryIcon,
     );
   }
 }

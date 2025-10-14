@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 
 class CategoryModel {
@@ -6,14 +7,16 @@ class CategoryModel {
     required this.id,
     required this.icon,
     required this.isActive,
-    required this.names,
+    required this.type,
+    required this.name,
     this.sortOrder,
   });
 
   final String id;
   final String icon;
   final bool isActive;
-  final Map<String, String> names;
+  final TransactionType type;
+  final Map<String, String> name;
   final int? sortOrder;
 
   CategoryEntity toEntity() {
@@ -21,7 +24,8 @@ class CategoryModel {
       id: id,
       icon: icon,
       isActive: isActive,
-      names: names,
+      type: type,
+      names: name,
       sortOrder: sortOrder,
     );
   }
@@ -44,7 +48,8 @@ class CategoryModel {
       id: doc.id,
       icon: (data['icon'] as String?) ?? '',
       isActive: (data['isActive'] as bool?) ?? true,
-      names: parsedNames,
+      type: parseTransactionType(data['type']),
+      name: parsedNames,
       sortOrder: (data['sortOrder'] as num?)?.toInt(),
     );
   }

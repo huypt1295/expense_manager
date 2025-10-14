@@ -26,9 +26,5 @@ class TransactionsState extends BaseBlocState with EquatableMixin {
   }
 
   @override
-  List<Object?> get props => <Object?>[
-        items,
-        isLoading,
-        errorMessage,
-      ];
+  List<Object?> get props => <Object?>[items, isLoading, errorMessage];
 }

@@ -42,13 +42,16 @@ class _ExpenseFormBottomSheetState extends BaseState<ExpenseFormBottomSheet> {
     if (_formKey.currentState!.validate()) {
       final amount = double.tryParse(_amountController.text) ?? 0.0;
 
-      context.read<ExpenseBloc>().add(ExpenseFormSubmitted(
-            title: _titleController.text,
-            amount: amount,
-            category: _selectedCategory,
-            description: _descriptionController.text,
-            date: _selectedDate,
-          ));
+      context.read<ExpenseBloc>().add(
+        ExpenseFormSubmitted(
+          title: _titleController.text,
+          amount: amount,
+          category: _selectedCategory,
+          description: _descriptionController.text,
+          date: _selectedDate,
+          categoryIcon: '',
+        ),
+      );
     }
   }
 
@@ -133,20 +136,25 @@ class _ExpenseFormBottomSheetState extends BaseState<ExpenseFormBottomSheet> {
     ExpenseImageHelper.showProcessingSnackBar(context);
 
     try {
-      final extractedData =
-          await ExpenseImageHelper.processImageWithAI(imageFile);
+      final extractedData = await ExpenseImageHelper.processImageWithAI(
+        imageFile,
+      );
 
       // Check if widget is still mounted before using context
       if (mounted) {
         _populateFormWithExtractedData(extractedData);
         ExpenseImageHelper.showSuccessSnackBar(
-            context, ExpenseConstants.successMessage);
+          context,
+          ExpenseConstants.successMessage,
+        );
       }
     } catch (e) {
       // Check if widget is still mounted before using context
       if (mounted) {
         ExpenseImageHelper.showErrorSnackBar(
-            context, 'Failed to process image: ${e.toString()}');
+          context,
+          'Failed to process image: ${e.toString()}',
+        );
       }
     }
   }
@@ -176,9 +184,9 @@ class _ExpenseFormBottomSheetState extends BaseState<ExpenseFormBottomSheet> {
             const SnackBar(content: Text('Expense saved successfully!')),
           );
         } else if (state is ExpenseFormError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       child: Container(
@@ -233,10 +241,7 @@ class _ExpenseFormBottomSheetState extends BaseState<ExpenseFormBottomSheet> {
         children: [
           const Text(
             'Add New Expense',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -252,12 +257,7 @@ class _ExpenseFormBottomSheetState extends BaseState<ExpenseFormBottomSheet> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         children: [
-          Expanded(
-            child: Container(
-              height: 1,
-              color: Colors.grey[300],
-            ),
-          ),
+          Expanded(child: Container(height: 1, color: Colors.grey[300])),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
@@ -268,12 +268,7 @@ class _ExpenseFormBottomSheetState extends BaseState<ExpenseFormBottomSheet> {
               ),
             ),
           ),
-          Expanded(
-            child: Container(
-              height: 1,
-              color: Colors.grey[300],
-            ),
-          ),
+          Expanded(child: Container(height: 1, color: Colors.grey[300])),
         ],
       ),
     );
@@ -318,10 +313,7 @@ class _ExpenseFormBottomSheetState extends BaseState<ExpenseFormBottomSheet> {
           ),
           child: state is ExpenseFormLoading
               ? const CircularProgressIndicator()
-              : const Text(
-                  'Save Expense',
-                  style: TextStyle(fontSize: 16),
-                ),
+              : const Text('Save Expense', style: TextStyle(fontSize: 16)),
         );
       },
     );

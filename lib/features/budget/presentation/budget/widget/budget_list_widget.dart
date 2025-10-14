@@ -6,35 +6,37 @@ import 'package:expense_manager/features/budget/presentation/budget/widget/budge
 import 'package:flutter/material.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-class BudgetListWidget extends BaseStatelessWidget {
-  const BudgetListWidget(
-      {super.key, required this.budgets, required this.progress});
+class BudgetSliverListWidget extends BaseStatelessWidget {
+  const BudgetSliverListWidget({
+    super.key,
+    required this.budgets,
+    required this.progress,
+  });
 
   final List<BudgetEntity> budgets;
   final Map<String, BudgetProgress> progress;
 
   @override
   Widget buildContent(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 24,
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      sliver: SliverList.separated(
+        itemCount: budgets.length,
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final budget = budgets[index];
+          final progress = this.progress[budget.id];
+          return BudgetItem(
+            budget: budget,
+            progress: progress,
+            onEdit: () => context.read<BudgetBloc>().add(
+              BudgetShowDialogAdd(budget: budget),
+            ),
+            onDelete: () =>
+                context.read<BudgetBloc>().add(BudgetDeleteRequested(budget)),
+          );
+        },
       ),
-      itemCount: budgets.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        final budget = budgets[index];
-        final progress = this.progress[budget.id];
-        return BudgetItem(
-          budget: budget,
-          progress: progress,
-          onEdit: () => context
-              .read<BudgetBloc>()
-              .add(BudgetShowDialogAdd(budget: budget)),
-          onDelete: () =>
-              context.read<BudgetBloc>().add(BudgetDeleteRequested(budget)),
-        );
-      },
     );
   }
 }

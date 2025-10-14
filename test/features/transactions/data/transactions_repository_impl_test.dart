@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/core/auth/current_user.dart';
 import 'package:expense_manager/features/transactions/data/datasources/transactions_remote_data_source.dart';
 import 'package:expense_manager/features/transactions/data/models/transaction_model.dart';
@@ -89,6 +90,7 @@ TransactionEntity _transaction(String id) => TransactionEntity(
       title: 'Tx $id',
       amount: 10,
       date: DateTime(2024, 1, 1),
+      type: TransactionType.expense,
       category: 'Food',
     );
 
@@ -97,6 +99,7 @@ TransactionModel _model(String id) => TransactionModel(
       title: 'Tx $id',
       amount: 10,
       date: DateTime(2024, 1, 1),
+      type: TransactionType.expense,
       category: 'Food',
       note: null,
     );

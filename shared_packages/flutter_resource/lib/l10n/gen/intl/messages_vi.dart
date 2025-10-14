@@ -22,10 +22,22 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "add_expense": MessageLookupByLibrary.simpleMessage("Thêm chi tiêu"),
+    "add_income": MessageLookupByLibrary.simpleMessage("Thêm thu nhập"),
+    "add_transaction": MessageLookupByLibrary.simpleMessage("Thêm giao dịch"),
+    "amount": MessageLookupByLibrary.simpleMessage("Số tiền"),
     "appName": MessageLookupByLibrary.simpleMessage("Flutter Container"),
+    "category": MessageLookupByLibrary.simpleMessage("Danh mục"),
+    "date_time": MessageLookupByLibrary.simpleMessage("Thời gian"),
+    "expense": MessageLookupByLibrary.simpleMessage("Chi tiêu"),
+    "income": MessageLookupByLibrary.simpleMessage("Thu nhập"),
+    "manual_input": MessageLookupByLibrary.simpleMessage("Hoặc nhập thủ công"),
+    "note": MessageLookupByLibrary.simpleMessage("Ghi chú"),
+    "note_hint": MessageLookupByLibrary.simpleMessage("Thêm ghi chú..."),
     "tab_budget": MessageLookupByLibrary.simpleMessage("Ngân sách"),
     "tab_home": MessageLookupByLibrary.simpleMessage("Trang chủ"),
     "tab_profile": MessageLookupByLibrary.simpleMessage("Cá nhân"),
     "tab_transactions": MessageLookupByLibrary.simpleMessage("Giao dịch"),
+    "title": MessageLookupByLibrary.simpleMessage("Tiêu đề"),
   };
 }

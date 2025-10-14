@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/core/auth/current_user.dart';
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_bloc.dart';
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_event.dart';
@@ -66,6 +67,7 @@ TransactionEntity _transaction(String id, DateTime date, double amount) =>
       title: 'Tx $id',
       amount: amount,
       date: date,
+      type: TransactionType.expense,
       category: 'Food',
     );
 

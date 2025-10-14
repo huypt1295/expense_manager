@@ -41,7 +41,7 @@ CategoryModel _model(
     id: id,
     icon: 'icon-$id',
     isActive: isActive,
-    names: {'en': 'Category $id'},
+    name: {'en': 'Category $id'},
     sortOrder: sortOrder,
   );
 }

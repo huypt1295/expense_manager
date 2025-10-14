@@ -3,5 +3,17 @@
   "tab_home": "Trang chủ",
   "tab_transactions": "Giao dịch",
   "tab_budget": "Ngân sách",
-  "tab_profile": "Cá nhân"
+  "tab_profile": "Cá nhân",
+  "add_transaction": "Thêm giao dịch",
+  "amount": "Số tiền",
+  "category": "Danh mục",
+  "date_time": "Thời gian",
+  "note": "Ghi chú",
+  "title": "Tiêu đề",
+  "expense": "Chi tiêu",
+  "income": "Thu nhập",
+  "note_hint": "Thêm ghi chú...",
+  "add_expense": "Thêm chi tiêu",
+  "add_income": "Thêm thu nhập",
+  "manual_input": "Hoặc nhập thủ công"
 }

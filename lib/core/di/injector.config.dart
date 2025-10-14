@@ -90,6 +90,8 @@ import 'package:expense_manager/features/transactions/domain/usecases/watch_tran
     as _i717;
 import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/expense_bloc.dart'
     as _i626;
+import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/income_bloc.dart'
+    as _i1001;
 import 'package:expense_manager/features/transactions/presentation/transactions/bloc/transactions_bloc.dart'
     as _i551;
 import 'package:firebase_storage/firebase_storage.dart' as _i457;
@@ -253,7 +255,16 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.factory<_i626.ExpenseBloc>(
-      () => _i626.ExpenseBloc(gh<_i892.AddTransactionUseCase>()),
+      () => _i626.ExpenseBloc(
+        gh<_i892.AddTransactionUseCase>(),
+        gh<_i49.CategoriesService>(),
+      ),
+    );
+    gh.factory<_i1001.IncomeBloc>(
+      () => _i1001.IncomeBloc(
+        gh<_i892.AddTransactionUseCase>(),
+        gh<_i49.CategoriesService>(),
+      ),
     );
     return this;
   }

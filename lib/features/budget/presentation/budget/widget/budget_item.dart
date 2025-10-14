@@ -33,9 +33,12 @@ class BudgetItem extends StatelessWidget {
       direction: DismissDirection.endToStart,
       onDismissed: (_) => onDelete(),
       background: _buildBackground(context),
-      child: Material(
-        borderRadius: BorderRadius.circular(12),
-        color: context.tpColors.surfacePositive,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: context.tpColors.borderDefault),
+          color: context.tpColors.surfaceMain,
+        ),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: onEdit,

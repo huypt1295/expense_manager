@@ -70,6 +70,7 @@ void main() {
           category: 'Food',
           description: '',
           date: DateTime(2024, 1, 1),
+          categoryIcon: '🍔',
         ),
       );
 
@@ -95,6 +96,7 @@ void main() {
           category: 'Food',
           description: '',
           date: DateTime(2024, 1, 1),
+          categoryIcon: '🍔',
         ),
       );
 
@@ -120,6 +122,7 @@ void main() {
           category: '   ',
           description: '',
           date: DateTime(2024, 1, 1),
+          categoryIcon: '🍔',
         ),
       );
 
@@ -131,10 +134,7 @@ void main() {
     test('emits loading then success on valid submission', () async {
       final expectation = expectLater(
         bloc.stream,
-        emitsInOrder([
-          isA<ExpenseFormLoading>(),
-          isA<ExpenseFormSuccess>(),
-        ]),
+        emitsInOrder([isA<ExpenseFormLoading>(), isA<ExpenseFormSuccess>()]),
       );
 
       bloc.add(
@@ -144,6 +144,7 @@ void main() {
           category: 'Food',
           description: 'Nice meal',
           date: DateTime(2024, 1, 2),
+          categoryIcon: '🍔',
         ),
       );
 
@@ -156,6 +157,7 @@ void main() {
       expect(added.category, 'Food');
       expect(added.note, 'Nice meal');
       expect(added.date, DateTime(2024, 1, 2));
+      expect(added.categoryIcon, '🍔');
     });
 
     test('emits error when repository throws', () async {
@@ -182,6 +184,7 @@ void main() {
           category: 'Food',
           description: '',
           date: DateTime(2024, 1, 2),
+          categoryIcon: '🍔',
         ),
       );
 

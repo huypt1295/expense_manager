@@ -6,7 +6,9 @@ import 'package:expense_manager/features/profile_setting/presentation/profile/bl
 import 'package:expense_manager/features/profile_setting/presentation/profile/bloc/profile_effect.dart';
 import 'package:expense_manager/features/profile_setting/presentation/profile/bloc/profile_event.dart';
 import 'package:expense_manager/features/profile_setting/presentation/profile/bloc/profile_state.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -37,9 +39,9 @@ class _ProfilePageState extends BaseState<ProfilePage> {
         listener: (effect, emitUi) {
           if (effect is ProfileShowErrorEffect) {
             emitUi(
-              (uiContext) => ScaffoldMessenger.of(uiContext).showSnackBar(
-                SnackBar(content: Text(effect.message)),
-              ),
+              (uiContext) => ScaffoldMessenger.of(
+                uiContext,
+              ).showSnackBar(SnackBar(content: Text(effect.message))),
             );
           } else if (effect is ProfileSignedOutEffect) {
             tpGetIt.get<AppRouter>().allowLoginGuardBypassOnce();
@@ -60,89 +62,100 @@ class _ProfilePageState extends BaseState<ProfilePage> {
             final profile = state.profile;
             final theme = Theme.of(context);
 
-            return Stack(
-              children: [
-                SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _ProfileHeader(
-                        profile: profile,
-                        isUploading: state.isUploadingAvatar,
-                        onChangeAvatar: () => _pickAvatar(context),
-                      ),
-                      const SizedBox(height: 24),
-                      Text('Profile details',
-                          style: theme.textTheme.titleMedium),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _nameController,
-                        decoration:
-                            const InputDecoration(labelText: 'Display name'),
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _addressController,
-                        decoration: const InputDecoration(labelText: 'Address'),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: state.isSaving || profile == null
-                              ? null
-                              : () {
-                                  context.read<ProfileBloc>().add(
-                                        ProfileUpdateRequested(
-                                          displayName: _nameController.text,
-                                          address: _addressController.text,
-                                        ),
-                                      );
-                                },
-                          child: state.isSaving
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child:
-                                      CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Text('Save changes'),
+            return ColoredBox(
+              color: context.tpColors.backgroundMain,
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 24,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _ProfileHeader(
+                          profile: profile,
+                          isUploading: state.isUploadingAvatar,
+                          onChangeAvatar: () => _pickAvatar(context),
                         ),
-                      ),
-                      const SizedBox(height: 32),
-                      Text('Preferences', style: theme.textTheme.titleMedium),
-                      const SizedBox(height: 16),
-                      _LanguageSelector(),
-                      const SizedBox(height: 16),
-                      _ThemeSelector(),
-                      const SizedBox(height: 32),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          icon: const Icon(Icons.logout),
-                          label: const Text('Sign out'),
-                          onPressed: state.isSaving
-                              ? null
-                              : () {
-                                  context
-                                      .read<ProfileBloc>()
-                                      .add(const ProfileSignOutRequested());
-                                },
+                        const SizedBox(height: 24),
+                        Text(
+                          'Profile details',
+                          style: theme.textTheme.titleMedium,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (state.isLoading)
-                  const Positioned.fill(
-                    child: ColoredBox(
-                      color: Colors.black12,
-                      child: Center(child: CircularProgressIndicator()),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Display name',
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _addressController,
+                          decoration: const InputDecoration(
+                            labelText: 'Address',
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: state.isSaving || profile == null
+                                ? null
+                                : () {
+                                    context.read<ProfileBloc>().add(
+                                      ProfileUpdateRequested(
+                                        displayName: _nameController.text,
+                                        address: _addressController.text,
+                                      ),
+                                    );
+                                  },
+                            child: state.isSaving
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text('Save changes'),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        Text('Preferences', style: theme.textTheme.titleMedium),
+                        const SizedBox(height: 16),
+                        _LanguageSelector(),
+                        const SizedBox(height: 16),
+                        _ThemeSelector(),
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.logout),
+                            label: const Text('Sign out'),
+                            onPressed: state.isSaving
+                                ? null
+                                : () {
+                                    context.read<ProfileBloc>().add(
+                                      const ProfileSignOutRequested(),
+                                    );
+                                  },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-              ],
+                  if (state.isLoading)
+                    const Positioned.fill(
+                      child: ColoredBox(
+                        color: Colors.black12,
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                    ),
+                ],
+              ),
             );
           },
         ),
@@ -161,12 +174,7 @@ class _ProfilePageState extends BaseState<ProfilePage> {
     }
     final bytes = await picked.readAsBytes();
     if (!mounted) return;
-    bloc.add(
-      ProfileAvatarSelected(
-        bytes: bytes,
-        fileName: picked.name,
-      ),
-    );
+    bloc.add(ProfileAvatarSelected(bytes: bytes, fileName: picked.name));
   }
 }
 
@@ -187,15 +195,15 @@ class _ProfileHeader extends StatelessWidget {
     final avatarUrl = profile?.avatarUrl;
     final initials = (profile?.displayName?.isNotEmpty ?? false)
         ? profile!.displayName!
-            .trim()
-            .split(' ')
-            .map((p) => p.isNotEmpty ? p[0] : '')
-            .take(2)
-            .join()
-            .toUpperCase()
+              .trim()
+              .split(' ')
+              .map((p) => p.isNotEmpty ? p[0] : '')
+              .take(2)
+              .join()
+              .toUpperCase()
         : (profile?.email.isNotEmpty ?? false)
-            ? profile!.email[0].toUpperCase()
-            : '?';
+        ? profile!.email[0].toUpperCase()
+        : '?';
 
     return Row(
       children: [
@@ -208,10 +216,7 @@ class _ProfileHeader extends StatelessWidget {
                   ? NetworkImage(avatarUrl)
                   : null,
               child: (avatarUrl == null || avatarUrl.isEmpty)
-                  ? Text(
-                      initials,
-                      style: theme.textTheme.headlineSmall,
-                    )
+                  ? Text(initials, style: theme.textTheme.headlineSmall)
                   : null,
             ),
             if (isUploading)
@@ -231,10 +236,7 @@ class _ProfileHeader extends StatelessWidget {
                 profile?.displayName ?? 'Anonymous',
                 style: theme.textTheme.titleLarge,
               ),
-              Text(
-                profile?.email ?? '',
-                style: theme.textTheme.bodyMedium,
-              ),
+              Text(profile?.email ?? '', style: theme.textTheme.bodyMedium),
               const SizedBox(height: 8),
               OutlinedButton.icon(
                 onPressed: isUploading ? null : onChangeAvatar,
@@ -253,8 +255,11 @@ class _LanguageSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final configCubit = context.read<ConfigCubit>();
-    final currentLocale =
-        context.watch<ConfigCubit>().state.locale.languageCode;
+    final currentLocale = context
+        .watch<ConfigCubit>()
+        .state
+        .locale
+        .languageCode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -288,9 +293,13 @@ class _ThemeSelector extends StatelessWidget {
         SegmentedButton<ThemeMode>(
           segments: const <ButtonSegment<ThemeMode>>[
             ButtonSegment<ThemeMode>(
-                value: ThemeMode.light, label: Text('Light')),
+              value: ThemeMode.light,
+              label: Text('Light'),
+            ),
             ButtonSegment<ThemeMode>(
-                value: ThemeMode.dark, label: Text('Dark')),
+              value: ThemeMode.dark,
+              label: Text('Dark'),
+            ),
           ],
           selected: {themeMode},
           onSelectionChanged: (selection) {

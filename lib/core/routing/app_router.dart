@@ -70,19 +70,67 @@ class AppRouter {
           routes: [
             GoRoute(
               path: AppRoute.homeSummary.path,
-              builder: (context, state) => const SummaryPage(),
+              pageBuilder: (context, state) {
+                return CustomTransitionPage(
+                  child: SummaryPage(),
+                  transitionsBuilder: (_, animation, _, child) {
+                    return FadeTransition(
+                      opacity: CurveTween(
+                        curve: Curves.easeInOutCirc,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                );
+              },
             ),
             GoRoute(
               path: AppRoute.homeTransactions.path,
-              builder: (context, state) => const TransactionPage(),
+              pageBuilder: (context, state) {
+                return CustomTransitionPage(
+                  child: TransactionPage(),
+                  transitionsBuilder: (_, animation, _, child) {
+                    return FadeTransition(
+                      opacity: CurveTween(
+                        curve: Curves.easeInOutCirc,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                );
+              },
             ),
             GoRoute(
               path: AppRoute.homeBudget.path,
-              builder: (context, state) => const BudgetPage(),
+              pageBuilder: (context, state) {
+                return CustomTransitionPage(
+                  child: BudgetPage(),
+                  transitionsBuilder: (_, animation, _, child) {
+                    return FadeTransition(
+                      opacity: CurveTween(
+                        curve: Curves.easeInOutCirc,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                );
+              },
             ),
             GoRoute(
               path: AppRoute.homeProfile.path,
-              builder: (context, state) => const ProfilePage(),
+              pageBuilder: (context, state) {
+                return CustomTransitionPage(
+                  child: ProfilePage(),
+                  transitionsBuilder: (_, animation, _, child) {
+                    return FadeTransition(
+                      opacity: CurveTween(
+                        curve: Curves.easeInOutCirc,
+                      ).animate(animation),
+                      child: child,
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),

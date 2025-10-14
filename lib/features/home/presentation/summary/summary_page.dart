@@ -7,8 +7,10 @@ import 'package:expense_manager/features/home/presentation/summary/widget/summar
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_list_transaction_widget.dart';
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_spending_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_resource/flutter_resource.dart';
+import 'package:sliver_tools/sliver_tools.dart' show MultiSliver;
 
 class SummaryPage extends BaseStatelessWidget {
   const SummaryPage({super.key});
@@ -40,25 +42,42 @@ class _SummaryView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SummaryGreetingWidget(greeting: state.greeting),
-                const SizedBox(height: 12),
-                SummarySpendingWidget(monthTotal: state.monthTotal),
-                const SizedBox(height: 24),
-                Text(
-                  'Recent transactions',
-                  style: TPTextStyle.titleM,
-                ),
-                const SizedBox(height: 12),
-                state.recentTransactions.isEmpty
-                    ? SummaryEmptyWidget()
-                    : SummaryListTransactionWidget(
-                        recentTransactions: state.recentTransactions,
+          return ColoredBox(
+            color: context.tpColors.backgroundMain,
+            child: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 24,
+                  ),
+                  sliver: MultiSliver(
+                    children: [
+                      SliverToBoxAdapter(
+                        child: SummaryGreetingWidget(greeting: state.greeting),
                       ),
+                      SliverToBoxAdapter(child: const SizedBox(height: 12)),
+                      SliverToBoxAdapter(
+                        child: SummarySpendingWidget(
+                          monthTotal: state.monthTotal,
+                        ),
+                      ),
+                      SliverToBoxAdapter(child: const SizedBox(height: 24)),
+                      SliverToBoxAdapter(
+                        child: Text(
+                          'Recent transactions',
+                          style: TPTextStyle.titleM,
+                        ),
+                      ),
+                      SliverToBoxAdapter(child: const SizedBox(height: 12)),
+                      state.recentTransactions.isEmpty
+                          ? SliverToBoxAdapter(child: SummaryEmptyWidget())
+                          : SummarySliverListTransactionWidget(
+                              recentTransactions: state.recentTransactions,
+                            ),
+                    ],
+                  ),
+                ),
               ],
             ),
           );

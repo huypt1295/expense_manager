@@ -1,4 +1,5 @@
 import 'package:expense_manager/core/auth/current_user.dart';
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_event.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +9,7 @@ TransactionEntity _transaction(String id) => TransactionEntity(
       title: 'Tx',
       amount: 10,
       date: DateTime(2024, 1, 1),
+      type: TransactionType.expense,
     );
 
 void main() {

@@ -1,3 +1,4 @@
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:flutter_core/flutter_core.dart';
 
 class CategoryEntity extends BaseEntity with EquatableMixin {
@@ -5,28 +6,30 @@ class CategoryEntity extends BaseEntity with EquatableMixin {
     required this.id,
     required this.icon,
     required this.isActive,
+    required this.type,
     required Map<String, String> names,
     this.sortOrder,
-  }) : name = Map.unmodifiable(
+  }) : names = Map.unmodifiable(
           names.map((key, value) => MapEntry(key.toLowerCase(), value)),
         );
 
   final String id;
   final String icon;
   final bool isActive;
-  final Map<String, String> name;
+  final TransactionType type;
+  final Map<String, String> names;
   final int? sortOrder;
 
   String nameForLocale(String localeCode, {String fallbackLocale = 'en'}) {
     final normalized = localeCode.toLowerCase();
-    if (name[normalized]?.isNotEmpty ?? false) {
-      return name[normalized]!;
+    if (names[normalized]?.isNotEmpty ?? false) {
+      return names[normalized]!;
     }
-    if (name[fallbackLocale]?.isNotEmpty ?? false) {
-      return name[fallbackLocale]!;
+    if (names[fallbackLocale]?.isNotEmpty ?? false) {
+      return names[fallbackLocale]!;
     }
-    if (name.isNotEmpty) {
-      final firstNonEmpty = name.values.firstWhere(
+    if (names.isNotEmpty) {
+      final firstNonEmpty = names.values.firstWhere(
         (value) => value.isNotEmpty,
         orElse: () => id,
       );
@@ -42,7 +45,8 @@ class CategoryEntity extends BaseEntity with EquatableMixin {
         id,
         icon,
         isActive,
-        name,
+        type,
+        names,
         sortOrder,
       ];
 
@@ -51,7 +55,8 @@ class CategoryEntity extends BaseEntity with EquatableMixin {
         'id': id,
         'icon': icon,
         'isActive': isActive,
-        'names': name,
+        'type': transactionTypeToJson(type),
+        'names': names,
         if (sortOrder != null) 'sortOrder': sortOrder,
       };
 }

@@ -320,6 +320,7 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
       state.copyWith(
         budgets: List<BudgetEntity>.unmodifiable(_budgets),
         progress: progress,
+        transactions: List<TransactionEntity>.unmodifiable(_transactions),
         isLoading: false,
         clearError: true,
       ),

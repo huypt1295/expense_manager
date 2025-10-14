@@ -9,12 +9,14 @@ void main() {
       category: 'Food',
       description: 'Desc',
       date: DateTime(2024, 1, 1),
+      categoryIcon: '🍔',
     );
 
     expect(event.props[0], 'Title');
     expect(event.props[1], 50);
     expect(event.props[2], 'Food');
     expect(event.props[3], 'Desc');
+    expect(event.props[5], '🍔');
   });
 
   test('reset and close events are constant', () {

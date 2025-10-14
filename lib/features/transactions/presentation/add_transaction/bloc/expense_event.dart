@@ -1,3 +1,4 @@
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:flutter_core/flutter_core.dart';
 
 // Events
@@ -14,6 +15,8 @@ class ExpenseFormSubmitted extends ExpenseEvent {
   final String category;
   final String description;
   final DateTime date;
+  final TransactionType type;
+  final String categoryIcon;
 
   const ExpenseFormSubmitted({
     required this.title,
@@ -21,10 +24,20 @@ class ExpenseFormSubmitted extends ExpenseEvent {
     required this.category,
     required this.description,
     required this.date,
+    required this.type,
+    required this.categoryIcon,
   });
 
   @override
-  List<Object?> get props => [title, amount, category, description, date];
+  List<Object?> get props => [
+    title,
+    amount,
+    category,
+    description,
+    date,
+    type,
+    categoryIcon,
+  ];
 }
 
 class ExpenseFormReset extends ExpenseEvent {
@@ -33,4 +46,13 @@ class ExpenseFormReset extends ExpenseEvent {
 
 class ExpenseFormClosed extends ExpenseEvent {
   const ExpenseFormClosed();
+}
+
+class ExpenseCategoriesRequested extends ExpenseEvent {
+  const ExpenseCategoriesRequested({this.forceRefresh = false});
+
+  final bool forceRefresh;
+
+  @override
+  List<Object?> get props => [forceRefresh];
 }

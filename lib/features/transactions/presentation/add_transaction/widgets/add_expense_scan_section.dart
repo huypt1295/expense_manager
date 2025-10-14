@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
-class ExpenseScanSection extends StatelessWidget {
+class AddExpenseScanSection extends StatelessWidget {
   final VoidCallback onScanPressed;
   final bool isProcessing;
   final File? selectedImage;
   final VoidCallback onRemoveImage;
 
-  const ExpenseScanSection({
+  const AddExpenseScanSection({
     super.key,
     required this.onScanPressed,
     required this.isProcessing,
@@ -41,8 +41,8 @@ class ExpenseScanSection extends StatelessWidget {
         children: [
           _buildHeader(),
           const SizedBox(height: 16),
-          _buildFeatureChips(),
-          const SizedBox(height: 16),
+          // _buildFeatureChips(),
+          // const SizedBox(height: 16),
           _buildScanButton(),
           if (selectedImage != null) ...[
             const SizedBox(height: 16),
@@ -118,11 +118,7 @@ class ExpenseScanSection extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            color: Colors.white,
-            size: 14,
-          ),
+          Icon(icon, color: Colors.white, size: 14),
           const SizedBox(width: 4),
           Text(
             label,
@@ -145,13 +141,8 @@ class ExpenseScanSection extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
           foregroundColor: const Color(0xFF667eea),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 12,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           elevation: 2,
         ),
         icon: isProcessing
@@ -160,18 +151,13 @@ class ExpenseScanSection extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Color(0xFF667eea),
-                  ),
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667eea)),
                 ),
               )
             : const Icon(Icons.add_a_photo, size: 20),
         label: Text(
           isProcessing ? 'Processing...' : 'Scan Receipt or Transaction',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
       ),
     );
@@ -220,11 +206,7 @@ class ExpenseScanSection extends StatelessWidget {
           ),
           IconButton(
             onPressed: onRemoveImage,
-            icon: const Icon(
-              Icons.close,
-              color: Colors.white,
-              size: 20,
-            ),
+            icon: const Icon(Icons.close, color: Colors.white, size: 20),
           ),
         ],
       ),

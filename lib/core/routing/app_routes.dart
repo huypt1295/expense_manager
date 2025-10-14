@@ -8,6 +8,7 @@ enum AppRoute {
   home('/home'),
   homeSummary('/home/summary'),
   homeTransactions('/home/transactions'),
+  homeAddTransaction('/home/add_transaction'),
   homeBudget('/home/budget'),
   homeProfile('/home/profile');
 

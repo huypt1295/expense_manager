@@ -22,8 +22,22 @@ class TransactionPage extends BaseStatelessWidget {
   }
 }
 
-class _TransactionView extends StatelessWidget {
+class _TransactionView extends StatefulWidget {
   const _TransactionView();
+
+  @override
+  State<_TransactionView> createState() => _TransactionViewState();
+}
+
+class _TransactionViewState extends State<_TransactionView> {
+  late DateTime _selectedMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _selectedMonth = DateTime(now.year, now.month);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +53,46 @@ class _TransactionView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return state.items.isEmpty
-              ? TransactionEmptyWidget()
-              : TransactionListWidget(transactions: state.items);
+          final transactionsByMonth = state.items
+              .where(
+                (transaction) =>
+                    transaction.date.year == _selectedMonth.year &&
+                    transaction.date.month == _selectedMonth.month,
+              )
+              .toList();
+
+          return ColoredBox(
+            color: context.tpColors.backgroundMain,
+            child: CustomScrollView(
+              slivers: [
+                MonthSelectorBar(
+                  selectedMonth: _selectedMonth,
+                  onNext: _goToNextMonth,
+                  onPrevious: _goToPreviousMonth,
+                ),
+                Expanded(
+                  child: transactionsByMonth.isEmpty
+                      ? SliverToBoxAdapter(child: const TransactionEmptyWidget())
+                      : TransactionSliverListWidget(transactions: transactionsByMonth),
+                ),
+              ],
+            ),
+          );
         },
       ),
     );
+  }
+
+  void _goToPreviousMonth() {
+    setState(() {
+      _selectedMonth = _selectedMonth.previousMonth;
+    });
+  }
+
+  void _goToNextMonth() {
+    setState(() {
+      _selectedMonth = _selectedMonth.nextMonth;
+    });
   }
 
   FutureOr<void> _handleEffect(Effect effect, UiActions emitUi) {

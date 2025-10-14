@@ -23,7 +23,7 @@ void main() {
       final models = await dataSource.fetchAll();
       expect(models, hasLength(1));
       expect(models.first.id, 'cat-1');
-      expect(models.first.names['en'], 'Food');
+      expect(models.first.name['en'], 'Food');
     });
 
     test('watchAll streams category updates', () async {

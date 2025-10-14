@@ -129,4 +129,14 @@ extension DateTimeExtensions on DateTime {
   DateTime get lastDateOfMonth {
     return DateTime(year, month + 1, 0);
   }
+
+  /// Returns the previous month from [this]
+  DateTime get previousMonth {
+    return DateTime(year, month - 1);
+  }
+
+  /// Returns the next month from [this]
+  DateTime get nextMonth {
+    return DateTime(year, month + 1);
+  }
 }

@@ -22,10 +22,22 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "add_expense": MessageLookupByLibrary.simpleMessage("Add expense"),
+    "add_income": MessageLookupByLibrary.simpleMessage("Add income"),
+    "add_transaction": MessageLookupByLibrary.simpleMessage("Thêm giao dịch"),
+    "amount": MessageLookupByLibrary.simpleMessage("Amount"),
     "appName": MessageLookupByLibrary.simpleMessage("Flutter Container"),
+    "category": MessageLookupByLibrary.simpleMessage("Category"),
+    "date_time": MessageLookupByLibrary.simpleMessage("Time"),
+    "expense": MessageLookupByLibrary.simpleMessage("Expense"),
+    "income": MessageLookupByLibrary.simpleMessage("Income"),
+    "manual_input": MessageLookupByLibrary.simpleMessage("OR manual input"),
+    "note": MessageLookupByLibrary.simpleMessage("Note"),
+    "note_hint": MessageLookupByLibrary.simpleMessage("Add notes..."),
     "tab_budget": MessageLookupByLibrary.simpleMessage("Budget"),
     "tab_home": MessageLookupByLibrary.simpleMessage("Home"),
     "tab_profile": MessageLookupByLibrary.simpleMessage("Profile"),
     "tab_transactions": MessageLookupByLibrary.simpleMessage("Transactions"),
+    "title": MessageLookupByLibrary.simpleMessage("Title"),
   };
 }

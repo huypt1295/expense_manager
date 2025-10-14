@@ -1,6 +1,6 @@
 /// Helpers for formatting currency values into human-readable strings.
 class CurrencyUtils {
-  static const String _currencySuffix = ' VND';
+  static const String _currencySuffix = ' đ';
 
   /// Formats a numeric string [amount] into a VND currency representation.
   ///

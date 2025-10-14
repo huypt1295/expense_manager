@@ -88,6 +88,76 @@ class S {
   String get tab_profile {
     return Intl.message('Profile', name: 'tab_profile', desc: '', args: []);
   }
+
+  /// `Thêm giao dịch`
+  String get add_transaction {
+    return Intl.message(
+      'Thêm giao dịch',
+      name: 'add_transaction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Amount`
+  String get amount {
+    return Intl.message('Amount', name: 'amount', desc: '', args: []);
+  }
+
+  /// `Category`
+  String get category {
+    return Intl.message('Category', name: 'category', desc: '', args: []);
+  }
+
+  /// `Time`
+  String get date_time {
+    return Intl.message('Time', name: 'date_time', desc: '', args: []);
+  }
+
+  /// `Note`
+  String get note {
+    return Intl.message('Note', name: 'note', desc: '', args: []);
+  }
+
+  /// `Title`
+  String get title {
+    return Intl.message('Title', name: 'title', desc: '', args: []);
+  }
+
+  /// `Expense`
+  String get expense {
+    return Intl.message('Expense', name: 'expense', desc: '', args: []);
+  }
+
+  /// `Income`
+  String get income {
+    return Intl.message('Income', name: 'income', desc: '', args: []);
+  }
+
+  /// `Add notes...`
+  String get note_hint {
+    return Intl.message('Add notes...', name: 'note_hint', desc: '', args: []);
+  }
+
+  /// `Add expense`
+  String get add_expense {
+    return Intl.message('Add expense', name: 'add_expense', desc: '', args: []);
+  }
+
+  /// `Add income`
+  String get add_income {
+    return Intl.message('Add income', name: 'add_income', desc: '', args: []);
+  }
+
+  /// `OR manual input`
+  String get manual_input {
+    return Intl.message(
+      'OR manual input',
+      name: 'manual_input',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

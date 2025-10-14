@@ -1,3 +1,4 @@
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_bloc.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_event.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_state.dart';
@@ -54,18 +55,23 @@ class AddBudgetCategoryField extends BaseStatelessWidget {
       );
     }
 
-    final categories = state.categories;
+    final categories = state.categories
+        .where((category) => category.type == TransactionType.expense)
+        .toList(growable: false);
     if (categories.isEmpty) {
       return const Text('No categories available');
     }
 
     final localeCode =
         Localizations.maybeLocaleOf(context)?.languageCode ?? 'en';
+    final initialValue = categories.any((category) => category.id == selectedCategoryId)
+        ? selectedCategoryId
+        : null;
 
     return DropdownButtonFormField<String>(
-      initialValue: selectedCategoryId,
-      decoration: const InputDecoration(labelText: 'Category'),
-      items: categories
+      initialValue: initialValue,
+     decoration: const InputDecoration(labelText: 'Category'),
+     items: categories
           .map(
             (category) => DropdownMenuItem<String>(
               value: category.id,
