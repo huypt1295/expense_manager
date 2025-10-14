@@ -9,6 +9,7 @@ class BudgetModel {
     required this.startDate,
     required this.endDate,
     this.categoryId = '',
+    this.categoryIcon,
   });
 
   final String id;
@@ -17,6 +18,7 @@ class BudgetModel {
   final DateTime startDate;
   final DateTime endDate;
   final String categoryId;
+  final String? categoryIcon;
 
   BudgetEntity toEntity() {
     return BudgetEntity(
@@ -26,6 +28,7 @@ class BudgetModel {
       startDate: startDate,
       endDate: endDate,
       categoryId: categoryId,
+      categoryIcon: categoryIcon,
     );
   }
 
@@ -36,6 +39,7 @@ class BudgetModel {
     DateTime? startDate,
     DateTime? endDate,
     String? categoryId,
+    String? categoryIcon,
   }) {
     return BudgetModel(
       id: id ?? this.id,
@@ -44,6 +48,7 @@ class BudgetModel {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       categoryId: categoryId ?? this.categoryId,
+      categoryIcon: categoryIcon ?? this.categoryIcon,
     );
   }
 
@@ -59,15 +64,16 @@ class BudgetModel {
     if (categoryId.isNotEmpty) {
       map['categoryId'] = categoryId;
     }
+    if (categoryIcon != null) {
+      map['categoryIcon'] = categoryIcon;
+    }
     if (!merge) {
       map['createdAt'] = FieldValue.serverTimestamp();
     }
     return map;
   }
 
-  static BudgetModel fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
+  static BudgetModel fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? <String, dynamic>{};
     DateTime parseDate(dynamic value) {
       if (value is Timestamp) {
@@ -84,15 +90,18 @@ class BudgetModel {
 
     return BudgetModel(
       id: doc.id,
-      category: (data['categoryName'] as String?) ??
+      category:
+          (data['categoryName'] as String?) ??
           (data['category'] as String?) ??
           '',
       limitAmount: (data['limitAmount'] as num?)?.toDouble() ?? 0,
       startDate: parseDate(data['startDate']),
       endDate: parseDate(data['endDate']),
-      categoryId: (data['categoryId'] as String?) ??
+      categoryId:
+          (data['categoryId'] as String?) ??
           (data['category'] as String?) ??
           '',
+      categoryIcon: data['categoryIcon'] as String?,
     );
   }
 
@@ -104,6 +113,7 @@ class BudgetModel {
       startDate: entity.startDate,
       endDate: entity.endDate,
       categoryId: entity.categoryId,
+      categoryIcon: entity.categoryIcon,
     );
   }
 }

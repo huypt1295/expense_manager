@@ -15,5 +15,8 @@
   "note_hint": "Add notes...",
   "add_expense": "Add expense",
   "add_income": "Add income",
-  "manual_input": "OR manual input"
+  "manual_input": "OR manual input",
+  "total_budget_by_category": "Total budget by category",
+  "budget_by_category": "Budget by category",
+  "total_budget": "Total budget"
 }

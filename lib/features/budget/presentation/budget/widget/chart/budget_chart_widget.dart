@@ -20,11 +20,11 @@ class BudgetChartWidget extends BaseStatefulWidget {
 class BudgetChartWidgetState extends BaseState<BudgetChartWidget> {
   static const _maxTopSlices = 5;
   static const _topSliceColors = <Color>[
-    AppColors.purpleBranding950,
-    AppColors.purpleBranding800,
-    AppColors.purpleBranding600,
+    AppColors.purpleBranding500,
     AppColors.purpleBranding400,
     AppColors.purpleBranding300,
+    AppColors.purpleBranding200,
+    AppColors.purpleBranding100,
   ];
 
   int touchedIndex = -1;
@@ -125,40 +125,59 @@ class BudgetChartWidgetState extends BaseState<BudgetChartWidget> {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AspectRatio(
-          aspectRatio: 1.3,
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: PieChart(
-              PieChartData(
-                pieTouchData: PieTouchData(
-                  touchCallback: (event, pieTouchResponse) {
-                    setState(() {
-                      if (!event.isInterestedForInteractions ||
-                          pieTouchResponse == null ||
-                          pieTouchResponse.touchedSection == null) {
-                        touchedIndex = -1;
-                        return;
-                      }
-                      touchedIndex =
-                          pieTouchResponse.touchedSection!.touchedSectionIndex;
-                    });
-                  },
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: context.tpColors.borderDefault),
+      ),
+      margin: EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                S.current.total_budget_by_category,
+                style: TPTextStyle.titleM.copyWith(
+                  color: context.tpColors.textMain,
                 ),
-                borderData: FlBorderData(show: false),
-                sectionsSpace: 0,
-                centerSpaceRadius: 0,
-                sections: _buildSections(),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        _buildIndicator(),
-      ],
+          AspectRatio(
+            aspectRatio: 1.5,
+            child: AspectRatio(
+              aspectRatio: 1.2,
+              child: PieChart(
+                PieChartData(
+                  pieTouchData: PieTouchData(
+                    touchCallback: (event, pieTouchResponse) {
+                      setState(() {
+                        if (!event.isInterestedForInteractions ||
+                            pieTouchResponse == null ||
+                            pieTouchResponse.touchedSection == null) {
+                          touchedIndex = -1;
+                          return;
+                        }
+                        touchedIndex = pieTouchResponse
+                            .touchedSection!
+                            .touchedSectionIndex;
+                      });
+                    },
+                  ),
+                  borderData: FlBorderData(show: false),
+                  sectionsSpace: 0,
+                  centerSpaceRadius: 0,
+                  sections: _buildSections(),
+                ),
+              ),
+            ),
+          ),
+          _buildIndicator(),
+        ],
+      ),
     );
   }
 
@@ -189,7 +208,7 @@ class BudgetChartWidgetState extends BaseState<BudgetChartWidget> {
 
   Widget _buildIndicator() {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           for (var index = 0; index < _slices.length; index++)

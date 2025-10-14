@@ -158,6 +158,36 @@ class S {
       args: [],
     );
   }
+
+  /// `Total budget by category`
+  String get total_budget_by_category {
+    return Intl.message(
+      'Total budget by category',
+      name: 'total_budget_by_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Budget by category`
+  String get budget_by_category {
+    return Intl.message(
+      'Budget by category',
+      name: 'budget_by_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Total budget`
+  String get total_budget {
+    return Intl.message(
+      'Total budget',
+      name: 'total_budget',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

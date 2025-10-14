@@ -21,7 +21,9 @@ class BudgetOverviewWidget extends BaseStatelessWidget {
       budgets.fold<double>(0, (sum, budget) => sum + budget.limitAmount);
 
   double get totalSpent => transactions.fold<double>(
-      0, (sum, transaction) => sum + math.max(transaction.amount, 0));
+    0,
+    (sum, transaction) => sum + math.max(transaction.amount, 0),
+  );
 
   @override
   Widget buildContent(BuildContext context) {
@@ -37,7 +39,7 @@ class BudgetOverviewWidget extends BaseStatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Total budget",
+            S.current.total_budget,
             style: TPTextStyle.bodyM.copyWith(
               color: context.tpColors.textReverse,
             ),
@@ -57,8 +59,9 @@ class BudgetOverviewWidget extends BaseStatelessWidget {
 
   Widget _progressBudgetsWidget(BuildContext context) {
     final remaining = math.max(totalLimit - totalSpent, 0);
-    final progress =
-        totalLimit <= 0 ? 0.0 : (totalSpent / totalLimit).clamp(0.0, 1.0);
+    final progress = totalLimit <= 0
+        ? 0.0
+        : (totalSpent / totalLimit).clamp(0.0, 1.0);
     final percentageLabel = '${(progress * 100).toStringAsFixed(0)}%';
 
     return Column(
@@ -101,7 +104,7 @@ class BudgetOverviewWidget extends BaseStatelessWidget {
           children: [
             Text(
               CurrencyUtils.formatVndFromDouble(totalSpent),
-              style: TPTextStyle.titleL.copyWith(
+              style: TPTextStyle.titleM.copyWith(
                 color: context.tpColors.textReverse,
               ),
             ),
@@ -112,7 +115,7 @@ class BudgetOverviewWidget extends BaseStatelessWidget {
               ),
             ),
           ],
-        )
+        ),
       ],
     );
   }

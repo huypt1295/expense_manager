@@ -27,6 +27,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "add_transaction": MessageLookupByLibrary.simpleMessage("Thêm giao dịch"),
     "amount": MessageLookupByLibrary.simpleMessage("Số tiền"),
     "appName": MessageLookupByLibrary.simpleMessage("Flutter Container"),
+    "budget_by_category": MessageLookupByLibrary.simpleMessage(
+      "Ngân sách theo danh mục",
+    ),
     "category": MessageLookupByLibrary.simpleMessage("Danh mục"),
     "date_time": MessageLookupByLibrary.simpleMessage("Thời gian"),
     "expense": MessageLookupByLibrary.simpleMessage("Chi tiêu"),
@@ -39,5 +42,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "tab_profile": MessageLookupByLibrary.simpleMessage("Cá nhân"),
     "tab_transactions": MessageLookupByLibrary.simpleMessage("Giao dịch"),
     "title": MessageLookupByLibrary.simpleMessage("Tiêu đề"),
+    "total_budget": MessageLookupByLibrary.simpleMessage("Tổng ngân sách"),
+    "total_budget_by_category": MessageLookupByLibrary.simpleMessage(
+      "Tổng ngân sách theo danh mục",
+    ),
   };
 }

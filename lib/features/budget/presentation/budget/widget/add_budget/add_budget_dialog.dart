@@ -224,6 +224,7 @@ class _AddBudgetDialogState extends BaseState<AddBudgetDialog> {
               startDate: _startDate,
               endDate: _endDate,
               categoryId: selected.id,
+              categoryIcon: selected.icon,
             );
 
     final bloc = context.read<BudgetBloc>();

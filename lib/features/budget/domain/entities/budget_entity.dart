@@ -8,6 +8,7 @@ class BudgetEntity extends BaseEntity with EquatableMixin {
     required this.startDate,
     required this.endDate,
     this.categoryId = '',
+    this.categoryIcon,
   });
 
   final String id;
@@ -16,26 +17,29 @@ class BudgetEntity extends BaseEntity with EquatableMixin {
   final DateTime startDate;
   final DateTime endDate;
   final String categoryId;
+  final String? categoryIcon;
 
   @override
   List<Object?> get props => <Object?>[
-        id,
-        category,
-        limitAmount,
-        startDate,
-        endDate,
-        categoryId,
-      ];
+    id,
+    category,
+    limitAmount,
+    startDate,
+    endDate,
+    categoryId,
+    categoryIcon,
+  ];
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'id': id,
-        'category': category,
-        'limitAmount': limitAmount,
-        'startDate': startDate.toIso8601String(),
-        'endDate': endDate.toIso8601String(),
-        'categoryId': categoryId,
-      };
+    'id': id,
+    'category': category,
+    'limitAmount': limitAmount,
+    'startDate': startDate.toIso8601String(),
+    'endDate': endDate.toIso8601String(),
+    'categoryId': categoryId,
+    'categoryIcon': categoryIcon,
+  };
 
   BudgetEntity copyWith({
     String? id,
@@ -44,6 +48,7 @@ class BudgetEntity extends BaseEntity with EquatableMixin {
     DateTime? startDate,
     DateTime? endDate,
     String? categoryId,
+    String? categoryIcon,
   }) {
     return BudgetEntity(
       id: id ?? this.id,
@@ -52,6 +57,7 @@ class BudgetEntity extends BaseEntity with EquatableMixin {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       categoryId: categoryId ?? this.categoryId,
+      categoryIcon: categoryIcon ?? this.categoryIcon,
     );
   }
 }

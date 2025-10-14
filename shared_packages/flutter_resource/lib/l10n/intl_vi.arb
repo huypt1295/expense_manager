@@ -15,5 +15,8 @@
   "note_hint": "Thêm ghi chú...",
   "add_expense": "Thêm chi tiêu",
   "add_income": "Thêm thu nhập",
-  "manual_input": "Hoặc nhập thủ công"
+  "manual_input": "Hoặc nhập thủ công",
+  "total_budget_by_category": "Tổng ngân sách theo danh mục",
+  "budget_by_category": "Ngân sách theo danh mục",
+  "total_budget": "Tổng ngân sách"
 }

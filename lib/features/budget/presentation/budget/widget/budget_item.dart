@@ -24,9 +24,6 @@ class BudgetItem extends StatelessWidget {
     final remaining = progress?.remainingAmount ?? budget.limitAmount;
     final limit = budget.limitAmount;
     final percentage = progress?.percentage ?? 0;
-    final remainingStyle = remaining < 0
-        ? TPTextStyle.bodyM.copyWith(color: context.tpColors.textNegative)
-        : TPTextStyle.bodyM;
 
     return Dismissible(
       key: ValueKey<String>(budget.id),
@@ -47,16 +44,50 @@ class BudgetItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(budget.category, style: TPTextStyle.titleM),
-                const SizedBox(height: 8),
+                ListTile(
+                  onTap: onEdit,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: context.tpColors.surfaceNeutralComponent2,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      budget.categoryIcon ?? "",
+                      style: TPTextStyle.bodyL,
+                    ),
+                  ),
+                  title: Text(budget.category, style: TPTextStyle.titleS),
+                  subtitle: Text(DateFormat.yM().format(budget.startDate)),
+                  trailing: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "${CurrencyUtils.formatVndFromDouble(spent)}\n",
+                          style: TPTextStyle.bodyL.copyWith(
+                            color: context.tpColors.textMain,
+                          ),
+                        ),
+                        TextSpan(
+                          text:
+                              "/${CurrencyUtils.formatVndFromDouble(limit)}",
+                          style: TPTextStyle.captionM.copyWith(
+                            color: context.tpColors.textSub,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 LinearProgressIndicator(
                   value: percentage.clamp(0.0, 1.0),
                   minHeight: 8,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                const SizedBox(height: 8),
-                _buildSpendAndRemainingWidget(spent, remainingStyle, remaining),
-                const SizedBox(height: 4),
-                _buildLimitWidget(limit),
               ],
             ),
           ),
@@ -74,46 +105,6 @@ class BudgetItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(Icons.delete, color: context.tpColors.iconNegative),
-    );
-  }
-
-  Widget _buildSpendAndRemainingWidget(
-    double spent,
-    TextStyle remainingStyle,
-    double remaining,
-  ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          children: [
-            Text('Spent', style: TPTextStyle.bodyM),
-            Text(
-              CurrencyUtils.formatVndFromDouble(spent),
-              style: TPTextStyle.bodyM,
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            Text('Remaining', style: remainingStyle),
-            Text(
-              CurrencyUtils.formatVndFromDouble(remaining),
-              style: remainingStyle,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLimitWidget(double limit) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Text(
-        'Limit: ${CurrencyUtils.formatVndFromDouble(limit)}',
-        style: TPTextStyle.bodyM,
-      ),
     );
   }
 }
