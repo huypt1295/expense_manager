@@ -235,6 +235,7 @@ class BudgetChartWidgetState extends BaseState<BudgetChartWidget> {
                 ],
               ),
             ),
+          const SizedBox(height: 12),
         ],
       ),
     );

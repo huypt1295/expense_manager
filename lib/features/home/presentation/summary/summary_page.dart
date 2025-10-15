@@ -6,10 +6,10 @@ import 'package:expense_manager/features/home/presentation/summary/widget/summar
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_greeting_widget.dart';
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_list_transaction_widget.dart';
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_spending_widget.dart';
+import 'package:expense_manager/features/home/presentation/summary/widget/summary_weekly_transactions_line_chart_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
-import 'package:flutter_resource/flutter_resource.dart';
 import 'package:sliver_tools/sliver_tools.dart' show MultiSliver;
 
 class SummaryPage extends BaseStatelessWidget {
@@ -54,27 +54,24 @@ class _SummaryView extends StatelessWidget {
                   sliver: MultiSliver(
                     children: [
                       SliverToBoxAdapter(
-                        child: SummaryGreetingWidget(greeting: state.greeting),
+                        child: SummaryGreetingWidget(username: state.greeting),
                       ),
-                      SliverToBoxAdapter(child: const SizedBox(height: 12)),
+                      SliverToBoxAdapter(child: const SizedBox(height: 16)),
                       SliverToBoxAdapter(
                         child: SummarySpendingWidget(
-                          monthTotal: state.monthTotal,
+                          income: state.monthlyIncome,
+                          expense: state.monthlyExpense,
+                          remaining: state.monthlyRemaining,
                         ),
                       ),
                       SliverToBoxAdapter(child: const SizedBox(height: 24)),
                       SliverToBoxAdapter(
-                        child: Text(
-                          'Recent transactions',
-                          style: TPTextStyle.titleM,
+                        child: SummaryWeeklyTransactionsLineChartWidget(
+                          weeklyExpenses: state.weeklyExpenses,
                         ),
                       ),
-                      SliverToBoxAdapter(child: const SizedBox(height: 12)),
-                      state.recentTransactions.isEmpty
-                          ? SliverToBoxAdapter(child: SummaryEmptyWidget())
-                          : SummarySliverListTransactionWidget(
-                              recentTransactions: state.recentTransactions,
-                            ),
+                      SliverToBoxAdapter(child: const SizedBox(height: 24)),
+                      _buildListRecent(state),
                     ],
                   ),
                 ),
@@ -84,5 +81,13 @@ class _SummaryView extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Widget _buildListRecent(SummaryState state) {
+    return state.recentTransactions.isEmpty
+        ? SliverToBoxAdapter(child: SummaryEmptyWidget())
+        : SummarySliverListTransactionWidget(
+            recentTransactions: state.recentTransactions,
+          );
   }
 }

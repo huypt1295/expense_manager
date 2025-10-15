@@ -61,13 +61,18 @@ class _FakeTransactionsRepository implements TransactionsRepository {
   }
 }
 
-TransactionEntity _transaction(String id, DateTime date, double amount) =>
+TransactionEntity _transaction(
+  String id,
+  DateTime date,
+  double amount, {
+  TransactionType type = TransactionType.expense,
+}) =>
     TransactionEntity(
       id: id,
       title: 'Tx $id',
       amount: amount,
       date: date,
-      type: TransactionType.expense,
+      type: type,
       category: 'Food',
     );
 
@@ -95,7 +100,7 @@ void main() {
     await repository.close();
   });
 
-  test('builds greeting and month total from streams', () async {
+  test('builds greeting and monthly totals from streams', () async {
     final now = DateTime.now();
     final currentMonthDate = DateTime(now.year, now.month, 10);
     final previousMonthDate = currentMonthDate.subtract(const Duration(days: 40));
@@ -109,7 +114,9 @@ void main() {
             .having((s) => s.greeting, 'greeting', 'Alice'),
         isA<SummaryState>()
             .having((s) => s.isLoading, 'isLoading', false)
-            .having((s) => s.monthTotal, 'monthTotal', 150)
+            .having((s) => s.monthlyIncome, 'monthlyIncome', 200)
+            .having((s) => s.monthlyExpense, 'monthlyExpense', 50)
+            .having((s) => s.monthlyRemaining, 'monthlyRemaining', 150)
             .having(
               (s) => s.recentTransactions.first.id,
               'recent[0]',
@@ -127,8 +134,18 @@ void main() {
 
     repository.emit([
       _transaction('tx-1', currentMonthDate, 50),
-      _transaction('tx-2', currentMonthDate.add(const Duration(days: 2)), 100),
-      _transaction('tx-old', previousMonthDate, 999),
+      _transaction(
+        'tx-2',
+        currentMonthDate.add(const Duration(days: 2)),
+        200,
+        type: TransactionType.income,
+      ),
+      _transaction(
+        'tx-old',
+        previousMonthDate,
+        999,
+        type: TransactionType.income,
+      ),
     ]);
 
     await expectation;

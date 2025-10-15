@@ -20,8 +20,11 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'vi';
 
+  static String m0(user) => "Xin chào, ${user} 👋";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "add_budget": MessageLookupByLibrary.simpleMessage("Thêm ngân sách"),
     "add_expense": MessageLookupByLibrary.simpleMessage("Thêm chi tiêu"),
     "add_income": MessageLookupByLibrary.simpleMessage("Thêm thu nhập"),
     "add_transaction": MessageLookupByLibrary.simpleMessage("Thêm giao dịch"),
@@ -33,10 +36,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "category": MessageLookupByLibrary.simpleMessage("Danh mục"),
     "date_time": MessageLookupByLibrary.simpleMessage("Thời gian"),
     "expense": MessageLookupByLibrary.simpleMessage("Chi tiêu"),
+    "greeting": m0,
     "income": MessageLookupByLibrary.simpleMessage("Thu nhập"),
     "manual_input": MessageLookupByLibrary.simpleMessage("Hoặc nhập thủ công"),
     "note": MessageLookupByLibrary.simpleMessage("Ghi chú"),
     "note_hint": MessageLookupByLibrary.simpleMessage("Thêm ghi chú..."),
+    "recent_transactions": MessageLookupByLibrary.simpleMessage(
+      "Giao dịch gần đây",
+    ),
+    "remaining": MessageLookupByLibrary.simpleMessage("Còn lại"),
+    "see_all": MessageLookupByLibrary.simpleMessage("Xem tất cả"),
     "tab_budget": MessageLookupByLibrary.simpleMessage("Ngân sách"),
     "tab_home": MessageLookupByLibrary.simpleMessage("Trang chủ"),
     "tab_profile": MessageLookupByLibrary.simpleMessage("Cá nhân"),
@@ -45,6 +54,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "total_budget": MessageLookupByLibrary.simpleMessage("Tổng ngân sách"),
     "total_budget_by_category": MessageLookupByLibrary.simpleMessage(
       "Tổng ngân sách theo danh mục",
+    ),
+    "weekly_spending_chart_empty": MessageLookupByLibrary.simpleMessage(
+      "Không có chi tiêu nào trong 7 ngày qua.",
+    ),
+    "weekly_spending_chart_title": MessageLookupByLibrary.simpleMessage(
+      "Chi tiêu 7 ngày gần nhất",
     ),
   };
 }

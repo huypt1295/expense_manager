@@ -4,4 +4,5 @@ export './bar/month_selector_bar.dart';
 export './button/common_primary_button.dart';
 export './bottom_sheet/common_bottom_sheet.dart';
 export './form/common_text_form_field.dart';
+export './grid/common_grid_view.dart';
 export './snackbar/undo_snackbar.dart';

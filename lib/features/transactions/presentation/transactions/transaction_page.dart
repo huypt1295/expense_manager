@@ -70,11 +70,13 @@ class _TransactionViewState extends State<_TransactionView> {
                   onNext: _goToNextMonth,
                   onPrevious: _goToPreviousMonth,
                 ),
-                Expanded(
-                  child: transactionsByMonth.isEmpty
-                      ? SliverToBoxAdapter(child: const TransactionEmptyWidget())
-                      : TransactionSliverListWidget(transactions: transactionsByMonth),
-                ),
+                if (transactionsByMonth.isEmpty)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: TransactionEmptyWidget(),
+                  )
+                else
+                  TransactionSliverListWidget(transactions: transactionsByMonth),
               ],
             ),
           );

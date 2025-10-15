@@ -18,5 +18,12 @@
   "manual_input": "Hoặc nhập thủ công",
   "total_budget_by_category": "Tổng ngân sách theo danh mục",
   "budget_by_category": "Ngân sách theo danh mục",
-  "total_budget": "Tổng ngân sách"
+  "total_budget": "Tổng ngân sách",
+  "greeting": "Xin chào, {user} \uD83D\uDC4B",
+  "remaining": "Còn lại",
+  "recent_transactions": "Giao dịch gần đây",
+  "weekly_spending_chart_title": "Chi tiêu 7 ngày gần nhất",
+  "weekly_spending_chart_empty": "Không có chi tiêu nào trong 7 ngày qua.",
+  "see_all": "Xem tất cả",
+  "add_budget": "Thêm ngân sách"
 }

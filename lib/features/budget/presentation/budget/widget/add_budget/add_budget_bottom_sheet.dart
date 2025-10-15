@@ -11,17 +11,19 @@ import 'package:expense_manager/features/categories/domain/entities/category_ent
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
+import 'package:flutter_resource/flutter_resource.dart' show TPTextStyle;
+import 'package:flutter_resource/l10n/gen/l10n.dart';
 
-class AddBudgetDialog extends BaseStatefulWidget {
-  const AddBudgetDialog({super.key, this.initial});
+class AddBudgetBottomSheet extends BaseStatefulWidget {
+  const AddBudgetBottomSheet({super.key, this.initial});
 
   final BudgetEntity? initial;
 
   @override
-  State<AddBudgetDialog> createState() => _AddBudgetDialogState();
+  State<AddBudgetBottomSheet> createState() => _AddBudgetDialogState();
 }
 
-class _AddBudgetDialogState extends BaseState<AddBudgetDialog> {
+class _AddBudgetDialogState extends BaseState<AddBudgetBottomSheet> {
   late final TextEditingController _limitController;
   late DateTime _startDate;
   late DateTime _endDate;
@@ -64,56 +66,85 @@ class _AddBudgetDialogState extends BaseState<AddBudgetDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final initial = widget.initial;
     return BlocListener<BudgetBloc, BudgetState>(
       listenWhen: (previous, current) =>
           previous.categories != current.categories,
       listener: (context, state) {
         _syncSelectedCategory(state.categories);
       },
-      child: AlertDialog(
-        title: Text(initial == null ? 'Create budget' : 'Edit budget'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AddBudgetCategoryField(
-                selectedCategoryId: _selectedCategoryId,
-                onCategoryIdChanged: (value) => _selectedCategoryId = value,
-              ),
-              const SizedBox(height: 12),
-              _buildLimitAmountField(),
-              const SizedBox(height: 12),
-              AddBudgetStartDateField(
-                onPressed: () => _pickDate(isStart: true),
-                startDate: _startDate,
-              ),
-              const SizedBox(height: 12),
-              AddBudgetEndDateField(
-                onPressed: () => _pickDate(isStart: false),
-                endDate: _endDate,
-              ),
-            ],
+      child: CommonBottomSheet(
+        title: S.current.add_budget,
+        heightFactor: 0.85,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AddBudgetCategoryField(
+                  selectedCategoryId: _selectedCategoryId,
+                  onCategoryIdChanged: (value) => _selectedCategoryId = value,
+                ),
+                const SizedBox(height: 12),
+                _buildLimitAmountField(),
+                const SizedBox(height: 12),
+                AddBudgetStartDateField(
+                  onPressed: () => _pickDate(isStart: true),
+                  startDate: _startDate,
+                ),
+                const SizedBox(height: 12),
+                AddBudgetEndDateField(
+                  onPressed: () => _pickDate(isStart: false),
+                  endDate: _endDate,
+                ),
+                const SizedBox(height: 12),
+                _buildSubmitButton(context),
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
         ),
-        actions: [
-          AddBudgetCancelButton(),
-          AddBudgetSubmitButton(
-            onSubmit: () => _submit(context),
-            isInitial: initial != null,
-          ),
-        ],
       ),
     );
   }
 
-  TextField _buildLimitAmountField() {
-    return TextField(
-      controller: _limitController,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: const [VndCurrencyInputFormatter()],
-      decoration: const InputDecoration(labelText: 'Limit amount'),
+  Widget _buildLimitAmountField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          S.current.amount,
+          style: TPTextStyle.bodyM.copyWith(color: context.tpColors.textMain),
+        ),
+        const SizedBox(height: 8),
+        CommonTextFormField(
+          controller: _limitController,
+          keyboardType: TextInputType.number,
+          inputFormatters: const [VndCurrencyInputFormatter()],
+          hintText: "Limit Amount",
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter an amount';
+            }
+            final parsed = CurrencyUtils.parseVndToDouble(value);
+            if (parsed == null) {
+              return 'Please enter a valid number';
+            }
+            if (parsed <= 0) {
+              return 'Amount must be greater than 0';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubmitButton(BuildContext context) {
+    return AddBudgetSubmitButton(
+      onSubmit: () => _submit(context),
+      isInitial: widget.initial != null,
     );
   }
 

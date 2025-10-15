@@ -20,8 +20,11 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
+  static String m0(user) => "Hello, ${user} 👋";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "add_budget": MessageLookupByLibrary.simpleMessage("Add budget"),
     "add_expense": MessageLookupByLibrary.simpleMessage("Add expense"),
     "add_income": MessageLookupByLibrary.simpleMessage("Add income"),
     "add_transaction": MessageLookupByLibrary.simpleMessage("Thêm giao dịch"),
@@ -33,10 +36,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "category": MessageLookupByLibrary.simpleMessage("Category"),
     "date_time": MessageLookupByLibrary.simpleMessage("Time"),
     "expense": MessageLookupByLibrary.simpleMessage("Expense"),
+    "greeting": m0,
     "income": MessageLookupByLibrary.simpleMessage("Income"),
     "manual_input": MessageLookupByLibrary.simpleMessage("OR manual input"),
     "note": MessageLookupByLibrary.simpleMessage("Note"),
     "note_hint": MessageLookupByLibrary.simpleMessage("Add notes..."),
+    "recent_transactions": MessageLookupByLibrary.simpleMessage(
+      "Recent transactions",
+    ),
+    "remaining": MessageLookupByLibrary.simpleMessage("Remaining"),
+    "see_all": MessageLookupByLibrary.simpleMessage("See all"),
     "tab_budget": MessageLookupByLibrary.simpleMessage("Budget"),
     "tab_home": MessageLookupByLibrary.simpleMessage("Home"),
     "tab_profile": MessageLookupByLibrary.simpleMessage("Profile"),
@@ -45,6 +54,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "total_budget": MessageLookupByLibrary.simpleMessage("Total budget"),
     "total_budget_by_category": MessageLookupByLibrary.simpleMessage(
       "Total budget by category",
+    ),
+    "weekly_spending_chart_empty": MessageLookupByLibrary.simpleMessage(
+      "No spending recorded in the last 7 days.",
+    ),
+    "weekly_spending_chart_title": MessageLookupByLibrary.simpleMessage(
+      "Spending last 7 days",
     ),
   };
 }

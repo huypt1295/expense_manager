@@ -1,3 +1,4 @@
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
@@ -12,11 +13,15 @@ class SummaryTransactionItem extends BaseStatelessWidget {
   @override
   Widget buildContent(BuildContext context) {
     final icon = transaction.categoryIcon?.trim();
+    final amountPrefix = transaction.type.isExpense ? '-' : '+';
 
     return Material(
-      borderRadius: BorderRadius.circular(12),
-      color: context.tpColors.backgroundMain,
+      color: Colors.transparent,
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
         leading: (icon == null || icon.isEmpty)
             ? null
             : Container(
@@ -30,15 +35,14 @@ class SummaryTransactionItem extends BaseStatelessWidget {
                 child: Text(icon, style: TPTextStyle.bodyL),
               ),
         title: Text(transaction.title),
-        subtitle: Text(
-          [
-            transaction.date.toStringWithFormat(DateFormat.MMMd()),
-            if ((transaction.category ?? '').isNotEmpty) transaction.category,
-          ].whereType<String>().join(' · '),
-        ),
+        subtitle: Text(transaction.date.toStringWithFormat(DateFormat.MMMd())),
         trailing: Text(
-          CurrencyUtils.formatVndFromDouble(transaction.amount),
-          style: TPTextStyle.bodyInfoM,
+          '$amountPrefix ${CurrencyUtils.formatVndFromDouble(transaction.amount)}',
+          style: TPTextStyle.titleM.copyWith(
+            color: transaction.type.isExpense
+                ? context.tpColors.textNegative
+                : context.tpColors.textPositive,
+          ),
         ),
       ),
     );

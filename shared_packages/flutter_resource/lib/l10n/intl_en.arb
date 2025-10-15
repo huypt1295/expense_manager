@@ -18,5 +18,12 @@
   "manual_input": "OR manual input",
   "total_budget_by_category": "Total budget by category",
   "budget_by_category": "Budget by category",
-  "total_budget": "Total budget"
+  "total_budget": "Total budget",
+  "greeting": "Hello, {user} \uD83D\uDC4B",
+  "remaining": "Remaining",
+  "recent_transactions": "Recent transactions",
+  "weekly_spending_chart_title": "Spending last 7 days",
+  "weekly_spending_chart_empty": "No spending recorded in the last 7 days.",
+  "see_all": "See all",
+  "add_budget": "Add budget"
 }

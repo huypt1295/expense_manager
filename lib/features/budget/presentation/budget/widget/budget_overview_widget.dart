@@ -32,7 +32,7 @@ class BudgetOverviewWidget extends BaseStatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(16),
         color: context.tpColors.surfaceNeutralComponent,
       ),
       child: Column(

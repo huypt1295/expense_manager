@@ -5,13 +5,13 @@ import 'package:expense_manager/features/home/presentation/summary/bloc/summary_
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_event.dart';
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_state.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/watch_transactions_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/transactions_failure_mapper.dart';
 import 'package:flutter_core/flutter_core.dart';
 
 @injectable
-class SummaryBloc
-    extends BaseBloc<SummaryEvent, SummaryState, SummaryEffect> {
+class SummaryBloc extends BaseBloc<SummaryEvent, SummaryState, SummaryEffect> {
   SummaryBloc(
     this._currentUser,
     this._watchTransactionsUseCase, {
@@ -46,8 +46,7 @@ class SummaryBloc
     );
 
     try {
-      _transactionsSubscription ??=
-          _watchTransactionsUseCase(NoParam()).listen(
+      _transactionsSubscription ??= _watchTransactionsUseCase(NoParam()).listen(
         (transactions) => add(SummaryTransactionsUpdated(transactions)),
         onError: (Object error, StackTrace stackTrace) {
           final failure = mapTransactionsError(error, stackTrace);
@@ -66,10 +65,7 @@ class SummaryBloc
     }
   }
 
-  void _onUserChanged(
-    SummaryUserChanged event,
-    Emitter<SummaryState> emit,
-  ) {
+  void _onUserChanged(SummaryUserChanged event, Emitter<SummaryState> emit) {
     _snapshot = event.snapshot;
     _refreshState(emit);
   }
@@ -82,17 +78,60 @@ class SummaryBloc
     _refreshState(emit);
   }
 
-  void _onStreamFailed(
-    SummaryStreamFailed event,
-    Emitter<SummaryState> emit,
-  ) {
+  void _onStreamFailed(SummaryStreamFailed event, Emitter<SummaryState> emit) {
     emit(state.copyWith(isLoading: false, errorMessage: event.message));
     emitEffect(SummaryShowErrorEffect(event.message));
   }
 
   void _refreshState(Emitter<SummaryState> emit) {
     final greeting = _buildGreeting(_snapshot);
-    final monthTotal = _computeMonthTotal(_transactions);
+    final now = DateTime.now();
+    DateTime dateOnly(DateTime date) =>
+        DateTime(date.year, date.month, date.day);
+    final today = dateOnly(now);
+    final startDate = today.subtract(const Duration(days: 6));
+
+    final dailyExpenses = <DateTime, double>{
+      for (var offset = 0; offset < 7; offset++)
+        startDate.add(Duration(days: offset)): 0,
+    };
+    final monthlyTransactions = _transactions.where(
+      (transaction) =>
+          transaction.date.year == now.year &&
+          transaction.date.month == now.month,
+    );
+    double monthlyIncome = 0;
+    double monthlyExpense = 0;
+    for (final transaction in monthlyTransactions) {
+      if (transaction.type == TransactionType.income) {
+        monthlyIncome += transaction.amount;
+      } else {
+        monthlyExpense += transaction.amount;
+      }
+    }
+
+    for (final transaction in _transactions) {
+      if (!transaction.type.isExpense) {
+        continue;
+      }
+      final transactionDate = dateOnly(transaction.date.toLocal());
+      if (transactionDate.isBefore(startDate) ||
+          transactionDate.isAfter(today)) {
+        continue;
+      }
+      dailyExpenses[transactionDate] =
+          (dailyExpenses[transactionDate] ?? 0) + transaction.amount;
+    }
+    final weeklyExpenses =
+        dailyExpenses.entries
+            .map(
+              (entry) =>
+                  SummaryDailySpending(date: entry.key, amount: entry.value),
+            )
+            .toList()
+          ..sort((a, b) => a.date.compareTo(b.date));
+
+    final monthlyRemaining = monthlyIncome - monthlyExpense;
     final sorted = List<TransactionEntity>.from(_transactions)
       ..sort((a, b) => b.date.compareTo(a.date));
     final recent = sorted.take(5).toList(growable: false);
@@ -100,7 +139,10 @@ class SummaryBloc
     emit(
       state.copyWith(
         greeting: greeting,
-        monthTotal: monthTotal,
+        monthlyIncome: monthlyIncome,
+        monthlyExpense: monthlyExpense,
+        monthlyRemaining: monthlyRemaining,
+        weeklyExpenses: weeklyExpenses,
         recentTransactions: recent,
         isLoading: false,
         clearError: true,
@@ -118,15 +160,6 @@ class SummaryBloc
       return email.split('@').first;
     }
     return 'Guest';
-  }
-
-  double _computeMonthTotal(List<TransactionEntity> transactions) {
-    final now = DateTime.now();
-    return transactions
-        .where((transaction) =>
-            transaction.date.year == now.year &&
-            transaction.date.month == now.month)
-        .fold<double>(0, (sum, tx) => sum + tx.amount);
   }
 
   @override

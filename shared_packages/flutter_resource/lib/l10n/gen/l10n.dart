@@ -188,6 +188,61 @@ class S {
       args: [],
     );
   }
+
+  /// `Hello, {user} 👋`
+  String greeting(Object user) {
+    return Intl.message(
+      'Hello, $user 👋',
+      name: 'greeting',
+      desc: '',
+      args: [user],
+    );
+  }
+
+  /// `Remaining`
+  String get remaining {
+    return Intl.message('Remaining', name: 'remaining', desc: '', args: []);
+  }
+
+  /// `Recent transactions`
+  String get recent_transactions {
+    return Intl.message(
+      'Recent transactions',
+      name: 'recent_transactions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Spending last 7 days`
+  String get weekly_spending_chart_title {
+    return Intl.message(
+      'Spending last 7 days',
+      name: 'weekly_spending_chart_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No spending recorded in the last 7 days.`
+  String get weekly_spending_chart_empty {
+    return Intl.message(
+      'No spending recorded in the last 7 days.',
+      name: 'weekly_spending_chart_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `See all`
+  String get see_all {
+    return Intl.message('See all', name: 'see_all', desc: '', args: []);
+  }
+
+  /// `Add budget`
+  String get add_budget {
+    return Intl.message('Add budget', name: 'add_budget', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

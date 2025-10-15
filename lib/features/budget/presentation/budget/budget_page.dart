@@ -6,7 +6,7 @@ import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_state.dart';
 import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/add_budget_button.dart';
-import 'package:expense_manager/features/budget/presentation/budget/widget/add_budget/add_budget_dialog.dart';
+import 'package:expense_manager/features/budget/presentation/budget/widget/add_budget/add_budget_bottom_sheet.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/budget_empty_widget.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/budget_list_widget.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/budget_overview_widget.dart';
@@ -67,7 +67,7 @@ class _BudgetPageState extends BaseState<BudgetPage> {
                         spendingTransactionsByMonth,
                       ),
                       _buildChart(budgetsByMonth),
-                      _buildListBudget(budgetsByMonth, state),
+                      _buildListRecentBudget(budgetsByMonth, state),
                     ],
                   ),
                   _buildSubmitButton(),
@@ -106,7 +106,7 @@ class _BudgetPageState extends BaseState<BudgetPage> {
     );
   }
 
-  Widget _buildListBudget(
+  Widget _buildListRecentBudget(
     List<BudgetEntity> budgetsByMonth,
     BudgetState state,
   ) {
@@ -125,10 +125,16 @@ class _BudgetPageState extends BaseState<BudgetPage> {
     if (effect is BudgetShowErrorEffect) {
       emitUi.showSnackBar(SnackBar(content: Text(effect.message)));
     } else if (effect is BudgetShowDialogAddEffect) {
-      emitUi.showDialogSafe(
-        builder: (ctx) => BlocProvider.value(
-          value: ctx.read<BudgetBloc>(),
-          child: AddBudgetDialog(initial: effect.budget),
+      emitUi(
+        (uiContext) => showModalBottomSheet(
+          context: uiContext,
+          useRootNavigator: true,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => BlocProvider.value(
+            value: uiContext.read<BudgetBloc>(),
+            child: AddBudgetBottomSheet(initial: effect.budget),
+          ),
         ),
       );
     } else if (effect is BudgetShowUndoDeleteEffect) {

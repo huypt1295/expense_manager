@@ -1,4 +1,3 @@
-import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_category_item.dart';
 import 'package:flutter/material.dart';
@@ -161,7 +160,6 @@ class AddExpenseFormFields extends StatelessWidget {
 
     final textTheme = Theme.of(context).textTheme;
     final totalItems = categories.length + 1;
-    final crossAxisCount = totalItems >= 3 ? 3 : totalItems;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,15 +182,7 @@ class AddExpenseFormFields extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    childAspectRatio: 1,
-                  ),
+                CommonGridView(
                   itemCount: totalItems,
                   itemBuilder: (context, index) {
                     if (index == categories.length) {

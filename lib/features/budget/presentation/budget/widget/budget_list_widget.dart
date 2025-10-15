@@ -5,6 +5,7 @@ import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_
 import 'package:expense_manager/features/budget/presentation/budget/widget/budget_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_core/flutter_core.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class BudgetSliverListWidget extends BaseStatelessWidget {
   const BudgetSliverListWidget({
@@ -20,22 +21,24 @@ class BudgetSliverListWidget extends BaseStatelessWidget {
   Widget buildContent(BuildContext context) {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      sliver: SliverList.separated(
-        itemCount: budgets.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final budget = budgets[index];
-          final progress = this.progress[budget.id];
-          return BudgetItem(
-            budget: budget,
-            progress: progress,
-            onEdit: () => context.read<BudgetBloc>().add(
-              BudgetShowDialogAdd(budget: budget),
-            ),
-            onDelete: () =>
-                context.read<BudgetBloc>().add(BudgetDeleteRequested(budget)),
-          );
-        },
+      sliver: SlidableAutoCloseBehavior(
+        child: SliverList.separated(
+          itemCount: budgets.length,
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final budget = budgets[index];
+            final progress = this.progress[budget.id];
+            return BudgetItem(
+              budget: budget,
+              progress: progress,
+              onEdit: () => context.read<BudgetBloc>().add(
+                BudgetShowDialogAdd(budget: budget),
+              ),
+              onDelete: () =>
+                  context.read<BudgetBloc>().add(BudgetDeleteRequested(budget)),
+            );
+          },
+        ),
       ),
     );
   }
