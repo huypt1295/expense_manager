@@ -9,13 +9,18 @@ class ConfigCubit extends Cubit<AppConfig> {
 
   Future<void> _initConfig() async {
     final prefs = await SharedPreferences.getInstance();
-    final languageCode = prefs.getString('config_language') ??
+    final languageCode =
+        prefs.getString('config_language') ??
         AppConfig.initial().locale.languageCode;
-    final isDarkMode = prefs.getBool('config_dark_mode') ??
-        AppConfig.initial().themeMode.isDarkMode;
+    final storedTheme = prefs.getString('config_theme_mode');
+    final isDarkModeLegacy = prefs.getBool('config_dark_mode');
 
     final locale = Locale(languageCode);
-    final themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    final themeMode = storedTheme != null
+        ? _decodeThemeMode(storedTheme)
+        : (isDarkModeLegacy == null
+              ? AppConfig.initial().themeMode
+              : (isDarkModeLegacy ? ThemeMode.dark : ThemeMode.light));
     emit(AppConfig(locale: locale, themeMode: themeMode));
   }
 
@@ -29,8 +34,31 @@ class ConfigCubit extends Cubit<AppConfig> {
 
   Future<void> toggleTheme({required ThemeMode themeMode}) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('config_dark_mode', themeMode == ThemeMode.dark);
+    await prefs.setString('config_theme_mode', _encodeThemeMode(themeMode));
+    await prefs.remove('config_dark_mode');
 
     emit(state.copyWith(themeMode: themeMode));
+  }
+
+  String _encodeThemeMode(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.dark:
+        return 'dark';
+      case ThemeMode.system:
+        return 'system';
+      case ThemeMode.light:
+        return 'light';
+    }
+  }
+
+  ThemeMode _decodeThemeMode(String value) {
+    switch (value) {
+      case 'dark':
+        return ThemeMode.dark;
+      case 'system':
+        return ThemeMode.system;
+      default:
+        return ThemeMode.light;
+    }
   }
 }

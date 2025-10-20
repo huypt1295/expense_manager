@@ -27,7 +27,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "add_budget": MessageLookupByLibrary.simpleMessage("Add budget"),
     "add_expense": MessageLookupByLibrary.simpleMessage("Add expense"),
     "add_income": MessageLookupByLibrary.simpleMessage("Add income"),
-    "add_transaction": MessageLookupByLibrary.simpleMessage("Thêm giao dịch"),
+    "add_transaction": MessageLookupByLibrary.simpleMessage("Add transaction"),
     "amount": MessageLookupByLibrary.simpleMessage("Amount"),
     "appName": MessageLookupByLibrary.simpleMessage("Flutter Container"),
     "budget_by_category": MessageLookupByLibrary.simpleMessage(
@@ -35,6 +35,11 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "category": MessageLookupByLibrary.simpleMessage("Category"),
     "date_time": MessageLookupByLibrary.simpleMessage("Time"),
+    "done": MessageLookupByLibrary.simpleMessage("Done"),
+    "edit_budget": MessageLookupByLibrary.simpleMessage("Edit budget"),
+    "edit_transaction": MessageLookupByLibrary.simpleMessage(
+      "Edit transaction",
+    ),
     "expense": MessageLookupByLibrary.simpleMessage("Expense"),
     "greeting": m0,
     "income": MessageLookupByLibrary.simpleMessage("Income"),
@@ -45,6 +50,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Recent transactions",
     ),
     "remaining": MessageLookupByLibrary.simpleMessage("Remaining"),
+    "save": MessageLookupByLibrary.simpleMessage("Save"),
     "see_all": MessageLookupByLibrary.simpleMessage("See all"),
     "tab_budget": MessageLookupByLibrary.simpleMessage("Budget"),
     "tab_home": MessageLookupByLibrary.simpleMessage("Home"),

@@ -89,11 +89,21 @@ class S {
     return Intl.message('Profile', name: 'tab_profile', desc: '', args: []);
   }
 
-  /// `Thêm giao dịch`
+  /// `Add transaction`
   String get add_transaction {
     return Intl.message(
-      'Thêm giao dịch',
+      'Add transaction',
       name: 'add_transaction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit transaction`
+  String get edit_transaction {
+    return Intl.message(
+      'Edit transaction',
+      name: 'edit_transaction',
       desc: '',
       args: [],
     );
@@ -242,6 +252,21 @@ class S {
   /// `Add budget`
   String get add_budget {
     return Intl.message('Add budget', name: 'add_budget', desc: '', args: []);
+  }
+
+  /// `Edit budget`
+  String get edit_budget {
+    return Intl.message('Edit budget', name: 'edit_budget', desc: '', args: []);
+  }
+
+  /// `Save`
+  String get save {
+    return Intl.message('Save', name: 'save', desc: '', args: []);
+  }
+
+  /// `Done`
+  String get done {
+    return Intl.message('Done', name: 'done', desc: '', args: []);
   }
 }
 

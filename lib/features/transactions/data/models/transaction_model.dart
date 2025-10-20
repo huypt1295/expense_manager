@@ -12,6 +12,7 @@ class TransactionModel {
     this.category,
     this.note,
     this.deleted = false,
+    this.categoryId,
     this.categoryIcon,
   });
 
@@ -23,6 +24,7 @@ class TransactionModel {
   final String? category;
   final String? note;
   final bool deleted;
+  final String? categoryId;
   final String? categoryIcon;
 
   TransactionEntity toEntity() {
@@ -34,6 +36,7 @@ class TransactionModel {
       type: type,
       category: category,
       note: note,
+      categoryId: categoryId,
       categoryIcon: categoryIcon,
     );
   }
@@ -47,6 +50,7 @@ class TransactionModel {
     String? category,
     String? note,
     bool? deleted,
+    String? categoryId,
     String? categoryIcon,
   }) {
     return TransactionModel(
@@ -58,7 +62,8 @@ class TransactionModel {
       category: category ?? this.category,
       note: note ?? this.note,
       deleted: deleted ?? this.deleted,
-      categoryIcon: categoryIcon ?? this.categoryIcon,
+      categoryId: categoryId ?? this.categoryIcon,
+      categoryIcon: categoryIcon ?? this.categoryId,
     );
   }
 
@@ -72,6 +77,7 @@ class TransactionModel {
       'note': note,
       'deleted': deleted,
       'updatedAt': FieldValue.serverTimestamp(),
+      'categoryId': categoryId,
       'categoryIcon': categoryIcon,
     };
 
@@ -104,6 +110,7 @@ class TransactionModel {
       category: data['category'] as String?,
       note: data['note'] as String?,
       deleted: (data['deleted'] as bool?) ?? false,
+      categoryId: data['categoryId'] as String?,
       categoryIcon: data['categoryIcon'] as String?,
     );
   }
@@ -117,6 +124,7 @@ class TransactionModel {
       type: entity.type,
       category: entity.category,
       note: entity.note,
+      categoryId: entity.categoryId,
       categoryIcon: entity.categoryIcon,
     );
   }

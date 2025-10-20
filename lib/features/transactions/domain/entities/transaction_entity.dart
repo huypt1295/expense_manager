@@ -10,6 +10,7 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
     required this.type,
     this.category,
     this.note,
+    this.categoryId,
     this.categoryIcon,
   });
 
@@ -20,6 +21,7 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
   final TransactionType type;
   final String? category;
   final String? note;
+  final String? categoryId;
   final String? categoryIcon;
 
   @override
@@ -31,6 +33,7 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
     type,
     category,
     note,
+    categoryId,
     categoryIcon,
   ];
 
@@ -43,6 +46,7 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
     'type': transactionTypeToJson(type),
     'category': category,
     'note': note,
+    'categoryId': categoryId,
     'categoryIcon': categoryIcon,
   };
 
@@ -54,6 +58,7 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
     TransactionType? type,
     String? category,
     String? note,
+    String? categoryId,
     String? categoryIcon,
   }) {
     return TransactionEntity(
@@ -64,6 +69,7 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
       type: type ?? this.type,
       category: category ?? this.category,
       note: note ?? this.note,
+      categoryId: categoryId ?? this.categoryId,
       categoryIcon: categoryIcon ?? this.categoryIcon,
     );
   }

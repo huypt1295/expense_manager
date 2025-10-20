@@ -4,7 +4,8 @@
   "tab_transactions": "Transactions",
   "tab_budget": "Budget",
   "tab_profile": "Profile",
-  "add_transaction": "Thêm giao dịch",
+  "add_transaction": "Add transaction",
+  "edit_transaction": "Edit transaction",
   "amount": "Amount",
   "category": "Category",
   "date_time": "Time",
@@ -25,5 +26,8 @@
   "weekly_spending_chart_title": "Spending last 7 days",
   "weekly_spending_chart_empty": "No spending recorded in the last 7 days.",
   "see_all": "See all",
-  "add_budget": "Add budget"
+  "add_budget": "Add budget",
+  "edit_budget": "Edit budget",
+  "save": "Save",
+  "done": "Done"
 }

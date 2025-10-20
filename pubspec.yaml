@@ -84,6 +84,7 @@ dev_dependencies:
   json_serializable: ^6.2.0
   injectable_generator: ^2.4.2
   fake_cloud_firestore: ^4.0.0
+  flutter_launcher_icons: ^0.14.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -100,3 +101,10 @@ flutter:
   assets:
     - shared_packages/flutter_resource/assets/images/
     - shared_packages/flutter_resource/assets/lotties/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: shared_packages/flutter_resource/assets/icon/icon_launcher.png
+  web:
+    generate: true

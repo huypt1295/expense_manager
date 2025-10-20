@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/add_expense_bottom_sheet.dart';
 import 'package:expense_manager/features/transactions/presentation/transactions/bloc/transactions_bloc.dart';
 import 'package:expense_manager/features/transactions/presentation/transactions/bloc/transactions_event.dart';
-import 'package:expense_manager/features/transactions/presentation/transactions/widget/transaction_edit_dialog.dart';
 import 'package:expense_manager/features/transactions/presentation/transactions/widget/transaction_item.dart'
     show TransactionItem;
 import 'package:flutter/material.dart';
@@ -31,7 +31,8 @@ class TransactionSliverListWidget extends BaseStatelessWidget {
             ),
             child: _TransactionGroupSection(
               group: group,
-              onEdit: (transaction) => _showEditDialog(context, transaction),
+              onEdit: (transaction) =>
+                  _showEditBottomSheet(context, transaction),
               onDelete: (transaction) => context.read<TransactionsBloc>().add(
                 TransactionsDeleteRequested(transaction),
               ),
@@ -42,18 +43,16 @@ class TransactionSliverListWidget extends BaseStatelessWidget {
     );
   }
 
-  Future<void> _showEditDialog(
+  Future<void> _showEditBottomSheet(
     BuildContext context,
     TransactionEntity transaction,
   ) async {
-    await showDialog<void>(
+    showModalBottomSheet(
       context: context,
-      builder: (dialogContext) {
-        return BlocProvider.value(
-          value: context.read<TransactionsBloc>(),
-          child: TransactionEditDialog(transaction: transaction),
-        );
-      },
+      isScrollControlled: true,
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddExpenseBottomSheet(transaction: transaction),
     );
   }
 }
@@ -136,7 +135,7 @@ class _TransactionGroupSection extends StatelessWidget {
                     ),
                   ),
                 ),
-                const PopupMenuDivider(),
+                PopupMenuDivider(color: context.tpColors.borderDefault),
                 PopupMenuItem<int>(
                   enabled: false,
                   child: Row(
@@ -251,6 +250,7 @@ class _TransactionGroupSection extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(height: 16),
       ],
     );
   }

@@ -2,10 +2,7 @@ import 'package:expense_manager/features/budget/domain/entities/budget_entity.da
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_bloc.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_event.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_state.dart';
-import 'package:expense_manager/features/budget/presentation/budget/widget/add_budget/add_budget_cancel_button.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/add_budget/add_budget_category_field.dart';
-import 'package:expense_manager/features/budget/presentation/budget/widget/add_budget/add_budget_end_date_field.dart';
-import 'package:expense_manager/features/budget/presentation/budget/widget/add_budget/add_budget_start_date_field.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/add_budget/add_budget_submit_button.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +10,8 @@ import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_resource/flutter_resource.dart' show TPTextStyle;
 import 'package:flutter_resource/l10n/gen/l10n.dart';
+
+import 'add_budget_date_time_field.dart';
 
 class AddBudgetBottomSheet extends BaseStatefulWidget {
   const AddBudgetBottomSheet({super.key, this.initial});
@@ -73,7 +72,9 @@ class _AddBudgetDialogState extends BaseState<AddBudgetBottomSheet> {
         _syncSelectedCategory(state.categories);
       },
       child: CommonBottomSheet(
-        title: S.current.add_budget,
+        title: widget.initial == null
+            ? S.current.add_budget
+            : S.current.edit_budget,
         heightFactor: 0.85,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -82,30 +83,26 @@ class _AddBudgetDialogState extends BaseState<AddBudgetBottomSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AddBudgetCategoryField(
-                  selectedCategoryId: _selectedCategoryId,
-                  onCategoryIdChanged: (value) => _selectedCategoryId = value,
-                ),
+                _buildCategoryField(),
                 const SizedBox(height: 12),
                 _buildLimitAmountField(),
-                const SizedBox(height: 12),
-                AddBudgetStartDateField(
-                  onPressed: () => _pickDate(isStart: true),
-                  startDate: _startDate,
-                ),
-                const SizedBox(height: 12),
-                AddBudgetEndDateField(
-                  onPressed: () => _pickDate(isStart: false),
-                  endDate: _endDate,
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
+                _buildDateTimeField(),
+                const SizedBox(height: 16),
                 _buildSubmitButton(context),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCategoryField() {
+    return AddBudgetCategoryField(
+      selectedCategoryId: _selectedCategoryId,
+      onCategoryIdChanged: (value) => _selectedCategoryId = value,
     );
   }
 
@@ -122,7 +119,7 @@ class _AddBudgetDialogState extends BaseState<AddBudgetBottomSheet> {
           controller: _limitController,
           keyboardType: TextInputType.number,
           inputFormatters: const [VndCurrencyInputFormatter()],
-          hintText: "Limit Amount",
+          hintText: "0 đ",
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter an amount';
@@ -141,40 +138,26 @@ class _AddBudgetDialogState extends BaseState<AddBudgetBottomSheet> {
     );
   }
 
-  Widget _buildSubmitButton(BuildContext context) {
-    return AddBudgetSubmitButton(
-      onSubmit: () => _submit(context),
-      isInitial: widget.initial != null,
+  Widget _buildDateTimeField() {
+    return AddBudgetDateTimeField(
+      initialDateTime: _startDate,
+      onDateTimeChanged: (DateTime newDT) {
+        setState(() {
+          _startDate = newDT;
+          _endDate = DateTime(newDT.year, newDT.month + 1, 0);
+        });
+      },
     );
+  }
+
+  Widget _buildSubmitButton(BuildContext context) {
+    return AddBudgetSubmitButton(onSubmit: () => _submit(context));
   }
 
   @override
   void dispose() {
     _limitController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickDate({required bool isStart}) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: isStart ? _startDate : _endDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (picked == null) {
-      return;
-    }
-
-    setState(() {
-      if (isStart) {
-        _startDate = picked;
-        if (_endDate.isBefore(_startDate)) {
-          _endDate = _startDate;
-        }
-      } else {
-        _endDate = picked.isBefore(_startDate) ? _startDate : picked;
-      }
-    });
   }
 
   void _syncSelectedCategory(List<CategoryEntity> categories) {

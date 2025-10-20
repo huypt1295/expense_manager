@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:expense_manager/core/enums/transaction_type.dart';
+import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/constants/expense_constants.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/helpers/expense_image_helper.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
@@ -18,7 +19,9 @@ import 'package:expense_manager/features/transactions/presentation/add_transacti
 import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/expense_state.dart';
 
 class AddExpenseBottomSheet extends BaseStatefulWidget {
-  const AddExpenseBottomSheet({super.key});
+  const AddExpenseBottomSheet({super.key, this.transaction});
+
+  final TransactionEntity? transaction;
 
   @override
   BaseState<AddExpenseBottomSheet> createState() =>
@@ -39,7 +42,28 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
   bool _isProcessingImage = false;
 
   @override
-  void dispose() {
+  void onInitState() {
+    super.onInitState();
+    final transaction = widget.transaction;
+    if (transaction != null) {
+      _titleController.text = transaction.title;
+      _amountController.text = CurrencyUtils.formatVndFromDouble(
+        transaction.amount,
+      );
+      _descriptionController.text = transaction.note ?? '';
+      _selectedDate = transaction.date;
+      _type = transaction.type;
+      _selectedCategoryId = transaction.category;
+      _selectedCategoryId = (transaction.categoryId?.isNotEmpty ?? false)
+          ? transaction.categoryId
+          : null;
+      _pendingCategoryName = transaction.category;
+    }
+  }
+
+  @override
+  void onDispose() {
+    super.onDispose();
     _titleController.dispose();
     _amountController.dispose();
     _descriptionController.dispose();
@@ -79,7 +103,9 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
           ),
         ],
         child: CommonBottomSheet(
-          title: S.current.add_transaction,
+          title: widget.transaction == null
+              ? S.current.add_transaction
+              : S.current.edit_transaction,
           heightFactor: 0.9,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,

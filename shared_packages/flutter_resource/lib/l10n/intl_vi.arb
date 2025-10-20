@@ -5,6 +5,7 @@
   "tab_budget": "Ngân sách",
   "tab_profile": "Cá nhân",
   "add_transaction": "Thêm giao dịch",
+  "edit_transaction": "Sửa giao dịch",
   "amount": "Số tiền",
   "category": "Danh mục",
   "date_time": "Thời gian",
@@ -25,5 +26,8 @@
   "weekly_spending_chart_title": "Chi tiêu 7 ngày gần nhất",
   "weekly_spending_chart_empty": "Không có chi tiêu nào trong 7 ngày qua.",
   "see_all": "Xem tất cả",
-  "add_budget": "Thêm ngân sách"
+  "add_budget": "Thêm ngân sách",
+  "edit_budget": "Sửa ngân sách",
+  "save": "Lưu",
+  "done": "Xong"
 }

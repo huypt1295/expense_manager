@@ -66,7 +66,7 @@ class CommonBottomSheet extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            S.current.add_transaction,
+            title,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
 
