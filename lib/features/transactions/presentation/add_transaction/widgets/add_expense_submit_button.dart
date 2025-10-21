@@ -1,6 +1,6 @@
 import 'package:expense_manager/core/enums/transaction_type.dart';
-import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/expense_bloc.dart';
-import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/expense_state.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/add_transaction_bloc.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/add_transaction_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
@@ -18,9 +18,9 @@ class AddExpenseSubmitButton extends BaseStatelessWidget {
 
   @override
   Widget buildContent(BuildContext context) {
-    return BlocBuilder<ExpenseBloc, ExpenseState>(
+    return BlocBuilder<AddTransactionBloc, AddTransactionState>(
       builder: (context, state) {
-        final isLoading = state is ExpenseFormLoading;
+        final isLoading = state is AddTransactionLoadingState;
         return CommonPrimaryButton(
           onPressed: onPressed,
           isLoading: isLoading,

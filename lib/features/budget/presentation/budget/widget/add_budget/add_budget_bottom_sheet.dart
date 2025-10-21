@@ -247,7 +247,6 @@ class _AddBudgetDialogState extends BaseState<AddBudgetBottomSheet> {
     } else {
       bloc.add(BudgetUpdated(entity));
     }
-
     context.pop();
   }
 }

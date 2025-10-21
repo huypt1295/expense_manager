@@ -1,8 +1,9 @@
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-abstract class IncomeState extends BaseBlocState with EquatableMixin {
-  const IncomeState({
+// States
+abstract class AddTransactionState extends BaseBlocState with EquatableMixin {
+  const AddTransactionState({
     this.categories = const <CategoryEntity>[],
     this.areCategoriesLoading = false,
     this.categoriesError,
@@ -14,58 +15,20 @@ abstract class IncomeState extends BaseBlocState with EquatableMixin {
 
   @override
   List<Object?> get props => <Object?>[
-        categories,
-        areCategoriesLoading,
-        categoriesError,
-      ];
+    categories,
+    areCategoriesLoading,
+    categoriesError,
+  ];
 }
 
-class IncomeInitial extends IncomeState {
-  const IncomeInitial({
-    super.categories,
-    super.areCategoriesLoading,
-    super.categoriesError,
-  });
-}
-
-class IncomeFormLoading extends IncomeState {
-  const IncomeFormLoading({
-    super.categories,
-    super.areCategoriesLoading,
-    super.categoriesError,
-  });
-}
-
-class IncomeFormSuccess extends IncomeState {
-  const IncomeFormSuccess({
-    super.categories,
-    super.areCategoriesLoading,
-    super.categoriesError,
-  });
-}
-
-class IncomeFormError extends IncomeState {
-  final String message;
-
-  const IncomeFormError(
-    this.message, {
-    super.categories,
-    super.areCategoriesLoading,
-    super.categoriesError,
-  });
-
-  @override
-  List<Object?> get props => <Object?>[...super.props, message];
-}
-
-class IncomeFormData extends IncomeState {
+class AddTransactionInitState extends AddTransactionState {
   final String title;
   final double amount;
   final String category;
   final String description;
   final DateTime date;
 
-  const IncomeFormData({
+  const AddTransactionInitState({
     this.title = '',
     this.amount = 0.0,
     this.category = '',
@@ -76,17 +39,7 @@ class IncomeFormData extends IncomeState {
     super.categoriesError,
   });
 
-  @override
-  List<Object?> get props => <Object?>[
-        ...super.props,
-        title,
-        amount,
-        category,
-        description,
-        date,
-      ];
-
-  IncomeFormData copyWith({
+  AddTransactionInitState copyWith({
     String? title,
     double? amount,
     String? category,
@@ -97,7 +50,7 @@ class IncomeFormData extends IncomeState {
     bool clearCategoriesError = false,
     String? categoriesError,
   }) {
-    return IncomeFormData(
+    return AddTransactionInitState(
       title: title ?? this.title,
       amount: amount ?? this.amount,
       category: category ?? this.category,
@@ -105,8 +58,39 @@ class IncomeFormData extends IncomeState {
       date: date ?? this.date,
       categories: categories ?? this.categories,
       areCategoriesLoading: areCategoriesLoading ?? this.areCategoriesLoading,
-      categoriesError:
-          clearCategoriesError ? null : (categoriesError ?? this.categoriesError),
+      categoriesError: clearCategoriesError
+          ? null
+          : (categoriesError ?? this.categoriesError),
     );
   }
+}
+
+class AddTransactionLoadingState extends AddTransactionState {
+  const AddTransactionLoadingState({
+    super.categories,
+    super.areCategoriesLoading,
+    super.categoriesError,
+  });
+}
+
+class AddTransactionSuccessState extends AddTransactionState {
+  const AddTransactionSuccessState({
+    super.categories,
+    super.areCategoriesLoading,
+    super.categoriesError,
+  });
+}
+
+class AddTransactionErrorState extends AddTransactionState {
+  final String message;
+
+  const AddTransactionErrorState(
+    this.message, {
+    super.categories,
+    super.areCategoriesLoading,
+    super.categoriesError,
+  });
+
+  @override
+  List<Object?> get props => <Object?>[...super.props, message];
 }

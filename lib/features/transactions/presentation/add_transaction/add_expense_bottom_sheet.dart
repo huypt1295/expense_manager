@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/add_transaction_bloc.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/add_transaction_event.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/add_transaction_state.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/constants/expense_constants.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/helpers/expense_image_helper.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
@@ -14,9 +17,6 @@ import 'package:expense_manager/features/transactions/presentation/add_transacti
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
-import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/expense_bloc.dart';
-import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/expense_event.dart';
-import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/expense_state.dart';
 
 class AddExpenseBottomSheet extends BaseStatefulWidget {
   const AddExpenseBottomSheet({super.key, this.transaction});
@@ -75,26 +75,27 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          tpGetIt.get<ExpenseBloc>()..add(ExpenseCategoriesRequested()),
+          tpGetIt.get<AddTransactionBloc>()..add(AddTransactionInitEvent()),
       child: MultiBlocListener(
         listeners: [
-          BlocListener<ExpenseBloc, ExpenseState>(
+          BlocListener<AddTransactionBloc, AddTransactionState>(
             listenWhen: (previous, current) =>
                 previous.categories != current.categories,
             listener: (context, state) {
               _syncSelectedCategory(state.categories);
             },
           ),
-          BlocListener<ExpenseBloc, ExpenseState>(
+          BlocListener<AddTransactionBloc, AddTransactionState>(
             listenWhen: (previous, current) =>
-                current is ExpenseFormSuccess || current is ExpenseFormError,
+                current is AddTransactionSuccessState ||
+                current is AddTransactionErrorState,
             listener: (context, state) {
-              if (state is ExpenseFormSuccess) {
+              if (state is AddTransactionSuccessState) {
                 context.pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Expense saved successfully!')),
                 );
-              } else if (state is ExpenseFormError) {
+              } else if (state is AddTransactionErrorState) {
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(SnackBar(content: Text(state.message)));
@@ -157,7 +158,7 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
     final localeCode =
         Localizations.maybeLocaleOf(context)?.languageCode ?? 'en';
 
-    return BlocBuilder<ExpenseBloc, ExpenseState>(
+    return BlocBuilder<AddTransactionBloc, AddTransactionState>(
       buildWhen: (previous, current) =>
           previous.categories != current.categories ||
           previous.areCategoriesLoading != current.areCategoriesLoading ||
@@ -179,8 +180,8 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
               localeCode: localeCode,
               categoriesLoading: state.areCategoriesLoading,
               categoriesError: state.categoriesError,
-              onRetryCategories: () => context.read<ExpenseBloc>().add(
-                const ExpenseCategoriesRequested(forceRefresh: true),
+              onRetryCategories: () => context.read<AddTransactionBloc>().add(
+                AddTransactionInitEvent(forceRefresh: true),
               ),
               onCategoryChanged: (value) {
                 setState(() {
@@ -205,7 +206,7 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
       final amount =
           CurrencyUtils.parseVndToDouble(_amountController.text) ?? 0.0;
 
-      final categories = context.read<ExpenseBloc>().state.categories;
+      final categories = context.read<AddTransactionBloc>().state.categories;
       final selected = _findCategoryById(_selectedCategoryId, categories);
 
       if (selected == null) {
@@ -219,17 +220,37 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
           Localizations.maybeLocaleOf(context)?.languageCode ?? 'en';
       final categoryName = selected.nameForLocale(localeCode);
 
-      context.read<ExpenseBloc>().add(
-        ExpenseFormSubmitted(
-          title: _titleController.text,
-          amount: amount,
-          category: categoryName,
-          description: _descriptionController.text,
-          date: _selectedDate,
-          type: _type,
-          categoryIcon: selected.icon,
-        ),
-      );
+      final initial = widget.transaction;
+      final entity =
+          (initial ??
+                  TransactionEntity(
+                    id: '',
+                    title: _titleController.text,
+                    amount: amount,
+                    date: _selectedDate,
+                    type: _type,
+                    category: categoryName,
+                    note: _descriptionController.text,
+                    categoryId: selected.id,
+                    categoryIcon: selected.icon,
+                  ))
+              .copyWith(
+                title: _titleController.text,
+                amount: amount,
+                date: _selectedDate,
+                type: _type,
+                category: categoryName,
+                note: _descriptionController.text,
+                categoryId: selected.id,
+                categoryIcon: selected.icon,
+              );
+
+      final bloc = context.read<AddTransactionBloc>();
+      if (initial == null) {
+        bloc.add(TransactionsAddedEvent(entity));
+      } else {
+        bloc.add(TransactionsUpdatedEvent(entity));
+      }
       context.pop();
     }
   }
@@ -339,7 +360,7 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
   }
 
   void _populateFormWithExtractedData(Map<String, dynamic> data) {
-    final categories = context.read<ExpenseBloc>().state.categories;
+    final categories = context.read<AddTransactionBloc>().state.categories;
     setState(() {
       _titleController.text = data['title'] ?? '';
       _setFormattedAmount(data['amount']);
