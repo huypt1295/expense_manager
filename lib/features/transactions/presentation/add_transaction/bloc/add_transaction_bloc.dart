@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expense_manager/features/categories/application/categories_service.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/add_transaction_usecase.dart';
@@ -16,6 +18,8 @@ class AddTransactionBloc
     this._updateTransactionUseCase,
   ) : super(AddTransactionInitState(date: DateTime.now())) {
     on<AddTransactionInitEvent>(_onCategoriesRequested);
+    on<CategoriesStreamUpdatedEvent>(_onCategoriesStreamUpdated);
+    on<CategoriesStreamFailedEvent>(_onCategoriesStreamFailed);
     on<TransactionsAddedEvent>(_onAdded);
     on<TransactionsUpdatedEvent>(_onUpdated);
   }
@@ -23,11 +27,14 @@ class AddTransactionBloc
   final AddTransactionUseCase _addTransactionUseCase;
   final UpdateTransactionUseCase _updateTransactionUseCase;
   final CategoriesService _categoriesService;
+  StreamSubscription<List<CategoryEntity>>? _categoriesSubscription;
 
   Future<void> _onCategoriesRequested(
     AddTransactionInitEvent event,
     Emitter<AddTransactionState> emit,
   ) async {
+    _ensureCategoriesSubscription();
+
     if (state.areCategoriesLoading) {
       return;
     }
@@ -61,6 +68,29 @@ class AddTransactionBloc
         categoriesError: message,
       );
     }
+  }
+
+  void _onCategoriesStreamUpdated(
+    CategoriesStreamUpdatedEvent event,
+    Emitter<AddTransactionState> emit,
+  ) {
+    _updateStateWithCategories(
+      emit,
+      categories: List<CategoryEntity>.unmodifiable(event.categories),
+      areCategoriesLoading: false,
+      clearCategoriesError: true,
+    );
+  }
+
+  void _onCategoriesStreamFailed(
+    CategoriesStreamFailedEvent event,
+    Emitter<AddTransactionState> emit,
+  ) {
+    _updateStateWithCategories(
+      emit,
+      areCategoriesLoading: false,
+      categoriesError: event.message,
+    );
   }
 
   Future<void> _onAdded(
@@ -202,6 +232,23 @@ class AddTransactionBloc
     );
   }
 
+  void _ensureCategoriesSubscription() {
+    if (_categoriesSubscription != null) {
+      return;
+    }
+    _categoriesSubscription = _categoriesService.watchCategories().listen(
+      (categories) {
+        add(CategoriesStreamUpdatedEvent(categories));
+      },
+      onError: (error, stackTrace) {
+        final message = error is Failure
+            ? (error.message ?? error.code)
+            : 'Failed to load categories';
+        add(CategoriesStreamFailedEvent(message));
+      },
+    );
+  }
+
   void _updateStateWithCategories(
     Emitter<AddTransactionState> emit, {
     List<CategoryEntity>? categories,
@@ -251,5 +298,11 @@ class AddTransactionBloc
         ),
       );
     }
+  }
+
+  @override
+  Future<void> close() async {
+    await _categoriesSubscription?.cancel();
+    await super.close();
   }
 }

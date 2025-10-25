@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:expense_manager/core/constants/data_constant.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/add_transaction_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/delete_transaction_usecase.dart';
@@ -18,10 +19,8 @@ class TransactionsBloc
     this._watchTransactionsUseCase,
     this._addTransactionUseCase,
     this._updateTransactionUseCase,
-    this._deleteTransactionUseCase, {
-    Duration undoDuration = const Duration(seconds: 5),
-  }) : _undoDuration = undoDuration,
-        super(const TransactionsState()) {
+    this._deleteTransactionUseCase,
+  ) : super(const TransactionsState()) {
     on<TransactionsStarted>(_onStarted);
     on<TransactionsStreamChanged>(_onStreamChanged);
     on<TransactionsStreamFailed>(_onStreamFailed);
@@ -36,8 +35,6 @@ class TransactionsBloc
   final AddTransactionUseCase _addTransactionUseCase;
   final UpdateTransactionUseCase _updateTransactionUseCase;
   final DeleteTransactionUseCase _deleteTransactionUseCase;
-
-  final Duration _undoDuration;
 
   StreamSubscription<List<TransactionEntity>>? _subscription;
   _PendingDeletion? _pendingDeletion;
@@ -71,9 +68,7 @@ class TransactionsBloc
           errorMessage: failure.message ?? failure.code,
         ),
       );
-      emitEffect(
-        TransactionsShowErrorEffect(failure.message ?? failure.code),
-      );
+      emitEffect(TransactionsShowErrorEffect(failure.message ?? failure.code));
     }
   }
 
@@ -93,17 +88,9 @@ class TransactionsBloc
 
     final items = idsToOmit.isEmpty
         ? event.items
-        : event.items
-            .where((item) => !idsToOmit.contains(item.id))
-            .toList();
+        : event.items.where((item) => !idsToOmit.contains(item.id)).toList();
 
-    emit(
-      state.copyWith(
-        items: items,
-        isLoading: false,
-        clearError: true,
-      ),
-    );
+    emit(state.copyWith(items: items, isLoading: false, clearError: true));
   }
 
   void _onStreamFailed(
@@ -160,20 +147,14 @@ class TransactionsBloc
     _commitPendingDeletion();
 
     final currentItems = state.items;
-    final index =
-        currentItems.indexWhere((item) => item.id == event.entity.id);
+    final index = currentItems.indexWhere((item) => item.id == event.entity.id);
     if (index == -1) {
       return;
     }
 
     final updatedItems = List<TransactionEntity>.of(currentItems)
       ..removeAt(index);
-    emit(
-      state.copyWith(
-        items: updatedItems,
-        clearError: true,
-      ),
-    );
+    emit(state.copyWith(items: updatedItems, clearError: true));
 
     _pendingDeletion = _PendingDeletion(entity: event.entity, index: index);
     _startPendingDeletionTimer();
@@ -182,7 +163,7 @@ class TransactionsBloc
       TransactionsShowUndoDeleteEffect(
         message: 'Transaction deleted',
         actionLabel: 'Undo',
-        duration: _undoDuration,
+        duration: kUndoDuration,
       ),
     );
   }
@@ -205,17 +186,12 @@ class TransactionsBloc
     final insertIndex = pending.index.clamp(0, updatedItems.length);
     updatedItems.insert(insertIndex, pending.entity);
 
-    emit(
-      state.copyWith(
-        items: updatedItems,
-        clearError: true,
-      ),
-    );
+    emit(state.copyWith(items: updatedItems, clearError: true));
   }
 
   void _startPendingDeletionTimer() {
     _pendingDeletionTimer?.cancel();
-    _pendingDeletionTimer = Timer(_undoDuration, _commitPendingDeletion);
+    _pendingDeletionTimer = Timer(kUndoDuration, _commitPendingDeletion);
   }
 
   void _commitPendingDeletion() {
@@ -246,19 +222,10 @@ class TransactionsBloc
       _committingDeletion = null;
 
       emit(
-        state.copyWith(
-          items: items,
-          isLoading: false,
-          errorMessage: message,
-        ),
+        state.copyWith(items: items, isLoading: false, errorMessage: message),
       );
     } else {
-      emit(
-        state.copyWith(
-          isLoading: false,
-          errorMessage: message,
-        ),
-      );
+      emit(state.copyWith(isLoading: false, errorMessage: message));
     }
 
     emitEffect(TransactionsShowErrorEffect(message));
@@ -293,10 +260,7 @@ class TransactionsBloc
 }
 
 class _PendingDeletion {
-  _PendingDeletion({
-    required this.entity,
-    required this.index,
-  });
+  _PendingDeletion({required this.entity, required this.index});
 
   final TransactionEntity entity;
   final int index;

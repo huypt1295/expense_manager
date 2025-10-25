@@ -20,6 +20,11 @@ class CategoryGridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.tpColors;
+    final backgroundColor = isSelected
+        ? colors.surfaceNeutralComponent2
+        : category.isCustom
+        ? colors.surfaceSub.withOpacity(0.9)
+        : colors.surfaceSub;
 
     return Material(
       color: Colors.transparent,
@@ -31,7 +36,7 @@ class CategoryGridItem extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: isSelected ? colors.surfaceNeutralComponent2: colors.surfaceSub,
+            color: backgroundColor,
             borderRadius: BorderRadius.circular(16),
             boxShadow: isSelected
                 ? [
@@ -44,19 +49,39 @@ class CategoryGridItem extends StatelessWidget {
                 : null,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
+          child: Stack(
             children: [
-              Text(category.icon, style: TPTextStyle.titleM),
-              const SizedBox(height: 8),
-              Text(
-                category.nameForLocale(localeCode),
-                style: TPTextStyle.bodyM,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(category.icon, style: TPTextStyle.titleM),
+                  const SizedBox(height: 8),
+                  Text(
+                    category.nameForLocale(localeCode),
+                    style: TPTextStyle.bodyM,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
+              if (category.isCustom)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceNeutralComponent2.withOpacity(0.85),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.person, size: 14, color: colors.iconMain),
+                  ),
+                ),
             ],
           ),
         ),

@@ -1,42 +1,65 @@
 import 'dart:async';
 
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/categories/application/categories_service.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart';
+import 'package:expense_manager/features/categories/domain/usecases/create_user_category_usecase.dart';
+import 'package:expense_manager/features/categories/domain/usecases/delete_user_category_usecase.dart';
 import 'package:expense_manager/features/categories/domain/usecases/load_categories_usecase.dart';
+import 'package:expense_manager/features/categories/domain/usecases/update_user_category_usecase.dart';
+import 'package:expense_manager/features/categories/domain/usecases/watch_categories_usecase.dart';
 import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeCategoryRepository implements CategoryRepository {
-  Future<List<CategoryEntity>> Function()? fetchAllImpl;
-  Stream<List<CategoryEntity>> Function()? watchAllImpl;
+  Future<List<CategoryEntity>> Function()? fetchCombinedImpl;
+  Stream<List<CategoryEntity>> Function()? watchCombinedImpl;
 
   int fetchCount = 0;
 
   @override
-  Future<List<CategoryEntity>> fetchAll() async {
+  Future<List<CategoryEntity>> fetchCombined() async {
     fetchCount += 1;
-    if (fetchAllImpl != null) {
-      return await fetchAllImpl!();
+    if (fetchCombinedImpl != null) {
+      return await fetchCombinedImpl!();
     }
     return const <CategoryEntity>[];
   }
 
   @override
-  Stream<List<CategoryEntity>> watchAll() {
-    if (watchAllImpl != null) {
-      return watchAllImpl!();
+  Stream<List<CategoryEntity>> watchCombined() {
+    if (watchCombinedImpl != null) {
+      return watchCombinedImpl!();
     }
     return const Stream<List<CategoryEntity>>.empty();
   }
+
+  @override
+  Future<CategoryEntity> createUserCategory(CategoryEntity entity) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> deleteUserCategory(String id) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updateUserCategory(CategoryEntity entity) {
+    throw UnimplementedError();
+  }
 }
 
-CategoryEntity _category(String id, {bool isActive = true, int? sortOrder}) => CategoryEntity(
+CategoryEntity _category(String id, {bool isActive = true, int? sortOrder}) =>
+    CategoryEntity(
       id: id,
       icon: 'icon',
       isActive: isActive,
+      type: TransactionType.expense,
       names: {'en': 'Category $id'},
       sortOrder: sortOrder,
+      isCustom: true,
     );
 
 void main() {
@@ -46,17 +69,23 @@ void main() {
 
     setUp(() {
       repository = _FakeCategoryRepository();
-      service = CategoriesService(LoadCategoriesUseCase(repository));
+      service = CategoriesService(
+        LoadCategoriesUseCase(repository),
+        WatchCategoriesUseCase(repository),
+        CreateUserCategoryUseCase(repository),
+        UpdateUserCategoryUseCase(repository),
+        DeleteUserCategoryUseCase(repository),
+      );
     });
 
     test('returns cached categories without re-fetching', () async {
-      repository.fetchAllImpl = () async => [_category('1')];
+      repository.fetchCombinedImpl = () async => [_category('1')];
 
       final first = await service.getCategories();
       expect(first, hasLength(1));
       expect(repository.fetchCount, 1);
 
-      repository.fetchAllImpl = () async => [_category('2')];
+      repository.fetchCombinedImpl = () async => [_category('2')];
 
       final second = await service.getCategories();
       expect(repository.fetchCount, 1, reason: 'should reuse cache');
@@ -65,11 +94,11 @@ void main() {
     });
 
     test('forceRefresh bypasses cache', () async {
-      repository.fetchAllImpl = () async => [_category('1')];
+      repository.fetchCombinedImpl = () async => [_category('1')];
       await service.getCategories();
       expect(repository.fetchCount, 1);
 
-      repository.fetchAllImpl = () async => [_category('2')];
+      repository.fetchCombinedImpl = () async => [_category('2')];
       final refreshed = await service.getCategories(forceRefresh: true);
 
       expect(repository.fetchCount, 2);
@@ -78,12 +107,16 @@ void main() {
 
     test('concurrent calls share in-flight future', () async {
       final completer = Completer<List<CategoryEntity>>();
-      repository.fetchAllImpl = () => completer.future;
+      repository.fetchCombinedImpl = () => completer.future;
 
       final first = service.getCategories();
       final second = service.getCategories();
 
-      expect(repository.fetchCount, 1, reason: 'second call should reuse future');
+      expect(
+        repository.fetchCount,
+        1,
+        reason: 'second call should reuse future',
+      );
 
       completer.complete([_category('shared')]);
 

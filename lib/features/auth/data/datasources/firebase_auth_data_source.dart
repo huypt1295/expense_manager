@@ -2,10 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:injectable/injectable.dart';
 
 import '../models/user_model.dart';
 
 /// Provides access to Firebase Auth SDK and related social providers.
+@LazySingleton()
 class FirebaseAuthDataSource {
   FirebaseAuthDataSource({
     FirebaseAuth? firebaseAuth,

@@ -268,6 +268,51 @@ class S {
   String get done {
     return Intl.message('Done', name: 'done', desc: '', args: []);
   }
+
+  /// `Theme`
+  String get theme {
+    return Intl.message('Theme', name: 'theme', desc: '', args: []);
+  }
+
+  /// `Light`
+  String get theme_mode_light {
+    return Intl.message('Light', name: 'theme_mode_light', desc: '', args: []);
+  }
+
+  /// `Dark`
+  String get theme_mode_dark {
+    return Intl.message('Dark', name: 'theme_mode_dark', desc: '', args: []);
+  }
+
+  /// `System`
+  String get theme_mode_system {
+    return Intl.message(
+      'System',
+      name: 'theme_mode_system',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Setting`
+  String get setting {
+    return Intl.message('Setting', name: 'setting', desc: '', args: []);
+  }
+
+  /// `Language`
+  String get language {
+    return Intl.message('Language', name: 'language', desc: '', args: []);
+  }
+
+  /// `Sign out`
+  String get sign_out {
+    return Intl.message('Sign out', name: 'sign_out', desc: '', args: []);
+  }
+
+  /// `Profile`
+  String get profile {
+    return Intl.message('Profile', name: 'profile', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

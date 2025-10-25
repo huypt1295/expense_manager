@@ -11,9 +11,14 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:expense_manager/core/auth/current_user.dart' as _i79;
+import 'package:expense_manager/core/di/firebase_module.dart' as _i93;
 import 'package:expense_manager/core/routing/app_router.dart' as _i861;
 import 'package:expense_manager/features/add_expense/presentation/add_expense/bloc/expense_bloc.dart'
     as _i1026;
+import 'package:expense_manager/features/auth/data/datasources/firebase_auth_data_source.dart'
+    as _i288;
+import 'package:expense_manager/features/auth/data/repositories/auth_repository_impl.dart'
+    as _i816;
 import 'package:expense_manager/features/auth/domain/repositories/auth_repository.dart'
     as _i740;
 import 'package:expense_manager/features/auth/domain/usecases/sign_in_with_fb_usecase.dart'
@@ -54,8 +59,16 @@ import 'package:expense_manager/features/categories/data/repositories/category_r
     as _i939;
 import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart'
     as _i482;
+import 'package:expense_manager/features/categories/domain/usecases/create_user_category_usecase.dart'
+    as _i469;
+import 'package:expense_manager/features/categories/domain/usecases/delete_user_category_usecase.dart'
+    as _i380;
 import 'package:expense_manager/features/categories/domain/usecases/load_categories_usecase.dart'
     as _i823;
+import 'package:expense_manager/features/categories/domain/usecases/update_user_category_usecase.dart'
+    as _i770;
+import 'package:expense_manager/features/categories/domain/usecases/watch_categories_usecase.dart'
+    as _i276;
 import 'package:expense_manager/features/home/presentation/home/bloc/home_bloc.dart'
     as _i32;
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_bloc.dart'
@@ -106,8 +119,10 @@ import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:firebase_storage/firebase_storage.dart' as _i457;
 import 'package:flutter_common/flutter_common.dart' as _i400;
 import 'package:flutter_core/flutter_core.dart' as _i453;
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart' as _i806;
 import 'package:flutter_resource/flutter_resource.dart' as _i134;
 import 'package:get_it/get_it.dart' as _i174;
+import 'package:google_sign_in/google_sign_in.dart' as _i116;
 import 'package:injectable/injectable.dart' as _i526;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -120,7 +135,48 @@ extension GetItInjectableX on _i174.GetIt {
     await _i453.FlutterCorePackageModule().init(gh);
     await _i400.FlutterCommonPackageModule().init(gh);
     await _i134.FlutterResourcePackageModule().init(gh);
+    final firebaseModule = _$FirebaseModule();
     gh.singleton<_i861.AppRouter>(() => _i861.AppRouter());
+    gh.lazySingleton<_i59.FirebaseAuth>(() => firebaseModule.firebaseAuth());
+    gh.lazySingleton<_i974.FirebaseFirestore>(
+      () => firebaseModule.firebaseFirestore(),
+    );
+    gh.lazySingleton<_i457.FirebaseStorage>(
+      () => firebaseModule.firebaseStorage(),
+    );
+    gh.lazySingleton<_i116.GoogleSignIn>(() => firebaseModule.googleSignIn());
+    gh.lazySingleton<_i806.FacebookAuth>(() => firebaseModule.facebookAuth());
+    gh.singleton<_i959.UserRepository>(
+      () => _i179.UserRepositoryImpl(firebaseAuth: gh<_i59.FirebaseAuth>()),
+    );
+    gh.factory<_i1019.GetUserUseCase>(
+      () => _i1019.GetUserUseCase(gh<_i959.UserRepository>()),
+    );
+    gh.lazySingleton<_i288.FirebaseAuthDataSource>(
+      () => _i288.FirebaseAuthDataSource(
+        firebaseAuth: gh<_i59.FirebaseAuth>(),
+        googleSignIn: gh<_i116.GoogleSignIn>(),
+        facebookAuth: gh<_i806.FacebookAuth>(),
+      ),
+    );
+    gh.lazySingleton<_i78.BudgetRemoteDataSource>(
+      () => _i78.BudgetRemoteDataSource(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.lazySingleton<_i892.CategoryRemoteDataSource>(
+      () => _i892.CategoryRemoteDataSource(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.lazySingleton<_i376.TransactionsRemoteDataSource>(
+      () => _i376.TransactionsRemoteDataSource(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.lazySingleton<_i995.ProfileRemoteDataSource>(
+      () => _i995.ProfileRemoteDataSource(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i457.FirebaseStorage>(),
+      ),
+    );
+    gh.lazySingleton<_i740.AuthRepository>(
+      () => _i816.AuthRepositoryImpl(gh<_i288.FirebaseAuthDataSource>()),
+    );
     gh.singleton<_i35.SignInWithFacebookUseCase>(
       () => _i35.SignInWithFacebookUseCase(gh<_i740.AuthRepository>()),
     );
@@ -133,20 +189,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i553.WatchAuthStateUseCase>(
       () => _i553.WatchAuthStateUseCase(gh<_i740.AuthRepository>()),
     );
-    gh.singleton<_i959.UserRepository>(
-      () => _i179.UserRepositoryImpl(firebaseAuth: gh<_i59.FirebaseAuth>()),
-    );
-    gh.factory<_i1019.GetUserUseCase>(
-      () => _i1019.GetUserUseCase(gh<_i959.UserRepository>()),
-    );
-    gh.lazySingleton<_i78.BudgetRemoteDataSource>(
-      () => _i78.BudgetRemoteDataSource(gh<_i974.FirebaseFirestore>()),
-    );
-    gh.lazySingleton<_i892.CategoryRemoteDataSource>(
-      () => _i892.CategoryRemoteDataSource(gh<_i974.FirebaseFirestore>()),
-    );
-    gh.lazySingleton<_i376.TransactionsRemoteDataSource>(
-      () => _i376.TransactionsRemoteDataSource(gh<_i974.FirebaseFirestore>()),
+    gh.factory<_i32.HomeBloc>(() => _i32.HomeBloc(gh<_i1019.GetUserUseCase>()));
+    gh.lazySingleton<_i884.UserProfileRepository>(
+      () =>
+          _i279.UserProfileRepositoryImpl(gh<_i995.ProfileRemoteDataSource>()),
     );
     gh.singleton<_i68.AuthBloc>(
       () => _i68.AuthBloc(
@@ -156,32 +202,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i553.WatchAuthStateUseCase>(),
         gh<_i453.Logger>(),
       ),
-    );
-    gh.lazySingleton<_i995.ProfileRemoteDataSource>(
-      () => _i995.ProfileRemoteDataSource(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i457.FirebaseStorage>(),
-      ),
-    );
-    gh.lazySingleton<_i482.CategoryRepository>(
-      () => _i939.CategoryRepositoryImpl(gh<_i892.CategoryRemoteDataSource>()),
-    );
-    gh.singleton<_i79.AccountActions>(
-      () => _i655.AccountActionsFromAuth(gh<_i1070.SignOutUseCase>()),
-    );
-    gh.singleton<_i79.CurrentUser>(
-      () => _i524.CurrentUserFromAuthBloc(gh<_i68.AuthBloc>()),
-    );
-    gh.lazySingleton<_i639.BudgetRepository>(
-      () => _i932.BudgetRepositoryImpl(
-        gh<_i78.BudgetRemoteDataSource>(),
-        gh<_i79.CurrentUser>(),
-      ),
-    );
-    gh.factory<_i32.HomeBloc>(() => _i32.HomeBloc(gh<_i1019.GetUserUseCase>()));
-    gh.lazySingleton<_i884.UserProfileRepository>(
-      () =>
-          _i279.UserProfileRepositoryImpl(gh<_i995.ProfileRemoteDataSource>()),
     );
     gh.factory<_i55.GetProfileUseCase>(
       () => _i55.GetProfileUseCase(gh<_i884.UserProfileRepository>()),
@@ -195,6 +215,34 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i1022.WatchProfileUseCase>(
       () => _i1022.WatchProfileUseCase(gh<_i884.UserProfileRepository>()),
     );
+    gh.singleton<_i79.AccountActions>(
+      () => _i655.AccountActionsFromAuth(gh<_i1070.SignOutUseCase>()),
+    );
+    gh.singleton<_i79.CurrentUser>(
+      () => _i524.CurrentUserFromAuthBloc(gh<_i68.AuthBloc>()),
+    );
+    gh.lazySingleton<_i639.BudgetRepository>(
+      () => _i932.BudgetRepositoryImpl(
+        gh<_i78.BudgetRemoteDataSource>(),
+        gh<_i79.CurrentUser>(),
+      ),
+    );
+    gh.lazySingleton<_i482.CategoryRepository>(
+      () => _i939.CategoryRepositoryImpl(
+        gh<_i892.CategoryRemoteDataSource>(),
+        gh<_i79.CurrentUser>(),
+      ),
+    );
+    gh.factory<_i439.ProfileBloc>(
+      () => _i439.ProfileBloc(
+        gh<_i79.CurrentUser>(),
+        gh<_i1022.WatchProfileUseCase>(),
+        gh<_i631.UpdateProfileUseCase>(),
+        gh<_i655.UploadAvatarUseCase>(),
+        gh<_i79.AccountActions>(),
+        logger: gh<_i453.Logger>(),
+      ),
+    );
     gh.factory<_i105.AddBudgetUseCase>(
       () => _i105.AddBudgetUseCase(gh<_i639.BudgetRepository>()),
     );
@@ -207,8 +255,20 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i192.WatchBudgetsUseCase>(
       () => _i192.WatchBudgetsUseCase(gh<_i639.BudgetRepository>()),
     );
+    gh.factory<_i469.CreateUserCategoryUseCase>(
+      () => _i469.CreateUserCategoryUseCase(gh<_i482.CategoryRepository>()),
+    );
+    gh.factory<_i380.DeleteUserCategoryUseCase>(
+      () => _i380.DeleteUserCategoryUseCase(gh<_i482.CategoryRepository>()),
+    );
+    gh.factory<_i770.UpdateUserCategoryUseCase>(
+      () => _i770.UpdateUserCategoryUseCase(gh<_i482.CategoryRepository>()),
+    );
     gh.singleton<_i823.LoadCategoriesUseCase>(
       () => _i823.LoadCategoriesUseCase(gh<_i482.CategoryRepository>()),
+    );
+    gh.singleton<_i276.WatchCategoriesUseCase>(
+      () => _i276.WatchCategoriesUseCase(gh<_i482.CategoryRepository>()),
     );
     gh.lazySingleton<_i496.TransactionsRepository>(
       () => _i596.TransactionsRepositoryImpl(
@@ -217,7 +277,13 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.lazySingleton<_i49.CategoriesService>(
-      () => _i49.CategoriesService(gh<_i823.LoadCategoriesUseCase>()),
+      () => _i49.CategoriesService(
+        gh<_i823.LoadCategoriesUseCase>(),
+        gh<_i276.WatchCategoriesUseCase>(),
+        gh<_i469.CreateUserCategoryUseCase>(),
+        gh<_i770.UpdateUserCategoryUseCase>(),
+        gh<_i380.DeleteUserCategoryUseCase>(),
+      ),
     );
     gh.singleton<_i717.WatchTransactionsUseCase>(
       () => _i717.WatchTransactionsUseCase(gh<_i496.TransactionsRepository>()),
@@ -242,15 +308,6 @@ extension GetItInjectableX on _i174.GetIt {
         logger: gh<_i453.Logger>(),
       ),
     );
-    gh.factory<_i551.TransactionsBloc>(
-      () => _i551.TransactionsBloc(
-        gh<_i717.WatchTransactionsUseCase>(),
-        gh<_i892.AddTransactionUseCase>(),
-        gh<_i288.UpdateTransactionUseCase>(),
-        gh<_i27.DeleteTransactionUseCase>(),
-        undoDuration: gh<Duration>(),
-      ),
-    );
     gh.factory<_i437.AddTransactionBloc>(
       () => _i437.AddTransactionBloc(
         gh<_i892.AddTransactionUseCase>(),
@@ -258,14 +315,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i288.UpdateTransactionUseCase>(),
       ),
     );
-    gh.factory<_i439.ProfileBloc>(
-      () => _i439.ProfileBloc(
-        gh<_i79.CurrentUser>(),
-        gh<_i1022.WatchProfileUseCase>(),
-        gh<_i631.UpdateProfileUseCase>(),
-        gh<_i655.UploadAvatarUseCase>(),
-        gh<_i79.AccountActions>(),
-        logger: gh<_i453.Logger>(),
+    gh.factory<_i551.TransactionsBloc>(
+      () => _i551.TransactionsBloc(
+        gh<_i717.WatchTransactionsUseCase>(),
+        gh<_i892.AddTransactionUseCase>(),
+        gh<_i288.UpdateTransactionUseCase>(),
+        gh<_i27.DeleteTransactionUseCase>(),
       ),
     );
     gh.factory<_i1026.ExpenseBloc>(
@@ -284,3 +339,5 @@ extension GetItInjectableX on _i174.GetIt {
     return this;
   }
 }
+
+class _$FirebaseModule extends _i93.FirebaseModule {}

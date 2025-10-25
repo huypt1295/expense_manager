@@ -18,6 +18,7 @@ class AppRouter {
   final _rootNavigatorKey = GlobalKey<NavigatorState>();
   final _homeNavigatorKey = GlobalKey<NavigatorState>();
   bool _allowLoginGuardBypassOnce = false;
+  GoRouter? _router;
 
   /// Allows the next navigation to `/login` to bypass the authenticated guard.
   void allowLoginGuardBypassOnce() {
@@ -25,6 +26,11 @@ class AppRouter {
   }
 
   GoRouter router(GARouteObserver gaObs, CrashRouteObserver crashObs) {
+    _router ??= _buildRouter(gaObs, crashObs);
+    return _router!;
+  }
+
+  GoRouter _buildRouter(GARouteObserver gaObs, CrashRouteObserver crashObs) {
     final currentUser = tpGetIt.get<CurrentUser>();
     final refresh = GoRouterRefreshStream(currentUser.watch());
 
@@ -72,6 +78,7 @@ class AppRouter {
               path: AppRoute.homeSummary.path,
               pageBuilder: (context, state) {
                 return CustomTransitionPage(
+                  key: state.pageKey,
                   child: SummaryPage(),
                   transitionsBuilder: (_, animation, _, child) {
                     return FadeTransition(
@@ -88,6 +95,7 @@ class AppRouter {
               path: AppRoute.homeTransactions.path,
               pageBuilder: (context, state) {
                 return CustomTransitionPage(
+                  key: state.pageKey,
                   child: TransactionPage(),
                   transitionsBuilder: (_, animation, _, child) {
                     return FadeTransition(
@@ -104,6 +112,7 @@ class AppRouter {
               path: AppRoute.homeBudget.path,
               pageBuilder: (context, state) {
                 return CustomTransitionPage(
+                  key: state.pageKey,
                   child: BudgetPage(),
                   transitionsBuilder: (_, animation, _, child) {
                     return FadeTransition(
@@ -120,6 +129,7 @@ class AppRouter {
               path: AppRoute.homeProfile.path,
               pageBuilder: (context, state) {
                 return CustomTransitionPage(
+                  key: state.pageKey,
                   child: ProfilePage(),
                   transitionsBuilder: (_, animation, _, child) {
                     return FadeTransition(

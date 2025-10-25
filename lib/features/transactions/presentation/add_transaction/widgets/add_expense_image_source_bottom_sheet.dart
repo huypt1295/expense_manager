@@ -50,10 +50,7 @@ class ImageSourceBottomSheet extends StatelessWidget {
       padding: EdgeInsets.all(16.0),
       child: Text(
         'Choose Image Source',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -66,11 +63,7 @@ class ImageSourceBottomSheet extends StatelessWidget {
           color: const Color(0xFF667eea).withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Icon(
-          Icons.camera_alt,
-          color: Color(0xFF667eea),
-          size: 24,
-        ),
+        child: const Icon(Icons.camera_alt, color: Color(0xFF667eea), size: 24),
       ),
       title: const Text(
         'Take Photo',
@@ -103,4 +96,4 @@ class ImageSourceBottomSheet extends StatelessWidget {
       onTap: onGalleryPressed,
     );
   }
-} 
+}

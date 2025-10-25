@@ -14,7 +14,16 @@ import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_
 import 'package:expense_manager/features/categories/application/categories_service.dart' show CategoriesService;
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart';
-import 'package:expense_manager/features/categories/domain/usecases/load_categories_usecase.dart' show LoadCategoriesUseCase;
+import 'package:expense_manager/features/categories/domain/usecases/create_user_category_usecase.dart'
+    show CreateUserCategoryUseCase;
+import 'package:expense_manager/features/categories/domain/usecases/delete_user_category_usecase.dart'
+    show DeleteUserCategoryUseCase;
+import 'package:expense_manager/features/categories/domain/usecases/load_categories_usecase.dart'
+    show LoadCategoriesUseCase;
+import 'package:expense_manager/features/categories/domain/usecases/update_user_category_usecase.dart'
+    show UpdateUserCategoryUseCase;
+import 'package:expense_manager/features/categories/domain/usecases/watch_categories_usecase.dart'
+    show WatchCategoriesUseCase;
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:expense_manager/features/transactions/domain/repositories/transactions_repository.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/watch_transactions_usecase.dart';
@@ -90,16 +99,27 @@ class _FakeTransactionsRepository implements TransactionsRepository {
 }
 
 class _FakeCategoryRepository implements CategoryRepository {
+  @override
+  Future<List<CategoryEntity>> fetchCombined() async => const [];
 
   @override
-  Future<List<CategoryEntity>> fetchAll() async => const [];
+  Stream<List<CategoryEntity>> watchCombined() =>
+      const Stream<List<CategoryEntity>>.empty();
 
   @override
-  Stream<List<CategoryEntity>> watchAll() {
-    // TODO: implement watchAll
+  Future<CategoryEntity> createUserCategory(CategoryEntity entity) {
     throw UnimplementedError();
   }
 
+  @override
+  Future<void> updateUserCategory(CategoryEntity entity) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> deleteUserCategory(String id) {
+    throw UnimplementedError();
+  }
 }
 
 Future<void> _pumpEventQueue() async {
@@ -130,10 +150,16 @@ void main() {
         WatchBudgetsUseCase(budgetRepository),
         AddBudgetUseCase(budgetRepository),
         UpdateBudgetUseCase(budgetRepository),
-        DeleteBudgetUseCase(budgetRepository),
-        WatchTransactionsUseCase(transactionsRepository),
-          CategoriesService(LoadCategoriesUseCase(categoryRepository))
-      );
+          DeleteBudgetUseCase(budgetRepository),
+          WatchTransactionsUseCase(transactionsRepository),
+          CategoriesService(
+            LoadCategoriesUseCase(categoryRepository),
+            WatchCategoriesUseCase(categoryRepository),
+            CreateUserCategoryUseCase(categoryRepository),
+            UpdateUserCategoryUseCase(categoryRepository),
+            DeleteUserCategoryUseCase(categoryRepository),
+          )
+        );
     });
 
     tearDown(() async {

@@ -2,7 +2,9 @@ import 'package:expense_manager/core/domain/entities/user_entity.dart';
 import 'package:expense_manager/features/auth/data/datasources/firebase_auth_data_source.dart';
 import 'package:expense_manager/features/auth/data/models/user_model.dart';
 import 'package:expense_manager/features/auth/domain/repositories/auth_repository.dart';
+import 'package:injectable/injectable.dart';
 
+@LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._dataSource);
 

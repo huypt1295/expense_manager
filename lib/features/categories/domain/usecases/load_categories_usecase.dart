@@ -11,7 +11,7 @@ class LoadCategoriesUseCase extends BaseUseCase<NoParam, List<CategoryEntity>> {
   @override
   Future<Result<List<CategoryEntity>>> call(NoParam params) {
     return Result.guard<List<CategoryEntity>>(
-      _repository.fetchAll,
+      _repository.fetchCombined,
       _mapToFailure,
     );
   }

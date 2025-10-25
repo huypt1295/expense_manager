@@ -9,6 +9,8 @@ import 'package:expense_manager/features/profile_setting/presentation/profile/wi
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
+import 'package:flutter_resource/flutter_resource.dart';
+import 'package:flutter_resource/l10n/gen/l10n.dart';
 
 const _languageOptions = [
   _LanguageOption(code: 'vi', label: 'Ti\u1ebfng Vi\u1ec7t'),
@@ -295,7 +297,7 @@ class _ProfileContent extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              height: 220,
+              height: 150,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -314,7 +316,7 @@ class _ProfileContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'C\u00e1 nh\u00e2n',
+                  S.current.profile,
                   style: theme.textTheme.headlineMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -378,7 +380,7 @@ class _SettingsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'C\u00e0i \u0111\u1eb7t',
+            S.current.setting,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -386,7 +388,7 @@ class _SettingsSection extends StatelessWidget {
           const SizedBox(height: 16),
           _SettingTile(
             icon: Icons.language_rounded,
-            title: 'Ng\u00f4n ng\u1eef',
+            title: S.current.language,
             trailing: languageLabel,
             onTap: onLanguageTap,
           ),
@@ -413,46 +415,72 @@ class _ThemeModeSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = context.tpColors;
-    const options = [
-      _ThemeOption(mode: ThemeMode.light, label: 'S\u00e1ng'),
-      _ThemeOption(mode: ThemeMode.dark, label: 'T\u1ed1i'),
-      _ThemeOption(mode: ThemeMode.system, label: 'H\u1ec7 th\u1ed1ng'),
+    final options = [
+      _ThemeOption(
+        mode: ThemeMode.light,
+        label: S.current.theme_mode_light,
+        icon: Icons.light_mode,
+      ),
+      _ThemeOption(
+        mode: ThemeMode.dark,
+        label: S.current.theme_mode_dark,
+        icon: Icons.dark_mode,
+      ),
+      _ThemeOption(
+        mode: ThemeMode.system,
+        label: S.current.theme_mode_system,
+        icon: Icons.settings,
+      ),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Giao di\u1ec7n',
-          style: theme.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+        Row(
+          children: [
+            Icon(themeMode.icon, color: context.tpColors.iconSub),
+            const SizedBox(width: 8),
+            Text(
+              S.current.theme,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: options.map((option) {
-            final isSelected = option.mode == themeMode;
-            return ChoiceChip(
-              label: Text(option.label),
-              selected: isSelected,
-              onSelected: (_) => onChanged(option.mode),
-              showCheckmark: false,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              side: BorderSide(
-                color: isSelected
-                    ? theme.colorScheme.primary
-                    : _colorWithOpacity(colors.borderDefault, 0.4),
+        Row(
+          children: [
+            for (var i = 0; i < options.length; i++) ...[
+              Expanded(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ChoiceChip(
+                    label: Align(
+                      alignment: Alignment.center,
+                      child: Text(options[i].label),
+                    ),
+                    selected: options[i].mode == themeMode,
+                    onSelected: (_) => onChanged(options[i].mode),
+                    showCheckmark: false,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    side: BorderSide(color: context.tpColors.borderDefault),
+                    shape: RoundedSuperellipseBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    backgroundColor: context.tpColors.surfaceSub,
+                    selectedColor: context.tpColors.surfaceNeutralComponent,
+                    labelStyle: TPTextStyle.bodyM.copyWith(
+                      color: options[i].mode == themeMode
+                          ? context.tpColors.textReverse
+                          : context.tpColors.textSub,
+                    ),
+                  ),
+                ),
               ),
-              backgroundColor: colors.surfaceNeutralComponent,
-              selectedColor: theme.colorScheme.primary,
-              labelStyle: theme.textTheme.bodyMedium?.copyWith(
-                color: isSelected ? colors.textReverse : colors.textSub,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              ),
-            );
-          }).toList(),
+              if (i != options.length - 1) const SizedBox(width: 12),
+            ],
+          ],
         ),
       ],
     );
@@ -557,7 +585,6 @@ class _SettingTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = context.tpColors;
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -565,15 +592,7 @@ class _SettingTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
-            Container(
-              height: 48,
-              width: 48,
-              decoration: BoxDecoration(
-                color: colors.surfaceNeutralComponent,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(icon, color: theme.colorScheme.primary),
-            ),
+            Icon(icon, color: theme.colorScheme.primary),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
@@ -634,7 +653,7 @@ class _SignOutButton extends StatelessWidget {
                 ),
               )
             : const Icon(Icons.logout_rounded),
-        label: const Text('\u0110\u0103ng xu\u1ea5t'),
+        label: Text(S.current.sign_out),
       ),
     );
   }
@@ -655,6 +674,7 @@ class _SectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surfaceMain,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: context.tpColors.borderDefault),
         boxShadow: [
           BoxShadow(
             color: _colorWithOpacity(colors.shadowMain, 0.12),
@@ -676,10 +696,15 @@ class _LanguageOption {
 }
 
 class _ThemeOption {
-  const _ThemeOption({required this.mode, required this.label});
+  const _ThemeOption({
+    required this.mode,
+    required this.label,
+    required this.icon,
+  });
 
   final ThemeMode mode;
   final String label;
+  final IconData icon;
 }
 
 enum _SupportItem { helpCenter, terms, privacy }

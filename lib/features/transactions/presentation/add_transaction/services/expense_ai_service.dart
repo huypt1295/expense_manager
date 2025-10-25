@@ -43,15 +43,16 @@ class ExpenseAIService {
   static const String _geminiUrl =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyAg0jBmIxM8hEK_j84Z872BUpqSEtAB6K8';
 
-  static final TextRecognizer _textRecognizer =
-      GoogleMlKit.vision.textRecognizer();
+  static final TextRecognizer _textRecognizer = GoogleMlKit.vision
+      .textRecognizer();
 
   /// Extract text from image using OCR
   static Future<String> extractTextFromImage(File imageFile) async {
     try {
       final InputImage inputImage = InputImage.fromFilePath(imageFile.path);
-      final RecognizedText recognizedText =
-          await _textRecognizer.processImage(inputImage);
+      final RecognizedText recognizedText = await _textRecognizer.processImage(
+        inputImage,
+      );
       final List<String> textBlocks = [];
       for (TextBlock block in recognizedText.blocks) {
         for (TextLine line in block.lines) {
@@ -84,7 +85,8 @@ class ExpenseAIService {
   /// Analyze extracted text with Gemini AI to identify expense details
   static Future<ExpenseData> analyzeExpenseWithAI(String extractedText) async {
     try {
-      final String prompt = '''
+      final String prompt =
+          '''
 Analyze the following receipt/transaction text and extract expense information:
 
 Text: $extractedText
@@ -110,17 +112,15 @@ Rules:
         "contents": [
           {
             "parts": [
-              {"text": prompt}
-            ]
-          }
-        ]
+              {"text": prompt},
+            ],
+          },
+        ],
       });
 
       final response = await http.post(
         Uri.parse(_geminiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: body,
       );
 
@@ -133,7 +133,8 @@ Rules:
         return ExpenseData.fromJson(expenseJson);
       } else {
         throw Exception(
-            'Gemini API request failed: \\${response.statusCode} \\${response.body}');
+          'Gemini API request failed: \\${response.statusCode} \\${response.body}',
+        );
       }
     } catch (e) {
       // Fallback to local analysis if AI fails
@@ -178,7 +179,8 @@ Rules:
 
   /// Main method to process image and extract expense data
   static Future<ExpenseData> processImageAndExtractExpense(
-      File imageFile) async {
+    File imageFile,
+  ) async {
     try {
       // Step 1: Extract text using OCR
       final String extractedText = await extractTextFromImage(imageFile);

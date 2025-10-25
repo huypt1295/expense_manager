@@ -29,5 +29,13 @@
   "add_budget": "Add budget",
   "edit_budget": "Edit budget",
   "save": "Save",
-  "done": "Done"
+  "done": "Done",
+  "theme": "Theme",
+  "theme_mode_light": "Light",
+  "theme_mode_dark": "Dark",
+  "theme_mode_system": "System",
+  "setting": "Setting",
+  "language": "Language",
+  "sign_out": "Sign out",
+  "profile": "Profile"
 }

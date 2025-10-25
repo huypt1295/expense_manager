@@ -14,7 +14,6 @@ class CurvedNavigationBar extends StatefulWidget {
   final int curvedIndex;
   final Color color;
   final Color curvedBackgroundColor;
-  final Color backgroundColor;
   final ValueChanged<int>? onTap;
   final double height;
   final double? maxWidth;
@@ -26,7 +25,6 @@ class CurvedNavigationBar extends StatefulWidget {
     this.curvedIndex = 0,
     this.color = Colors.white,
     required this.curvedBackgroundColor,
-    this.backgroundColor = Colors.blueAccent,
     this.onTap,
     this.height = 75.0,
     this.maxWidth,
@@ -81,7 +79,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
                 ? Alignment.bottomLeft
                 : Alignment.bottomRight,
             child: Container(
-              color: widget.backgroundColor,
+              color: Colors.transparent,
               width: maxWidth,
               child: ClipRect(
                 clipper: NavCustomClipper(

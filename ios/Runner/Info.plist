@@ -46,27 +46,38 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>CFBundleURLTypes</key>
-    <array>
-      <dict>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>com.googleusercontent.apps.42962786345-i1o0ivvggbbu8m0h279ko3r6fem31goi</string>
-        </array>
-      </dict>
-    </array>
-    <key>GIDClientID</key>
-    <string>42962786345-i1o0ivvggbbu8m0h279ko3r6fem31goi.apps.googleusercontent.com</string>
-    <key>CFBundleURLTypes</key>
-    <array>
-      <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>com.googleusercontent.apps.42962786345-i1o0ivvggbbu8m0h279ko3r6fem31goi</string>
-        </array>
-      </dict>
-    </array>
-    <key>NSCameraUsageDescription</key><string>We need camera access to scan the bill</string>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.42962786345-i1o0ivvggbbu8m0h279ko3r6fem31goi</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fbYourFacebookAppId</string>
+			</array>
+		</dict>
+	</array>
+	<key>GIDClientID</key>
+	<string>42962786345-i1o0ivvggbbu8m0h279ko3r6fem31goi.apps.googleusercontent.com</string>
+	<key>FacebookAppID</key>
+	<string>your_facebook_app_id</string>
+	<key>FacebookClientToken</key>
+	<string>your_facebook_client_token</string>
+	<key>FacebookDisplayName</key>
+	<string>Expense Manager</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+		<string>fbauth2</string>
+		<string>fbshareextension</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>We need camera access to scan the bill</string>
 </dict>
 </plist>

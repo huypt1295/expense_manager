@@ -40,6 +40,7 @@ class _ProfileHeaderState extends BaseState<ProfileHeader> {
       decoration: BoxDecoration(
         color: colors.surfaceMain,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: context.tpColors.borderDefault),
         boxShadow: [
           BoxShadow(
             color: _colorWithOpacity(colors.shadowMain, 0.12),

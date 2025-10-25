@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Expense Manager</string>
-    <string name="facebook_app_id">your_facebook_app_id</string>
-    <string name="fb_login_protocol_scheme">fbYourAppId</string>
-    <string name="facebook_client_token">your_facebook_client_token</string>
+    <string name="facebook_app_id">2133019020439808</string>
+    <string name="fb_login_protocol_scheme">fb2133019020439808</string>
+    <string name="facebook_client_token">5f2aa4b6ccb55ca1a86235f1ba0c45fe</string>
 </resources>

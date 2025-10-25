@@ -10,3 +10,4 @@ export 'regex_utils.dart';
 export 'validation_utils.dart';
 export 'view_utils.dart';
 export 'vnd_currency_input_formatter.dart';
+export 'theme_mode_x.dart';

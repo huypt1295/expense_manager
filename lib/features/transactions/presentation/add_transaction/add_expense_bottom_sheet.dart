@@ -1,22 +1,24 @@
 import 'dart:io';
 import 'package:expense_manager/core/enums/transaction_type.dart';
+import 'package:expense_manager/features/categories/application/categories_service.dart';
+import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/add_transaction_bloc.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/add_transaction_event.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/add_transaction_state.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/constants/expense_constants.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/helpers/expense_image_helper.dart';
-import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_divider.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_form_fields.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_image_source_bottom_sheet.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_or_income_selection.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_scan_section.dart';
-import 'package:flutter_resource/l10n/gen/l10n.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_submit_button.dart';
-import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_image_source_bottom_sheet.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_user_category_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
+import 'package:flutter_resource/l10n/gen/l10n.dart';
 
 class AddExpenseBottomSheet extends BaseStatefulWidget {
   const AddExpenseBottomSheet({super.key, this.transaction});
@@ -63,12 +65,11 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
 
   @override
   void onDispose() {
-    super.onDispose();
     _titleController.dispose();
     _amountController.dispose();
     _descriptionController.dispose();
     ExpenseImageHelper.dispose();
-    super.dispose();
+    super.onDispose();
   }
 
   @override
@@ -189,6 +190,7 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
                 });
               },
               onDateSelected: _selectDate,
+              onAddCategoryTap: _onAddCategoryTap,
             ),
             const SizedBox(height: 24),
             AddExpenseSubmitButton(
@@ -418,6 +420,63 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
         _selectedCategoryId = nextSelected;
         _pendingCategoryName = nextPending;
       });
+    }
+  }
+
+  Future<void> _onAddCategoryTap() async {
+    final draft = await showModalBottomSheet<UserCategoryDraft>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return AddUserCategoryBottomSheet(initialType: _type);
+      },
+    );
+
+    if (draft == null || !mounted) {
+      return;
+    }
+
+    final locale = Localizations.maybeLocaleOf(context)?.languageCode ?? 'en';
+    final categoriesService = tpGetIt.get<CategoriesService>();
+    final entity = CategoryEntity(
+      id: '',
+      icon: draft.icon,
+      isActive: true,
+      type: draft.type,
+      names: {locale: draft.name},
+      isCustom: true,
+    );
+
+    try {
+      final created = await categoriesService.createUserCategory(entity);
+
+      if (!mounted) {
+        return;
+      }
+
+      context.read<AddTransactionBloc>().add(
+        AddTransactionInitEvent(forceRefresh: true),
+      );
+
+      setState(() {
+        _type = draft.type;
+        _selectedCategoryId = created.id;
+        _pendingCategoryName = draft.name;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Đã thêm danh mục mới')));
+    } catch (error) {
+      final message = error is Failure
+          ? (error.message ?? error.code)
+          : 'Không thể tạo danh mục. Vui lòng thử lại.';
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 

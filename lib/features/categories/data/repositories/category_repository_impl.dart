@@ -1,47 +1,162 @@
+import 'package:expense_manager/core/auth/current_user.dart';
 import 'package:expense_manager/features/categories/data/datasources/category_remote_data_source.dart';
 import 'package:expense_manager/features/categories/data/models/category_model.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
+import 'package:rxdart/rxdart.dart';
 
 @LazySingleton(as: CategoryRepository)
 class CategoryRepositoryImpl implements CategoryRepository {
-  CategoryRepositoryImpl(this._remoteDataSource);
+  CategoryRepositoryImpl(this._remoteDataSource, this._currentUser);
 
   final CategoryRemoteDataSource _remoteDataSource;
+  final CurrentUser _currentUser;
 
   @override
-  Stream<List<CategoryEntity>> watchAll() {
-    return _remoteDataSource.watchAll().map((models) {
-      return _mapModelsToEntities(models);
-    });
+  Stream<List<CategoryEntity>> watchCombined() {
+    final uid = _currentUser.now()?.uid;
+    final defaultStream = _remoteDataSource.watchDefault();
+    final userStream = (uid == null || uid.isEmpty)
+        ? Stream<List<CategoryModel>>.value(const <CategoryModel>[])
+        : _remoteDataSource.watchForUser(uid);
+
+    return Rx.combineLatest2<
+          List<CategoryModel>,
+          List<CategoryModel>,
+          List<CategoryEntity>
+        >(
+          defaultStream,
+          userStream,
+          (defaults, users) => _mapModelsToEntities(defaults, users),
+        )
+        .map(List<CategoryEntity>.unmodifiable);
   }
 
   @override
-  Future<List<CategoryEntity>> fetchAll() async {
-    final models = await _remoteDataSource.fetchAll();
-    return _mapModelsToEntities(models);
+  Future<List<CategoryEntity>> fetchCombined() async {
+    final uid = _currentUser.now()?.uid;
+    final defaultModels = await _remoteDataSource.fetchDefault();
+    final userModels = (uid == null || uid.isEmpty)
+        ? const <CategoryModel>[]
+        : await _remoteDataSource.fetchForUser(uid);
+    return List<CategoryEntity>.unmodifiable(
+      _mapModelsToEntities(defaultModels, userModels),
+    );
   }
 
-  List<CategoryEntity> _mapModelsToEntities(List<CategoryModel> models) {
-    final entities = models
-        .where((model) => model.isActive)
+  @override
+  Future<CategoryEntity> createUserCategory(CategoryEntity entity) async {
+    final uid = _requireUid();
+    if (!entity.isCustom) {
+      throw ArgumentError.value(
+        entity.isCustom,
+        'isCustom',
+        'Only custom categories can be created for users.',
+      );
+    }
+
+    final model = CategoryModel.fromEntity(
+      entity.copyWith(
+        id: entity.id.isEmpty ? '' : entity.id,
+        ownerId: uid,
+        isArchived: false,
+        isActive: entity.isActive,
+      ),
+    );
+
+    final created = await _remoteDataSource.createForUser(uid, model);
+    return created.toEntity();
+  }
+
+  @override
+  Future<void> updateUserCategory(CategoryEntity entity) {
+    final uid = _requireUid();
+    if (!entity.isCustom) {
+      throw ArgumentError.value(
+        entity.isCustom,
+        'isCustom',
+        'Default categories cannot be updated by users.',
+      );
+    }
+
+    final model = CategoryModel.fromEntity(entity.copyWith(ownerId: uid));
+    return _remoteDataSource.updateForUser(uid, model);
+  }
+
+  @override
+  Future<void> deleteUserCategory(String id) {
+    final uid = _requireUid();
+    return _remoteDataSource.deleteForUser(uid, id);
+  }
+
+  List<CategoryEntity> _mapModelsToEntities(
+    List<CategoryModel> defaultModels,
+    List<CategoryModel> userModels,
+  ) {
+    final defaults = defaultModels
+        .where(_isVisibleModel)
         .map((model) => model.toEntity())
         .toList(growable: false);
-    entities.sort((a, b) {
-      final orderA = a.sortOrder;
-      final orderB = b.sortOrder;
-      if (orderA != null && orderB != null) {
-        return orderA.compareTo(orderB);
+
+    final users = userModels
+        .where(_isVisibleModel)
+        .map((model) => model.toEntity())
+        .toList(growable: false);
+
+    defaults.sort(_sortDefaultCategories);
+    users.sort(_sortUserCategories);
+
+    return <CategoryEntity>[...defaults, ...users];
+  }
+
+  bool _isVisibleModel(CategoryModel model) {
+    if (!model.isActive) {
+      return false;
+    }
+    if (model.isArchived == true) {
+      return false;
+    }
+    if (model.name.values.every((value) => (value).trim().isEmpty)) {
+      return false;
+    }
+    return true;
+  }
+
+  int _sortDefaultCategories(CategoryEntity a, CategoryEntity b) {
+    final orderA = a.sortOrder;
+    final orderB = b.sortOrder;
+    if (orderA != null && orderB != null) {
+      final comparison = orderA.compareTo(orderB);
+      if (comparison != 0) {
+        return comparison;
       }
-      if (orderA != null) {
-        return -1;
+    } else if (orderA != null) {
+      return -1;
+    } else if (orderB != null) {
+      return 1;
+    }
+    return a.nameForLocale('en').compareTo(b.nameForLocale('en'));
+  }
+
+  int _sortUserCategories(CategoryEntity a, CategoryEntity b) {
+    final createdA = a.createdAt;
+    final createdB = b.createdAt;
+    if (createdA != null && createdB != null) {
+      final comparison = createdA.compareTo(createdB);
+      if (comparison != 0) {
+        return comparison;
       }
-      if (orderB != null) {
-        return 1;
-      }
-      return a.id.compareTo(b.id);
-    });
-    return entities;
+    }
+    return a.nameForLocale('en').compareTo(b.nameForLocale('en'));
+  }
+
+  String _requireUid() {
+    final snapshot = _currentUser.now();
+    final uid = snapshot?.uid;
+    if (uid == null || uid.isEmpty) {
+      throw AuthException('auth.required', tokenExpired: true);
+    }
+    return uid;
   }
 }

@@ -29,5 +29,13 @@
   "add_budget": "Thêm ngân sách",
   "edit_budget": "Sửa ngân sách",
   "save": "Lưu",
-  "done": "Xong"
+  "done": "Xong",
+  "theme": "Giao diện",
+  "theme_mode_light": "Sáng",
+  "theme_mode_dark": "Tối",
+  "theme_mode_system": "Hệ thống",
+  "setting": "Cài đặt",
+  "language": "Ngôn ngữ",
+  "sign_out": "Đăng xuất",
+  "profile": "Cá nhân"
 }

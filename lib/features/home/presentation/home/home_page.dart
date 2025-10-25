@@ -9,27 +9,31 @@ import 'home_destinations.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.state, required this.child});
 
+  static const double _bottomNavHeight = 75.0;
+  static const double _bottomNavVisualHeight = 100.0;
+
   final GoRouterState state;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       bottomNavigationBar: _buildBottomNav(context),
       body: _buildHomeBody(context),
     );
   }
 
   Widget _buildHomeBody(BuildContext context) {
+    final double bottomPadding =
+        MediaQuery.of(context).padding.bottom + _bottomNavVisualHeight;
+
     return Container(
       color: context.tpColors.backgroundMain,
-      child: SafeArea(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 250),
-          switchInCurve: Curves.easeInOut,
-          switchOutCurve: Curves.easeInOut,
-          transitionBuilder: (widget, animation) =>
-              FadeTransition(opacity: animation, child: widget),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: bottomPadding),
+        child: SafeArea(
+          bottom: false,
           child: KeyedSubtree(
             key: ValueKey(state.uri.toString()),
             child: child,
@@ -50,8 +54,9 @@ class HomePage extends StatelessWidget {
     return CurvedNavigationBar(
       selectedIndex: selectedIndex,
       curvedIndex: 2,
-      backgroundColor: context.tpColors.backgroundMain,
+      color: context.tpColors.backgroundMain,
       curvedBackgroundColor: context.tpColors.surfaceNeutralComponent,
+      height: _bottomNavHeight,
       items: destinations
           .map(
             (destination) => CurvedNavigationItem(
