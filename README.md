@@ -3,6 +3,14 @@
 ### Overview
 A modular Flutter application for managing expenses. The project separates core logic, shared resources, and feature modules. It leverages dependency injection (DI), modern navigation, Bloc for state management, and an OCR-based receipt scanning feature to extract expense data.
 
+### Screenshots
+- `screenshot/Screenshot_20251027_230145.png`: Trang tong quan hien thi thu nhap, chi tieu va bieu do chi trong 7 ngay gan nhat.
+- `screenshot/Screenshot_20251027_230155.png`: Danh sach giao dich theo ngay voi tong chi va chi tiet tung khoan.
+- `screenshot/Screenshot_20251027_230202.png`: Trang ngan sach tong quan voi han muc, so tien da chi va bieu do phan bo theo danh muc.
+- `screenshot/Screenshot_20251027_230216.png`: Man hinh ho so & cai dat voi lua chon ngon ngu, chu de va lien ket ho tro.
+- `screenshot/Screenshot_20251027_230223.png`: Bottom sheet them giao dich gom Smart Expense Scanner va cac truong nhap tay.
+- `screenshot/Screenshot_20251027_230232.png`: Bieu mau tao ngan sach theo danh muc voi tuy chon thoi gian va so tien.
+
 ### Tech Stack
 - **Flutter/Dart**: Dart >= 3.2.3, recommended Flutter >= 3.16.x
 - **State management**: `bloc`, `flutter_bloc`
