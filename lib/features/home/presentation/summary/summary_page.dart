@@ -7,6 +7,7 @@ import 'package:expense_manager/features/home/presentation/summary/widget/summar
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_list_transaction_widget.dart';
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_spending_widget.dart';
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_weekly_transactions_line_chart_widget.dart';
+import 'package:expense_manager/features/workspace/presentation/widget/workspace_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
@@ -54,7 +55,14 @@ class _SummaryView extends StatelessWidget {
                   sliver: MultiSliver(
                     children: [
                       SliverToBoxAdapter(
-                        child: SummaryGreetingWidget(username: state.greeting),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const WorkspaceSelector(),
+                            const SizedBox(height: 12),
+                            SummaryGreetingWidget(username: state.greeting),
+                          ],
+                        ),
                       ),
                       SliverToBoxAdapter(child: const SizedBox(height: 16)),
                       SliverToBoxAdapter(
