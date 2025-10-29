@@ -1,9 +1,12 @@
 import 'package:expense_manager/core/routing/app_routes.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/add_expense_bottom_sheet.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart'
     show CurvedNavigationBar, ContextX, CurvedNavigationItem;
 import 'package:flutter_core/flutter_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'home_destinations.dart';
 
 class HomePage extends StatelessWidget {
@@ -17,10 +20,14 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      bottomNavigationBar: _buildBottomNav(context),
-      body: _buildHomeBody(context),
+    return BlocProvider(
+      create: (context) =>
+          tpGetIt.get<WorkspaceBloc>()..add(const WorkspaceStarted()),
+      child: Scaffold(
+        extendBody: true,
+        bottomNavigationBar: _buildBottomNav(context),
+        body: _buildHomeBody(context),
+      ),
     );
   }
 

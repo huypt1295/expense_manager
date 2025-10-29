@@ -13,6 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:expense_manager/core/auth/current_user.dart' as _i79;
 import 'package:expense_manager/core/di/firebase_module.dart' as _i93;
 import 'package:expense_manager/core/routing/app_router.dart' as _i861;
+import 'package:expense_manager/core/workspace/current_workspace.dart' as _i325;
 import 'package:expense_manager/features/add_expense/presentation/add_expense/bloc/expense_bloc.dart'
     as _i1026;
 import 'package:expense_manager/features/auth/data/datasources/firebase_auth_data_source.dart'
@@ -115,6 +116,16 @@ import 'package:expense_manager/features/transactions/presentation/add_transacti
     as _i437;
 import 'package:expense_manager/features/transactions/presentation/transactions/bloc/transactions_bloc.dart'
     as _i551;
+import 'package:expense_manager/features/workspace/application/current_workspace_controller.dart'
+    as _i108;
+import 'package:expense_manager/features/workspace/data/datasources/workspace_remote_data_source.dart'
+    as _i450;
+import 'package:expense_manager/features/workspace/data/repositories/workspace_repository_impl.dart'
+    as _i680;
+import 'package:expense_manager/features/workspace/domain/repositories/workspace_repository.dart'
+    as _i874;
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart'
+    as _i990;
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:firebase_storage/firebase_storage.dart' as _i457;
 import 'package:flutter_common/flutter_common.dart' as _i400;
@@ -167,6 +178,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i376.TransactionsRemoteDataSource>(
       () => _i376.TransactionsRemoteDataSource(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.lazySingleton<_i450.WorkspaceRemoteDataSource>(
+      () => _i450.WorkspaceRemoteDataSource(gh<_i974.FirebaseFirestore>()),
     );
     gh.lazySingleton<_i995.ProfileRemoteDataSource>(
       () => _i995.ProfileRemoteDataSource(
@@ -221,6 +235,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i79.CurrentUser>(
       () => _i524.CurrentUserFromAuthBloc(gh<_i68.AuthBloc>()),
     );
+    gh.singleton<_i325.CurrentWorkspace>(
+      () => _i108.CurrentWorkspaceController(gh<_i79.CurrentUser>()),
+    );
     gh.lazySingleton<_i639.BudgetRepository>(
       () => _i932.BudgetRepositoryImpl(
         gh<_i78.BudgetRemoteDataSource>(),
@@ -274,6 +291,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i596.TransactionsRepositoryImpl(
         gh<_i376.TransactionsRemoteDataSource>(),
         gh<_i79.CurrentUser>(),
+        gh<_i325.CurrentWorkspace>(),
+      ),
+    );
+    gh.lazySingleton<_i874.WorkspaceRepository>(
+      () => _i680.WorkspaceRepositoryImpl(
+        gh<_i450.WorkspaceRemoteDataSource>(),
+        gh<_i79.CurrentUser>(),
       ),
     );
     gh.lazySingleton<_i49.CategoriesService>(
@@ -305,6 +329,13 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i983.SummaryBloc(
         gh<_i79.CurrentUser>(),
         gh<_i717.WatchTransactionsUseCase>(),
+        logger: gh<_i453.Logger>(),
+      ),
+    );
+    gh.factory<_i990.WorkspaceBloc>(
+      () => _i990.WorkspaceBloc(
+        gh<_i874.WorkspaceRepository>(),
+        gh<_i325.CurrentWorkspace>(),
         logger: gh<_i453.Logger>(),
       ),
     );

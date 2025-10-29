@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/core/auth/current_user.dart';
+import 'package:expense_manager/core/workspace/current_workspace.dart';
+import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/transactions/data/datasources/transactions_remote_data_source.dart';
 import 'package:expense_manager/features/transactions/data/models/transaction_model.dart';
 import 'package:expense_manager/features/transactions/data/repositories/transactions_repository_impl.dart';
@@ -25,16 +27,16 @@ class _FakeTransactionsRemoteDataSource
     implements TransactionsRemoteDataSource {
   _FakeTransactionsRemoteDataSource();
 
-  String? lastAllocateUid;
+  WorkspaceContext? lastAllocateContext;
   String allocatedId = 'generated-id';
 
-  String? lastUpsertUid;
+  WorkspaceContext? lastUpsertContext;
   TransactionModel? lastUpsertModel;
 
-  String? lastUpdateUid;
+  WorkspaceContext? lastUpdateContext;
   TransactionModel? lastUpdateModel;
 
-  String? lastDeleteUid;
+  WorkspaceContext? lastDeleteContext;
   String? lastDeletedId;
 
   List<TransactionModel> onceModels = const <TransactionModel>[];
@@ -43,36 +45,38 @@ class _FakeTransactionsRemoteDataSource
       StreamController<List<TransactionModel>>.broadcast(sync: true);
 
   @override
-  String allocateId(String uid) {
-    lastAllocateUid = uid;
+  String allocateId(WorkspaceContext context) {
+    lastAllocateContext = context;
     return allocatedId;
   }
 
   @override
-  Stream<List<TransactionModel>> watchTransactions(String uid) {
+  Stream<List<TransactionModel>> watchTransactions(WorkspaceContext context) {
     return controller.stream;
   }
 
   @override
-  Future<List<TransactionModel>> fetchTransactionsOnce(String uid) async {
+  Future<List<TransactionModel>> fetchTransactionsOnce(
+    WorkspaceContext context,
+  ) async {
     return onceModels;
   }
 
   @override
-  Future<void> upsert(String uid, TransactionModel model) async {
-    lastUpsertUid = uid;
+  Future<void> upsert(WorkspaceContext context, TransactionModel model) async {
+    lastUpsertContext = context;
     lastUpsertModel = model;
   }
 
   @override
-  Future<void> update(String uid, TransactionModel model) async {
-    lastUpdateUid = uid;
+  Future<void> update(WorkspaceContext context, TransactionModel model) async {
+    lastUpdateContext = context;
     lastUpdateModel = model;
   }
 
   @override
-  Future<void> softDelete(String uid, String id) async {
-    lastDeleteUid = uid;
+  Future<void> softDelete(WorkspaceContext context, String id) async {
+    lastDeleteContext = context;
     lastDeletedId = id;
   }
 
@@ -104,16 +108,37 @@ TransactionModel _model(String id) => TransactionModel(
       note: null,
     );
 
+class _FakeCurrentWorkspace implements CurrentWorkspace {
+  _FakeCurrentWorkspace(this.snapshot);
+
+  CurrentWorkspaceSnapshot? snapshot;
+
+  @override
+  CurrentWorkspaceSnapshot? now() => snapshot;
+
+  @override
+  Future<void> select(CurrentWorkspaceSnapshot? snapshot) async {
+    this.snapshot = snapshot;
+  }
+
+  @override
+  Stream<CurrentWorkspaceSnapshot?> watch() => Stream.value(snapshot);
+}
+
 void main() {
   group('TransactionsRepositoryImpl', () {
     late _FakeCurrentUser currentUser;
     late _FakeTransactionsRemoteDataSource remote;
+    late _FakeCurrentWorkspace currentWorkspace;
     late TransactionsRepositoryImpl repository;
 
     setUp(() {
       currentUser = _FakeCurrentUser(const CurrentUserSnapshot(uid: 'uid-123'));
       remote = _FakeTransactionsRemoteDataSource();
-      repository = TransactionsRepositoryImpl(remote, currentUser);
+      currentWorkspace =
+          _FakeCurrentWorkspace(CurrentWorkspaceSnapshot.personal(id: 'uid-123'));
+      repository =
+          TransactionsRepositoryImpl(remote, currentUser, currentWorkspace);
     });
 
     tearDown(() async {
@@ -125,8 +150,10 @@ void main() {
 
       await repository.add(entity);
 
-      expect(remote.lastAllocateUid, 'uid-123');
-      expect(remote.lastUpsertUid, 'uid-123');
+      expect(remote.lastAllocateContext, isNotNull);
+      expect(remote.lastAllocateContext!.workspaceId, 'uid-123');
+      expect(remote.lastUpsertContext, isNotNull);
+      expect(remote.lastUpsertContext!.workspaceId, 'uid-123');
       expect(remote.lastUpsertModel, isNotNull);
       expect(remote.lastUpsertModel!.id, remote.allocatedId);
     });
@@ -136,14 +163,16 @@ void main() {
 
       await repository.update(entity);
 
-      expect(remote.lastUpdateUid, 'uid-123');
+      expect(remote.lastUpdateContext, isNotNull);
+      expect(remote.lastUpdateContext!.workspaceId, 'uid-123');
       expect(remote.lastUpdateModel!.id, 'existing');
     });
 
     test('deleteById calls softDelete with user id', () async {
       await repository.deleteById('delete-me');
 
-      expect(remote.lastDeleteUid, 'uid-123');
+      expect(remote.lastDeleteContext, isNotNull);
+      expect(remote.lastDeleteContext!.workspaceId, 'uid-123');
       expect(remote.lastDeletedId, 'delete-me');
     });
 
@@ -165,11 +194,27 @@ void main() {
 
     test('throws AuthException when user is missing', () async {
       currentUser.snapshot = const CurrentUserSnapshot(uid: null);
+      currentWorkspace.snapshot = null;
 
       expect(
         () => repository.deleteById('x'),
         throwsA(isA<AuthException>()),
       );
+    });
+
+    test('uses workspace snapshot when provided', () async {
+      currentWorkspace.snapshot = const CurrentWorkspaceSnapshot(
+        id: 'household-1',
+        type: WorkspaceType.household,
+        name: 'Family',
+        role: 'owner',
+      );
+
+      await repository.deleteById('delete-me');
+
+      expect(remote.lastDeleteContext, isNotNull);
+      expect(remote.lastDeleteContext!.workspaceId, 'household-1');
+      expect(remote.lastDeleteContext!.type, WorkspaceType.household);
     });
   });
 }
