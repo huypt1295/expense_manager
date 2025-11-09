@@ -10,6 +10,16 @@ class WorkspaceModel {
     required this.role,
   });
 
+  const WorkspaceModel.personal({
+    required String id,
+    required String name,
+  }) : this(
+          id: id,
+          name: name,
+          type: WorkspaceType.personal,
+          role: 'owner',
+        );
+
   final String id;
   final String name;
   final WorkspaceType type;

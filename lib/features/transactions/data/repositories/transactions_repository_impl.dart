@@ -102,6 +102,39 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
     return _remoteDataSource.softDelete(context, id);
   }
 
+  @override
+  Future<void> shareToWorkspace({
+    required TransactionEntity entity,
+    required String workspaceId,
+  }) async {
+    final userSnapshot = _currentUser.now();
+    final uid = userSnapshot?.uid;
+    if (uid == null || uid.isEmpty) {
+      throw AuthException('auth.required', tokenExpired: true);
+    }
+
+    final sourceContext = _requireContext();
+    if (workspaceId == sourceContext.workspaceId) {
+      return;
+    }
+
+    final targetContext = WorkspaceContext(
+      userId: uid,
+      workspaceId: workspaceId,
+      type: WorkspaceType.household,
+    );
+
+    final newId = _remoteDataSource.allocateId(targetContext);
+    final sharedEntity = entity.copyWith(
+      id: newId,
+      sharedFromWorkspaceId: sourceContext.workspaceId,
+      sharedFromTransactionId: entity.id,
+      sharedByUserId: uid,
+    );
+    final model = TransactionModel.fromEntity(sharedEntity);
+    await _remoteDataSource.upsert(targetContext, model);
+  }
+
   List<TransactionEntity> _mapModels(List<TransactionModel> models) {
     return models.map((model) => model.toEntity()).toList(growable: false);
   }

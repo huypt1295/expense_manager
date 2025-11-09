@@ -6,10 +6,13 @@ import 'package:expense_manager/features/transactions/presentation/transactions/
 import 'package:expense_manager/features/transactions/presentation/transactions/bloc/transactions_event.dart';
 import 'package:expense_manager/features/transactions/presentation/transactions/widget/transaction_item.dart'
     show TransactionItem;
+import 'package:expense_manager/features/workspace/domain/entities/workspace_entity.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_resource/flutter_resource.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TransactionSliverListWidget extends BaseStatelessWidget {
   const TransactionSliverListWidget({super.key, required this.transactions});
@@ -18,7 +21,25 @@ class TransactionSliverListWidget extends BaseStatelessWidget {
 
   @override
   Widget buildContent(BuildContext context) {
+    final workspaceState = context.watch<WorkspaceBloc>().state;
     final groups = _groupTransactions(transactions);
+    final selectedId = workspaceState.selectedWorkspaceId ??
+        (workspaceState.workspaces.isNotEmpty
+            ? workspaceState.workspaces.first.id
+            : null);
+    WorkspaceEntity? selectedWorkspace;
+    if (selectedId != null) {
+      selectedWorkspace = workspaceState.workspaces
+          .firstWhereOrNull((workspace) => workspace.id == selectedId);
+    }
+    selectedWorkspace ??= workspaceState.workspaces.isNotEmpty
+        ? workspaceState.workspaces.first
+        : null;
+    final households = workspaceState.workspaces
+        .where((workspace) => !workspace.isPersonal)
+        .toList(growable: false);
+    final canShare =
+        (selectedWorkspace?.isPersonal ?? true) && households.isNotEmpty;
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -36,6 +57,13 @@ class TransactionSliverListWidget extends BaseStatelessWidget {
               onDelete: (transaction) => context.read<TransactionsBloc>().add(
                 TransactionsDeleteRequested(transaction),
               ),
+              onShare: canShare
+                  ? (transaction) => _showShareBottomSheet(
+                        context,
+                        transaction,
+                        households,
+                      )
+                  : null,
             ),
           );
         }, childCount: groups.length),
@@ -54,6 +82,48 @@ class TransactionSliverListWidget extends BaseStatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => AddExpenseBottomSheet(transaction: transaction),
     );
+  }
+
+  Future<void> _showShareBottomSheet(
+    BuildContext context,
+    TransactionEntity transaction,
+    List<WorkspaceEntity> households,
+  ) async {
+    if (households.isEmpty) {
+      return;
+    }
+    final selected = await showModalBottomSheet<WorkspaceEntity>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: households.length,
+            separatorBuilder: (_, __) => const Divider(height: 1),
+            itemBuilder: (context, index) {
+              final household = households[index];
+              return ListTile(
+                leading: const Icon(Icons.group_outlined),
+                title: Text(household.name),
+                onTap: () => Navigator.of(context).pop(household),
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    if (selected == null) {
+      return;
+    }
+
+    context.read<TransactionsBloc>().add(
+          TransactionsShareRequested(
+            entity: transaction,
+            targetWorkspaceId: selected.id,
+            targetWorkspaceName: selected.name,
+          ),
+        );
   }
 }
 
@@ -90,11 +160,13 @@ class _TransactionGroupSection extends StatelessWidget {
     required this.group,
     required this.onEdit,
     required this.onDelete,
+    this.onShare,
   });
 
   final _TransactionDayGroup group;
   final ValueChanged<TransactionEntity> onEdit;
   final ValueChanged<TransactionEntity> onDelete;
+  final ValueChanged<TransactionEntity>? onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -237,6 +309,8 @@ class _TransactionGroupSection extends StatelessWidget {
                   transaction: transaction,
                   onEdit: () => onEdit(transaction),
                   onDelete: onDelete,
+                  onShare:
+                      onShare != null ? () => onShare!(transaction) : null,
                   backgroundColor: Colors.transparent,
                   borderRadius: BorderRadius.zero,
                 );

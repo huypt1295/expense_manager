@@ -5,9 +5,10 @@ import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/workspace/domain/entities/workspace_entity.dart';
 import 'package:expense_manager/features/workspace/domain/repositories/workspace_repository.dart';
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_effect.dart';
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_event.dart';
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_state.dart';
-import 'package:flutter_core/flutter_core.dart';
+import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeWorkspaceRepository implements WorkspaceRepository {
@@ -53,6 +54,8 @@ void main() {
     late _FakeWorkspaceRepository repository;
     late _FakeCurrentWorkspace currentWorkspace;
     late WorkspaceBloc bloc;
+    final emittedEffects = <WorkspaceEffect>[];
+    StreamSubscription<WorkspaceEffect>? effectSubscription;
 
     final personal = WorkspaceEntity.personal(id: 'uid-1', name: 'Alice');
     final household = WorkspaceEntity(
@@ -65,17 +68,21 @@ void main() {
     setUp(() {
       repository = _FakeWorkspaceRepository();
       currentWorkspace = _FakeCurrentWorkspace();
-      bloc = WorkspaceBloc(repository, currentWorkspace, logger: Logger());
+      bloc = WorkspaceBloc(repository, currentWorkspace);
+      effectSubscription = bloc.effects.listen(emittedEffects.add);
     });
 
     tearDown(() async {
+      await effectSubscription?.cancel();
       await bloc.close();
+      emittedEffects.clear();
       await repository.close();
       await currentWorkspace.close();
     });
 
     test('selects first workspace when none active', () async {
       bloc.add(const WorkspaceStarted());
+      await pumpEventQueue();
 
       repository.emit([personal, household]);
       await pumpEventQueue();
@@ -86,6 +93,7 @@ void main() {
 
     test('dispatching selection updates current workspace', () async {
       bloc.add(const WorkspaceStarted());
+      await pumpEventQueue();
       repository.emit([personal, household]);
       await pumpEventQueue();
 
@@ -98,6 +106,7 @@ void main() {
 
     test('reacts to active workspace changes from controller', () async {
       bloc.add(const WorkspaceStarted());
+      await pumpEventQueue();
       repository.emit([personal, household]);
       await pumpEventQueue();
 
@@ -112,6 +121,28 @@ void main() {
       await pumpEventQueue();
 
       expect(bloc.state.selectedWorkspaceId, household.id);
+    });
+
+    test('emits effect when selected household is removed', () async {
+      bloc.add(const WorkspaceStarted());
+      await pumpEventQueue();
+      repository.emit([personal, household]);
+      await pumpEventQueue();
+
+      bloc.add(WorkspaceSelectionRequested(household.id));
+      await pumpEventQueue();
+      emittedEffects.clear();
+
+      repository.emit([personal]);
+      await pumpEventQueue();
+
+      expect(
+        emittedEffects.whereType<WorkspaceShowLostAccessEffect>().length,
+        1,
+      );
+      final effect = emittedEffects.whereType<WorkspaceShowLostAccessEffect>().single;
+      expect(effect.workspaceId, household.id);
+      expect(effect.workspaceName, household.name);
     });
   });
 }

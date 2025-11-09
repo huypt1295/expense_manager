@@ -67,6 +67,21 @@ class WorkspaceBloc
   ) {
     final activeId = _currentWorkspace.now()?.id ?? state.selectedWorkspaceId;
     final resolvedId = _resolveSelection(activeId, event.workspaces);
+
+    WorkspaceEntity? lostWorkspace;
+    final previousSelectedId = state.selectedWorkspaceId;
+    if (previousSelectedId != null) {
+      final previouslySelected = _findWorkspace(state.workspaces, previousSelectedId);
+      final stillAvailable = event.workspaces.any(
+        (workspace) => workspace.id == previousSelectedId,
+      );
+      if (previouslySelected != null &&
+          !previouslySelected.isPersonal &&
+          !stillAvailable) {
+        lostWorkspace = previouslySelected;
+      }
+    }
+
     emit(
       state.copyWith(
         workspaces: event.workspaces,
@@ -75,6 +90,15 @@ class WorkspaceBloc
         clearError: true,
       ),
     );
+
+    if (lostWorkspace != null) {
+      emitEffect(
+        WorkspaceShowLostAccessEffect(
+          workspaceId: lostWorkspace.id,
+          workspaceName: lostWorkspace.name,
+        ),
+      );
+    }
 
     if (resolvedId == null) {
       return;

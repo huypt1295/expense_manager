@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:expense_manager/core/auth/current_user.dart';
+import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/workspace/data/datasources/workspace_remote_data_source.dart';
 import 'package:expense_manager/features/workspace/data/models/workspace_model.dart';
 import 'package:expense_manager/features/workspace/domain/entities/workspace_entity.dart';
@@ -21,25 +22,42 @@ class WorkspaceRepositoryImpl implements WorkspaceRepository {
       StreamSubscription<List<WorkspaceModel>>? remoteSubscription;
 
       Future<void> listenRemote(CurrentUserSnapshot snapshot) async {
-        await remoteSubscription?.cancel();
         final uid = snapshot.uid;
+        final previous = remoteSubscription;
+
         if (uid == null || uid.isEmpty) {
+          remoteSubscription = null;
+          await previous?.cancel();
           controller.add(const <WorkspaceEntity>[]);
           return;
         }
+
+        final personal = _personalWorkspace(snapshot);
+
         remoteSubscription = _remoteDataSource.watchMemberships(uid).listen(
           (models) {
-            final personal = _personalWorkspace(snapshot);
-            final households = models.map((model) => model.toEntity()).toList();
+            final households = models
+                .where((model) => model.type == WorkspaceType.household)
+                .map((model) => model.toEntity())
+                .toList();
             controller.add(<WorkspaceEntity>[personal, ...households]);
           },
           onError: controller.addError,
         );
+
+        await _remoteDataSource.upsertMembership(
+          uid,
+          WorkspaceModel.personal(id: uid, name: personal.name),
+        );
+
+        await previous?.cancel();
       }
 
       userSubscription = _currentUser.watch().listen(
         (snapshot) {
           if (snapshot == null) {
+            unawaited(remoteSubscription?.cancel());
+            remoteSubscription = null;
             controller.add(const <WorkspaceEntity>[]);
             return;
           }

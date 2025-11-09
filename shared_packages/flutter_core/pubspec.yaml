@@ -16,6 +16,7 @@ dependencies:
   flutter_easyloading: ^3.0.5
   lottie: ^3.3.1
 
+
   # DI
   injectable: ^2.5.1
   get_it: ^8.2.0

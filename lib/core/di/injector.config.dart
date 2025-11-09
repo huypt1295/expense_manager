@@ -110,6 +110,8 @@ import 'package:expense_manager/features/transactions/domain/usecases/get_transa
     as _i189;
 import 'package:expense_manager/features/transactions/domain/usecases/update_transaction_usecase.dart'
     as _i288;
+import 'package:expense_manager/features/transactions/domain/usecases/share_transaction_usecase.dart'
+    as _i1201;
 import 'package:expense_manager/features/transactions/domain/usecases/watch_transactions_usecase.dart'
     as _i717;
 import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/add_transaction_bloc.dart'
@@ -242,6 +244,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i932.BudgetRepositoryImpl(
         gh<_i78.BudgetRemoteDataSource>(),
         gh<_i79.CurrentUser>(),
+        gh<_i325.CurrentWorkspace>(),
       ),
     );
     gh.lazySingleton<_i482.CategoryRepository>(
@@ -318,6 +321,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i27.DeleteTransactionUseCase>(
       () => _i27.DeleteTransactionUseCase(gh<_i496.TransactionsRepository>()),
     );
+    gh.factory<_i1201.ShareTransactionUseCase>(
+      () => _i1201.ShareTransactionUseCase(gh<_i496.TransactionsRepository>()),
+    );
     gh.factory<_i189.GetTransactionsOnceUseCase>(
       () =>
           _i189.GetTransactionsOnceUseCase(gh<_i496.TransactionsRepository>()),
@@ -352,6 +358,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i892.AddTransactionUseCase>(),
         gh<_i288.UpdateTransactionUseCase>(),
         gh<_i27.DeleteTransactionUseCase>(),
+        gh<_i1201.ShareTransactionUseCase>(),
       ),
     );
     gh.factory<_i1026.ExpenseBloc>(
@@ -365,6 +372,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1032.DeleteBudgetUseCase>(),
         gh<_i717.WatchTransactionsUseCase>(),
         gh<_i49.CategoriesService>(),
+        gh<_i325.CurrentWorkspace>(),
       ),
     );
     return this;

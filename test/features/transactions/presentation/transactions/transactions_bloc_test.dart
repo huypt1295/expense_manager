@@ -6,6 +6,7 @@ import 'package:expense_manager/features/transactions/domain/repositories/transa
 import 'package:expense_manager/features/transactions/domain/usecases/add_transaction_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/delete_transaction_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/update_transaction_usecase.dart';
+import 'package:expense_manager/features/transactions/domain/usecases/share_transaction_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/watch_transactions_usecase.dart';
 import 'package:expense_manager/features/transactions/presentation/transactions/bloc/transactions_bloc.dart';
 import 'package:expense_manager/features/transactions/presentation/transactions/bloc/transactions_effect.dart';
@@ -21,6 +22,7 @@ class _FakeTransactionsRepository implements TransactionsRepository {
   Future<void> Function(TransactionEntity entity)? addImpl;
   Future<void> Function(TransactionEntity entity)? updateImpl;
   Future<void> Function(String id)? deleteImpl;
+  Future<void> Function(TransactionEntity entity, String workspaceId)? shareImpl;
   Object? watchError;
 
   bool get isClosed => _controller.isClosed;
@@ -52,6 +54,16 @@ class _FakeTransactionsRepository implements TransactionsRepository {
   Future<void> deleteById(String id) async {
     if (deleteImpl != null) {
       await deleteImpl!(id);
+    }
+  }
+
+  @override
+  Future<void> shareToWorkspace({
+    required TransactionEntity entity,
+    required String workspaceId,
+  }) async {
+    if (shareImpl != null) {
+      await shareImpl!(entity, workspaceId);
     }
   }
 
@@ -92,6 +104,7 @@ void main() {
       AddTransactionUseCase(repository),
       UpdateTransactionUseCase(repository),
       DeleteTransactionUseCase(repository),
+      ShareTransactionUseCase(repository),
       undoDuration: const Duration(milliseconds: 10),
     );
   });
@@ -333,6 +346,75 @@ void main() {
       );
 
       bloc.add(TransactionsUpdated(_transaction('update', 10)));
+
+      await Future.wait([stateExpectation, effectExpectation]);
+    });
+
+    test('share requested delegates to repository and shows success', () async {
+      String? capturedWorkspaceId;
+      repository.shareImpl = (entity, workspaceId) async {
+        capturedWorkspaceId = workspaceId;
+      };
+
+      final stateExpectation = expectLater(
+        bloc.stream,
+        emitsInOrder([
+          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', false),
+        ]),
+      );
+
+      final effectExpectation = expectLater(
+        bloc.effects,
+        emits(
+          isA<TransactionsShowSuccessEffect>()
+              .having((e) => e.message, 'message', contains('Household')),
+        ),
+      );
+
+      final entity = _transaction('source', 10);
+      bloc.add(
+        TransactionsShareRequested(
+          entity: entity,
+          targetWorkspaceId: 'household-123',
+          targetWorkspaceName: 'Household',
+        ),
+      );
+
+      await Future.wait([stateExpectation, effectExpectation]);
+      expect(capturedWorkspaceId, 'household-123');
+    });
+
+    test('share requested emits error effect when repository throws', () async {
+      repository.shareImpl = (_, __) async {
+        throw AuthException('share-failed');
+      };
+
+      final stateExpectation = expectLater(
+        bloc.stream,
+        emitsInOrder([
+          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<TransactionsState>()
+              .having((s) => s.isLoading, 'isLoading', false)
+              .having((s) => s.errorMessage, 'error', 'share-failed'),
+        ]),
+      );
+
+      final effectExpectation = expectLater(
+        bloc.effects,
+        emits(
+          isA<TransactionsShowErrorEffect>()
+              .having((e) => e.message, 'message', 'share-failed'),
+        ),
+      );
+
+      bloc.add(
+        TransactionsShareRequested(
+          entity: _transaction('source', 10),
+          targetWorkspaceId: 'household-123',
+          targetWorkspaceName: 'Household',
+        ),
+      );
 
       await Future.wait([stateExpectation, effectExpectation]);
     });

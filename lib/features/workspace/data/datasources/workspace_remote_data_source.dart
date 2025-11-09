@@ -29,4 +29,8 @@ class WorkspaceRemoteDataSource {
           SetOptions(merge: true),
         );
   }
+
+  Future<void> deleteMembership(String uid, String workspaceId) {
+    return _memberships(uid).doc(workspaceId).delete();
+  }
 }

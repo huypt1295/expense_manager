@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_bloc.dart';
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_effect.dart';
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_event.dart';
@@ -7,11 +8,18 @@ import 'package:expense_manager/features/home/presentation/summary/widget/summar
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_list_transaction_widget.dart';
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_spending_widget.dart';
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_weekly_transactions_line_chart_widget.dart';
-import 'package:expense_manager/features/workspace/presentation/widget/workspace_selector.dart';
+import 'package:expense_manager/features/home/presentation/summary/widget/workspace_onboarding_banner.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_state.dart';
+import 'package:expense_manager/features/workspace/presentation/settings/workspace_management_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
+import 'package:flutter_resource/l10n/gen/l10n.dart';
 import 'package:sliver_tools/sliver_tools.dart' show MultiSliver;
+
+import '../../../workspace/domain/entities/workspace_entity.dart';
+import '../../../workspace/presentation/onboarding/household_onboarding_wizard.dart';
 
 class SummaryPage extends BaseStatelessWidget {
   const SummaryPage({super.key});
@@ -54,30 +62,11 @@ class _SummaryView extends StatelessWidget {
                   ),
                   sliver: MultiSliver(
                     children: [
-                      SliverToBoxAdapter(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const WorkspaceSelector(),
-                            const SizedBox(height: 12),
-                            SummaryGreetingWidget(username: state.greeting),
-                          ],
-                        ),
-                      ),
+                      _buildGreetingWidget(state),
                       SliverToBoxAdapter(child: const SizedBox(height: 16)),
-                      SliverToBoxAdapter(
-                        child: SummarySpendingWidget(
-                          income: state.monthlyIncome,
-                          expense: state.monthlyExpense,
-                          remaining: state.monthlyRemaining,
-                        ),
-                      ),
+                      _buildOverviewWidget(state),
                       SliverToBoxAdapter(child: const SizedBox(height: 24)),
-                      SliverToBoxAdapter(
-                        child: SummaryWeeklyTransactionsLineChartWidget(
-                          weeklyExpenses: state.weeklyExpenses,
-                        ),
-                      ),
+                      _buildChart(state),
                       SliverToBoxAdapter(child: const SizedBox(height: 24)),
                       _buildListRecent(state),
                     ],
@@ -87,6 +76,85 @@ class _SummaryView extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildGreetingWidget(SummaryState state) {
+    return SliverToBoxAdapter(
+      child: BlocBuilder<WorkspaceBloc, WorkspaceState>(
+        builder: (context, workspaceState) {
+          final selectedId =
+              workspaceState.selectedWorkspaceId ??
+              (workspaceState.workspaces.isNotEmpty
+                  ? workspaceState.workspaces.first.id
+                  : null);
+          WorkspaceEntity? selected;
+          if (selectedId != null) {
+            selected = workspaceState.workspaces.firstWhereOrNull(
+              (w) => w.id == selectedId,
+            );
+          }
+          selected ??= workspaceState.workspaces.isNotEmpty
+              ? workspaceState.workspaces.first
+              : null;
+          final showManageButton =
+              selected != null &&
+              !selected.isPersonal &&
+              (selected.role.toLowerCase() == 'owner' ||
+                  selected.role.toLowerCase() == 'editor');
+          final showOnboardingBanner =
+              workspaceState.workspaces.isNotEmpty &&
+              workspaceState.workspaces.every(
+                (workspace) => workspace.isPersonal,
+              );
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SummaryGreetingWidget(
+                username: state.greeting,
+                workspace: selected,
+                onWorkspaceTap: showManageButton
+                    ? () {
+                        final target = selected;
+                        if (target == null) {
+                          return;
+                        }
+                        WorkspaceManagementSheet.show(
+                          context,
+                          householdId: target.id,
+                          householdName: target.name,
+                          currentRole: target.role,
+                        );
+                      }
+                    : null,
+              ),
+              if (showOnboardingBanner) ...[
+                const SizedBox(height: 12),
+                const HouseholdOnboardingBanner(),
+              ],
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildOverviewWidget(SummaryState state) {
+    return SliverToBoxAdapter(
+      child: SummarySpendingWidget(
+        income: state.monthlyIncome,
+        expense: state.monthlyExpense,
+        remaining: state.monthlyRemaining,
+      ),
+    );
+  }
+
+  Widget _buildChart(SummaryState state) {
+    return SliverToBoxAdapter(
+      child: SummaryWeeklyTransactionsLineChartWidget(
+        weeklyExpenses: state.weeklyExpenses,
       ),
     );
   }

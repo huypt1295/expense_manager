@@ -52,6 +52,9 @@ class _FakeWorkspaceRemoteDataSource
   @override
   Future<void> upsertMembership(String uid, WorkspaceModel model) async {}
 
+  @override
+  Future<void> deleteMembership(String uid, String workspaceId) async {}
+
   void emit(String uid, List<WorkspaceModel> models) {
     _controllers
         .putIfAbsent(

@@ -192,6 +192,28 @@ void main() {
       await expectation;
     });
 
+    test('shareToWorkspace copies transaction with metadata', () async {
+      final entity = _transaction('origin');
+
+      await repository.shareToWorkspace(
+        entity: entity,
+        workspaceId: 'household-1',
+      );
+
+      expect(remote.lastAllocateContext, isNotNull);
+      expect(remote.lastAllocateContext!.workspaceId, 'household-1');
+      expect(remote.lastAllocateContext!.type, WorkspaceType.household);
+
+      expect(remote.lastUpsertContext, isNotNull);
+      expect(remote.lastUpsertContext!.workspaceId, 'household-1');
+      final model = remote.lastUpsertModel;
+      expect(model, isNotNull);
+      expect(model!.id, remote.allocatedId);
+      expect(model.sharedFromWorkspaceId, 'uid-123');
+      expect(model.sharedFromTransactionId, 'origin');
+      expect(model.sharedByUserId, 'uid-123');
+    });
+
     test('throws AuthException when user is missing', () async {
       currentUser.snapshot = const CurrentUserSnapshot(uid: null);
       currentWorkspace.snapshot = null;

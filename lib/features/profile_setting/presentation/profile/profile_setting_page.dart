@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:expense_manager/core/config/app_config_cubit.dart';
 import 'package:expense_manager/core/routing/app_router.dart';
 import 'package:expense_manager/core/routing/app_routes.dart';
@@ -5,12 +6,24 @@ import 'package:expense_manager/features/profile_setting/presentation/profile/bl
 import 'package:expense_manager/features/profile_setting/presentation/profile/bloc/profile_effect.dart';
 import 'package:expense_manager/features/profile_setting/presentation/profile/bloc/profile_event.dart';
 import 'package:expense_manager/features/profile_setting/presentation/profile/bloc/profile_state.dart';
+import 'package:expense_manager/features/profile_setting/presentation/profile/widget/app_setting_section.dart';
+import 'package:expense_manager/features/profile_setting/presentation/profile/widget/general_setting_section.dart';
 import 'package:expense_manager/features/profile_setting/presentation/profile/widget/profile_header.dart';
+import 'package:expense_manager/features/profile_setting/presentation/profile/widget/section_card.dart';
+import 'package:expense_manager/features/profile_setting/presentation/profile/widget/signout_button.dart';
+import 'package:expense_manager/features/profile_setting/presentation/profile/widget/support_section.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_entity.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_state.dart';
+import 'package:expense_manager/features/workspace/presentation/onboarding/household_onboarding_wizard.dart';
+import 'package:expense_manager/features/workspace/presentation/settings/workspace_management_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_resource/flutter_resource.dart';
 import 'package:flutter_resource/l10n/gen/l10n.dart';
+import 'package:go_router/go_router.dart';
 
 const _languageOptions = [
   _LanguageOption(code: 'vi', label: 'Ti\u1ebfng Vi\u1ec7t'),
@@ -103,7 +116,7 @@ class _ProfilePageState extends BaseState<ProfilePage> {
             right: 16,
             bottom: bottomInset + 24,
           ),
-          child: _SectionCard(
+          child: SectionCard(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,7 +129,7 @@ class _ProfilePageState extends BaseState<ProfilePage> {
                 ),
                 const SizedBox(height: 16),
                 ..._languageOptions.map(
-                  (option) => _SupportTile(
+                  (option) => SupportTile(
                     label: option.label,
                     trailing: option.code == selectedCode
                         ? const Icon(Icons.check_rounded)
@@ -161,7 +174,7 @@ class _ProfilePageState extends BaseState<ProfilePage> {
             right: 16,
             bottom: bottomInset + 24,
           ),
-          child: _SectionCard(
+          child: SectionCard(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,11 +247,11 @@ class _ProfilePageState extends BaseState<ProfilePage> {
     }
   }
 
-  void _handleSupportTap(BuildContext context, _SupportItem item) {
+  void _handleSupportTap(BuildContext context, SupportItem item) {
     final label = switch (item) {
-      _SupportItem.helpCenter => 'Trung t\u00e2m tr\u1ee3 gi\u00fap',
-      _SupportItem.terms => '\u0110i\u1ec1u kho\u1ea3n d\u1ecbch v\u1ee5',
-      _SupportItem.privacy => 'Ch\u00ednh s\u00e1ch b\u1ea3o m\u1eadt',
+      SupportItem.helpCenter => 'Trung t\u00e2m tr\u1ee3 gi\u00fap',
+      SupportItem.terms => '\u0110i\u1ec1u kho\u1ea3n d\u1ecbch v\u1ee5',
+      SupportItem.privacy => 'Ch\u00ednh s\u00e1ch b\u1ea3o m\u1eadt',
     };
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -278,7 +291,7 @@ class _ProfileContent extends StatelessWidget {
   final ThemeMode themeMode;
   final ValueChanged<ThemeMode> onThemeModeChanged;
   final VoidCallback onEditProfile;
-  final ValueChanged<_SupportItem> onSelectSupport;
+  final ValueChanged<SupportItem> onSelectSupport;
   final VoidCallback onSignOut;
 
   @override
@@ -287,6 +300,10 @@ class _ProfileContent extends StatelessWidget {
     final colors = context.tpColors;
     final profile = state.profile;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final WorkspaceState workspaceState = context.watch<WorkspaceBloc>().state;
+    final WorkspaceEntity? householdWorkspace = workspaceState.workspaces
+        .firstWhereOrNull((workspace) => !workspace.isPersonal);
+    final String workspaceLabel = householdWorkspace?.name ?? S.current.only_me;
 
     return ColoredBox(
       color: colors.backgroundMain,
@@ -329,16 +346,33 @@ class _ProfileContent extends StatelessWidget {
                   onEditProfile: profile == null ? null : onEditProfile,
                 ),
                 const SizedBox(height: 24),
-                _SettingsSection(
+                AppSettingsSection(
+                  workspaceLabel: workspaceLabel,
+                  onWorkspaceTap: () {
+                    final target = householdWorkspace;
+                    if (target == null) {
+                      HouseholdOnboardingWizard.show(context);
+                      return;
+                    }
+                    WorkspaceManagementSheet.show(
+                      context,
+                      householdId: target.id,
+                      householdName: target.name,
+                      currentRole: target.role,
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+                GeneralSettingsSection(
                   languageLabel: languageLabel,
                   onLanguageTap: onLanguageTap,
                   themeMode: themeMode,
                   onThemeModeChanged: onThemeModeChanged,
                 ),
                 const SizedBox(height: 24),
-                _SupportSection(onItemTap: onSelectSupport),
+                SupportSection(onItemTap: onSelectSupport),
                 const SizedBox(height: 24),
-                _SignOutButton(
+                SignOutButton(
                   isBusy: state.isSaving,
                   onPressed: state.isSaving ? null : onSignOut,
                 ),
@@ -358,356 +392,12 @@ class _ProfileContent extends StatelessWidget {
   }
 }
 
-class _SettingsSection extends StatelessWidget {
-  const _SettingsSection({
-    required this.languageLabel,
-    required this.onLanguageTap,
-    required this.themeMode,
-    required this.onThemeModeChanged,
-  });
-
-  final String languageLabel;
-  final VoidCallback onLanguageTap;
-  final ThemeMode themeMode;
-  final ValueChanged<ThemeMode> onThemeModeChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return _SectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            S.current.setting,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _SettingTile(
-            icon: Icons.language_rounded,
-            title: S.current.language,
-            trailing: languageLabel,
-            onTap: onLanguageTap,
-          ),
-          const SizedBox(height: 20),
-          const Divider(height: 1),
-          const SizedBox(height: 20),
-          _ThemeModeSelector(
-            themeMode: themeMode,
-            onChanged: onThemeModeChanged,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ThemeModeSelector extends StatelessWidget {
-  const _ThemeModeSelector({required this.themeMode, required this.onChanged});
-
-  final ThemeMode themeMode;
-  final ValueChanged<ThemeMode> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = context.tpColors;
-    final options = [
-      _ThemeOption(
-        mode: ThemeMode.light,
-        label: S.current.theme_mode_light,
-        icon: Icons.light_mode,
-      ),
-      _ThemeOption(
-        mode: ThemeMode.dark,
-        label: S.current.theme_mode_dark,
-        icon: Icons.dark_mode,
-      ),
-      _ThemeOption(
-        mode: ThemeMode.system,
-        label: S.current.theme_mode_system,
-        icon: Icons.settings,
-      ),
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(themeMode.icon, color: context.tpColors.iconSub),
-            const SizedBox(width: 8),
-            Text(
-              S.current.theme,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            for (var i = 0; i < options.length; i++) ...[
-              Expanded(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ChoiceChip(
-                    label: Align(
-                      alignment: Alignment.center,
-                      child: Text(options[i].label),
-                    ),
-                    selected: options[i].mode == themeMode,
-                    onSelected: (_) => onChanged(options[i].mode),
-                    showCheckmark: false,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: BorderSide(color: context.tpColors.borderDefault),
-                    shape: RoundedSuperellipseBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    backgroundColor: context.tpColors.surfaceSub,
-                    selectedColor: context.tpColors.surfaceNeutralComponent,
-                    labelStyle: TPTextStyle.bodyM.copyWith(
-                      color: options[i].mode == themeMode
-                          ? context.tpColors.textReverse
-                          : context.tpColors.textSub,
-                    ),
-                  ),
-                ),
-              ),
-              if (i != options.length - 1) const SizedBox(width: 12),
-            ],
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _SupportSection extends StatelessWidget {
-  const _SupportSection({required this.onItemTap});
-
-  final ValueChanged<_SupportItem> onItemTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    const items = [
-      (_SupportItem.helpCenter, 'Trung t\u00e2m tr\u1ee3 gi\u00fap'),
-      (_SupportItem.terms, '\u0110i\u1ec1u kho\u1ea3n d\u1ecbch v\u1ee5'),
-      (_SupportItem.privacy, 'Ch\u00ednh s\u00e1ch b\u1ea3o m\u1eadt'),
-    ];
-
-    return _SectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'H\u1ed7 tr\u1ee3',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ...List.generate(items.length, (index) {
-            final item = items[index];
-            final isLast = index == items.length - 1;
-            return Column(
-              children: [
-                _SupportTile(label: item.$2, onTap: () => onItemTap(item.$1)),
-                if (!isLast) ...[
-                  const SizedBox(height: 12),
-                  const Divider(height: 1),
-                  const SizedBox(height: 12),
-                ],
-              ],
-            );
-          }),
-        ],
-      ),
-    );
-  }
-}
-
-class _SupportTile extends StatelessWidget {
-  const _SupportTile({required this.label, this.trailing, this.onTap});
-
-  final String label;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = context.tpColors;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            if (trailing != null) ...[trailing!, const SizedBox(width: 12)],
-            Icon(Icons.chevron_right_rounded, color: colors.iconNeutral),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SettingTile extends StatelessWidget {
-  const _SettingTile({
-    required this.icon,
-    required this.title,
-    this.trailing,
-    this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String? trailing;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = context.tpColors;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Icon(icon, color: theme.colorScheme.primary),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            if (trailing != null)
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Text(
-                  trailing!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colors.textSub,
-                  ),
-                ),
-              ),
-            Icon(Icons.chevron_right_rounded, color: colors.iconNeutral),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SignOutButton extends StatelessWidget {
-  const _SignOutButton({required this.isBusy, required this.onPressed});
-
-  final bool isBusy;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.tpColors;
-
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton.icon(
-        onPressed: isBusy ? null : onPressed,
-        style: FilledButton.styleFrom(
-          backgroundColor: colors.surfaceNegativeComponent,
-          foregroundColor: colors.textReverse,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        icon: isBusy
-            ? const SizedBox(
-                height: 18,
-                width: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : const Icon(Icons.logout_rounded),
-        label: Text(S.current.sign_out),
-      ),
-    );
-  }
-}
-
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.tpColors;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: colors.surfaceMain,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: context.tpColors.borderDefault),
-        boxShadow: [
-          BoxShadow(
-            color: _colorWithOpacity(colors.shadowMain, 0.12),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-}
-
 class _LanguageOption {
   const _LanguageOption({required this.code, required this.label});
 
   final String code;
   final String label;
 }
-
-class _ThemeOption {
-  const _ThemeOption({
-    required this.mode,
-    required this.label,
-    required this.icon,
-  });
-
-  final ThemeMode mode;
-  final String label;
-  final IconData icon;
-}
-
-enum _SupportItem { helpCenter, terms, privacy }
 
 Color _colorWithOpacity(Color color, double opacity) {
   final double alpha = (color.a * opacity).clamp(0.0, 1.0);

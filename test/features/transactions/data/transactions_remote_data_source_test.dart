@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/transactions/data/datasources/transactions_remote_data_source.dart';
 import 'package:expense_manager/features/transactions/data/models/transaction_model.dart';
@@ -40,6 +41,7 @@ void main() {
         title: 'Coffee',
         amount: 42.5,
         date: DateTime(2024, 1, 1),
+        type: TransactionType.expense,
         category: 'Food',
         note: 'morning',
       );
@@ -77,6 +79,7 @@ void main() {
         title: 'New',
         amount: 20,
         date: DateTime(2024, 1, 2),
+        type: TransactionType.expense,
         category: 'Travel',
         note: 'note',
       );
@@ -157,12 +160,42 @@ void main() {
       expect(models.first.id, 'once1');
     });
 
+    test('upsert stores share metadata when provided', () async {
+      final model = TransactionModel(
+        id: 'shared',
+        title: 'Shared',
+        amount: 50,
+        date: DateTime(2024, 3, 1),
+        type: TransactionType.expense,
+        category: 'Food',
+        note: null,
+        sharedFromWorkspaceId: 'personal-1',
+        sharedFromTransactionId: 'tx-original',
+        sharedByUserId: 'uid-123',
+      );
+
+      await dataSource.upsert(householdContext, model);
+
+      final doc = await firestore
+          .collection('households')
+          .doc(householdId)
+          .collection('transactions')
+          .doc('shared')
+          .get();
+
+      expect(doc.exists, isTrue);
+      expect(doc.data()?['sharedFromWorkspaceId'], 'personal-1');
+      expect(doc.data()?['sharedFromTransactionId'], 'tx-original');
+      expect(doc.data()?['sharedByUserId'], 'uid-123');
+    });
+
     test('household context reads and writes from household collection', () async {
       final model = TransactionModel(
         id: 'household-tx',
         title: 'Groceries',
         amount: 80,
         date: DateTime(2024, 2, 2),
+        type: TransactionType.expense,
         category: 'Food',
         note: null,
       );
