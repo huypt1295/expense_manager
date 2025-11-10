@@ -1,12 +1,38 @@
 import 'dart:async';
 
 import 'package:expense_manager/core/auth/current_user.dart';
+import 'package:expense_manager/core/workspace/current_workspace.dart';
+import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/budget/data/datasources/budget_remote_data_source.dart';
 import 'package:expense_manager/features/budget/data/models/budget_model.dart';
 import 'package:expense_manager/features/budget/data/repositories/budget_repository_impl.dart';
 import 'package:expense_manager/features/budget/domain/entities/budget_entity.dart';
 import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
+
+class _FakeCurrentWorkspace implements CurrentWorkspace {
+  _FakeCurrentWorkspace(this._snapshot);
+
+  CurrentWorkspaceSnapshot? _snapshot;
+  final StreamController<CurrentWorkspaceSnapshot?> _controller =
+      StreamController<CurrentWorkspaceSnapshot?>.broadcast(sync: true);
+
+  @override
+  CurrentWorkspaceSnapshot? now() => _snapshot;
+
+  @override
+  Stream<CurrentWorkspaceSnapshot?> watch() => _controller.stream;
+
+  @override
+  Future<void> select(CurrentWorkspaceSnapshot? snapshot) async {
+    _snapshot = snapshot;
+    _controller.add(snapshot);
+  }
+
+  Future<void> close() async {
+    await _controller.close();
+  }
+}
 
 class _FakeCurrentUser implements CurrentUser {
   _FakeCurrentUser(this.snapshot);
@@ -23,47 +49,46 @@ class _FakeCurrentUser implements CurrentUser {
 class _FakeBudgetRemoteDataSource implements BudgetRemoteDataSource {
   _FakeBudgetRemoteDataSource();
 
-  String? lastAllocateUid;
+  WorkspaceContext? lastAllocateContext;
   String allocatedId = 'budget-id';
 
-  String? lastUpsertUid;
+  WorkspaceContext? lastUpsertContext;
   BudgetModel? lastUpsertModel;
 
-  String? lastUpdateUid;
+  WorkspaceContext? lastUpdateContext;
   BudgetModel? lastUpdateModel;
 
-  String? lastDeleteUid;
+  WorkspaceContext? lastDeleteContext;
   String? lastDeletedId;
-
-  List<BudgetModel> onceModels = const <BudgetModel>[];
 
   final StreamController<List<BudgetModel>> controller =
       StreamController<List<BudgetModel>>.broadcast(sync: true);
 
   @override
-  String allocateId(String uid) {
-    lastAllocateUid = uid;
+  String allocateId(WorkspaceContext context) {
+    lastAllocateContext = context;
     return allocatedId;
   }
 
   @override
-  Stream<List<BudgetModel>> watchBudgets(String uid) => controller.stream;
+  Stream<List<BudgetModel>> watchBudgets(WorkspaceContext context) =>
+      controller.stream;
 
   @override
-  Future<void> upsert(String uid, BudgetModel model) async {
-    lastUpsertUid = uid;
+  Future<void> upsert(WorkspaceContext context, BudgetModel model) async {
+    lastUpsertContext = context;
     lastUpsertModel = model;
   }
 
   @override
-  Future<void> update(String uid, BudgetModel model) async {
-    lastUpdateUid = uid;
+  Future<void> update(WorkspaceContext context, BudgetModel model) async {
+    lastUpdateContext = context;
     lastUpdateModel = model;
   }
 
   @override
-  Future<void> delete(String uid, String id) async {
-    lastDeleteUid = uid;
+  Future<void> delete(WorkspaceContext context, String id) async {
+    lastDeleteContext = context;
     lastDeletedId = id;
   }
 
@@ -77,58 +102,63 @@ class _FakeBudgetRemoteDataSource implements BudgetRemoteDataSource {
 }
 
 BudgetEntity _budget(String id) => BudgetEntity(
-      id: id,
-      category: 'Food',
-      limitAmount: 1000,
-      startDate: DateTime(2024, 1, 1),
-      endDate: DateTime(2024, 1, 31),
-      categoryId: 'food',
-    );
+  id: id,
+  category: 'Food',
+  limitAmount: 1000,
+  startDate: DateTime(2024, 1, 1),
+  endDate: DateTime(2024, 1, 31),
+  categoryId: 'food',
+);
 
 BudgetModel _model(String id) => BudgetModel(
-      id: id,
-      category: 'Food',
-      limitAmount: 1000,
-      startDate: DateTime(2024, 1, 1),
-      endDate: DateTime(2024, 1, 31),
-      categoryId: 'food',
-    );
+  id: id,
+  category: 'Food',
+  limitAmount: 1000,
+  startDate: DateTime(2024, 1, 1),
+  endDate: DateTime(2024, 1, 31),
+  categoryId: 'food',
+);
 
 void main() {
   group('BudgetRepositoryImpl', () {
     late _FakeCurrentUser currentUser;
     late _FakeBudgetRemoteDataSource remote;
+    late _FakeCurrentWorkspace currentWorkspace;
     late BudgetRepositoryImpl repository;
 
     setUp(() {
       currentUser = _FakeCurrentUser(const CurrentUserSnapshot(uid: 'uid'));
       remote = _FakeBudgetRemoteDataSource();
-      repository = BudgetRepositoryImpl(remote, currentUser);
+      currentWorkspace = _FakeCurrentWorkspace(
+        const CurrentWorkspaceSnapshot.personal(id: 'uid'),
+      );
+      repository = BudgetRepositoryImpl(remote, currentUser, currentWorkspace);
     });
 
     tearDown(() async {
       await remote.close();
+      await currentWorkspace.close();
     });
 
     test('add allocates id and upserts model', () async {
       await repository.add(_budget(''));
 
-      expect(remote.lastAllocateUid, 'uid');
-      expect(remote.lastUpsertUid, 'uid');
+      expect(remote.lastAllocateContext?.workspaceId, 'uid');
+      expect(remote.lastUpsertContext?.workspaceId, 'uid');
       expect(remote.lastUpsertModel?.id, remote.allocatedId);
     });
 
     test('update delegates to remote data source', () async {
       await repository.update(_budget('existing'));
 
-      expect(remote.lastUpdateUid, 'uid');
+      expect(remote.lastUpdateContext?.workspaceId, 'uid');
       expect(remote.lastUpdateModel?.id, 'existing');
     });
 
     test('deleteById delegates to remote data source', () async {
       await repository.deleteById('delete-me');
 
-      expect(remote.lastDeleteUid, 'uid');
+      expect(remote.lastDeleteContext?.workspaceId, 'uid');
       expect(remote.lastDeletedId, 'delete-me');
     });
 
@@ -142,9 +172,7 @@ void main() {
         ),
       );
 
-      remote.emit([
-        _model('budget-1'),
-      ]);
+      remote.emit([_model('budget-1')]);
 
       await expectation;
     });
@@ -153,6 +181,28 @@ void main() {
       currentUser.snapshot = const CurrentUserSnapshot(uid: null);
 
       expect(() => repository.deleteById('x'), throwsA(isA<AuthException>()));
+    });
+
+    test('throws AuthException when workspace role is viewer', () async {
+      await currentWorkspace.select(
+        const CurrentWorkspaceSnapshot(
+          id: 'household-id',
+          type: WorkspaceType.household,
+          name: 'Household',
+          role: 'viewer',
+        ),
+      );
+
+      expect(
+        () => repository.add(_budget('')),
+        throwsA(
+          isA<AuthException>().having(
+            (error) => error.message,
+            'message',
+            'workspace.permission.denied',
+          ),
+        ),
+      );
     });
   });
 }

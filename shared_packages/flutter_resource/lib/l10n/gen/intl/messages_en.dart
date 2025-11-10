@@ -24,36 +24,69 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "access_role": MessageLookupByLibrary.simpleMessage("Access role"),
     "add_budget": MessageLookupByLibrary.simpleMessage("Add budget"),
     "add_expense": MessageLookupByLibrary.simpleMessage("Add expense"),
     "add_income": MessageLookupByLibrary.simpleMessage("Add income"),
     "add_transaction": MessageLookupByLibrary.simpleMessage("Add transaction"),
     "amount": MessageLookupByLibrary.simpleMessage("Amount"),
     "appName": MessageLookupByLibrary.simpleMessage("Flutter Container"),
+    "app_setting": MessageLookupByLibrary.simpleMessage("App settings"),
     "budget_by_category": MessageLookupByLibrary.simpleMessage(
       "Budget by category",
     ),
+    "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
     "category": MessageLookupByLibrary.simpleMessage("Category"),
+    "create_workspace": MessageLookupByLibrary.simpleMessage(
+      "Create workspace",
+    ),
     "date_time": MessageLookupByLibrary.simpleMessage("Time"),
+    "delete": MessageLookupByLibrary.simpleMessage("Delete"),
     "done": MessageLookupByLibrary.simpleMessage("Done"),
     "edit_budget": MessageLookupByLibrary.simpleMessage("Edit budget"),
+    "edit_name": MessageLookupByLibrary.simpleMessage("Edit name"),
     "edit_transaction": MessageLookupByLibrary.simpleMessage(
       "Edit transaction",
     ),
+    "editable": MessageLookupByLibrary.simpleMessage("Editable"),
+    "empty_members_message": MessageLookupByLibrary.simpleMessage(
+      "No members in this workspace.",
+    ),
+    "enter_workspace_name": MessageLookupByLibrary.simpleMessage(
+      "Enter workspace name to confirm",
+    ),
     "expense": MessageLookupByLibrary.simpleMessage("Expense"),
+    "get_started": MessageLookupByLibrary.simpleMessage("Get started"),
     "greeting": m0,
     "income": MessageLookupByLibrary.simpleMessage("Income"),
+    "invite_members": MessageLookupByLibrary.simpleMessage("Invite members"),
+    "invite_members_hint": MessageLookupByLibrary.simpleMessage(
+      "Email or username",
+    ),
     "language": MessageLookupByLibrary.simpleMessage("Language"),
+    "leave_workspace": MessageLookupByLibrary.simpleMessage("Leave workspace"),
+    "leave_workspace_warning": MessageLookupByLibrary.simpleMessage(
+      "You will no longer have access to the data of this workspace. You can be invited again later.",
+    ),
     "manual_input": MessageLookupByLibrary.simpleMessage("OR manual input"),
+    "members": MessageLookupByLibrary.simpleMessage("Members"),
+    "name_not_matching": MessageLookupByLibrary.simpleMessage(
+      "Name does not match",
+    ),
     "note": MessageLookupByLibrary.simpleMessage("Note"),
     "note_hint": MessageLookupByLibrary.simpleMessage("Add notes..."),
+    "only_me": MessageLookupByLibrary.simpleMessage("Only me"),
     "profile": MessageLookupByLibrary.simpleMessage("Profile"),
     "recent_transactions": MessageLookupByLibrary.simpleMessage(
       "Recent transactions",
     ),
     "remaining": MessageLookupByLibrary.simpleMessage("Remaining"),
+    "remove_workspace": MessageLookupByLibrary.simpleMessage(
+      "Remove workspace",
+    ),
     "save": MessageLookupByLibrary.simpleMessage("Save"),
     "see_all": MessageLookupByLibrary.simpleMessage("See all"),
+    "send_invite": MessageLookupByLibrary.simpleMessage("Send invite"),
     "setting": MessageLookupByLibrary.simpleMessage("Setting"),
     "sign_out": MessageLookupByLibrary.simpleMessage("Sign out"),
     "tab_budget": MessageLookupByLibrary.simpleMessage("Budget"),
@@ -64,16 +97,27 @@ class MessageLookup extends MessageLookupByLibrary {
     "theme_mode_dark": MessageLookupByLibrary.simpleMessage("Dark"),
     "theme_mode_light": MessageLookupByLibrary.simpleMessage("Light"),
     "theme_mode_system": MessageLookupByLibrary.simpleMessage("System"),
+    "this_action_cannot_be_undone": MessageLookupByLibrary.simpleMessage(
+      "This action cannot be undone. All data will be permanently deleted.",
+    ),
     "title": MessageLookupByLibrary.simpleMessage("Title"),
     "total_budget": MessageLookupByLibrary.simpleMessage("Total budget"),
     "total_budget_by_category": MessageLookupByLibrary.simpleMessage(
       "Total budget by category",
     ),
+    "view_only": MessageLookupByLibrary.simpleMessage("View only"),
     "weekly_spending_chart_empty": MessageLookupByLibrary.simpleMessage(
       "No spending recorded in the last 7 days.",
     ),
     "weekly_spending_chart_title": MessageLookupByLibrary.simpleMessage(
       "Spending last 7 days",
+    ),
+    "workspace": MessageLookupByLibrary.simpleMessage("Workspace"),
+    "workspace_banner_content": MessageLookupByLibrary.simpleMessage(
+      "You can invite your family and manage your expenses here.",
+    ),
+    "workspace_info_content": MessageLookupByLibrary.simpleMessage(
+      "You are currently in this workspace. Transaction and budget data displayed according to the workspace.",
     ),
   };
 }

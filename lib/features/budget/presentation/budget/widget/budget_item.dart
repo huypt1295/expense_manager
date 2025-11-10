@@ -12,21 +12,28 @@ class BudgetItem extends StatelessWidget {
     required this.progress,
     required this.onEdit,
     required this.onDelete,
+    this.canManage = true,
   });
 
   final BudgetEntity budget;
   final BudgetProgress? progress;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final bool canManage;
 
   @override
   Widget build(BuildContext context) {
+    final decoration = BoxDecoration(
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: context.tpColors.borderDefault),
+      color: context.tpColors.surfaceMain,
+    );
+    final content = _buildItem(context);
+    if (!canManage) {
+      return Container(decoration: decoration, child: content);
+    }
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.tpColors.borderDefault),
-        color: context.tpColors.surfaceMain,
-      ),
+      decoration: decoration,
       child: Slidable(
         key: ValueKey<String>(budget.id),
         groupTag: "budget",
@@ -34,7 +41,7 @@ class BudgetItem extends StatelessWidget {
           motion: const ScrollMotion(),
           children: [_buildEditAction(context), _buildDeleteAction(context)],
         ),
-        child: _buildItem(context),
+        child: content,
       ),
     );
   }
@@ -68,7 +75,7 @@ class BudgetItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
-            onTap: onEdit,
+            onTap: canManage ? onEdit : null,
             contentPadding: EdgeInsets.zero,
             leading: Container(
               width: 40,

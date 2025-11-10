@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:expense_manager/core/enums/transaction_type.dart';
+import 'package:expense_manager/core/workspace/current_workspace.dart';
+import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/budget/domain/entities/budget_entity.dart';
 import 'package:expense_manager/features/budget/domain/repositories/budget_repository.dart';
 import 'package:expense_manager/features/budget/domain/usecases/add_budget_usecase.dart';
@@ -11,7 +13,8 @@ import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_effect.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_event.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_state.dart';
-import 'package:expense_manager/features/categories/application/categories_service.dart' show CategoriesService;
+import 'package:expense_manager/features/categories/application/categories_service.dart'
+    show CategoriesService;
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart';
 import 'package:expense_manager/features/categories/domain/usecases/create_user_category_usecase.dart'
@@ -29,6 +32,34 @@ import 'package:expense_manager/features/transactions/domain/repositories/transa
 import 'package:expense_manager/features/transactions/domain/usecases/watch_transactions_usecase.dart';
 import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
+
+class _FakeCurrentWorkspace implements CurrentWorkspace {
+  _FakeCurrentWorkspace(this.snapshot) {
+    _controller = StreamController<CurrentWorkspaceSnapshot?>.broadcast(
+      sync: true,
+    );
+    _controller.add(snapshot);
+  }
+
+  CurrentWorkspaceSnapshot? snapshot;
+  late final StreamController<CurrentWorkspaceSnapshot?> _controller;
+
+  @override
+  CurrentWorkspaceSnapshot? now() => snapshot;
+
+  @override
+  Stream<CurrentWorkspaceSnapshot?> watch() => _controller.stream;
+
+  @override
+  Future<void> select(CurrentWorkspaceSnapshot? snapshot) async {
+    this.snapshot = snapshot;
+    _controller.add(snapshot);
+  }
+
+  Future<void> close() async {
+    await _controller.close();
+  }
+}
 
 class _FakeBudgetRepository implements BudgetRepository {
   _FakeBudgetRepository(this._stream);
@@ -95,6 +126,12 @@ class _FakeTransactionsRepository implements TransactionsRepository {
   Future<void> deleteById(String id) async {}
 
   @override
+  Future<void> shareToWorkspace({
+    required TransactionEntity entity,
+    required String workspaceId,
+  }) async {}
+
+  @override
   void dispose() {}
 }
 
@@ -134,38 +171,46 @@ void main() {
     late _FakeBudgetRepository budgetRepository;
     late _FakeTransactionsRepository transactionsRepository;
     late _FakeCategoryRepository categoryRepository;
+    late _FakeCurrentWorkspace currentWorkspace;
 
     setUp(() {
-      budgetsController =
-          StreamController<List<BudgetEntity>>.broadcast(sync: true);
+      budgetsController = StreamController<List<BudgetEntity>>.broadcast(
+        sync: true,
+      );
       transactionsController =
           StreamController<List<TransactionEntity>>.broadcast(sync: true);
 
       budgetRepository = _FakeBudgetRepository(budgetsController.stream);
-      transactionsRepository =
-          _FakeTransactionsRepository(transactionsController.stream);
+      transactionsRepository = _FakeTransactionsRepository(
+        transactionsController.stream,
+      );
       categoryRepository = _FakeCategoryRepository();
+      currentWorkspace = _FakeCurrentWorkspace(
+        const CurrentWorkspaceSnapshot.personal(id: 'uid'),
+      );
 
       bloc = BudgetBloc(
         WatchBudgetsUseCase(budgetRepository),
         AddBudgetUseCase(budgetRepository),
         UpdateBudgetUseCase(budgetRepository),
-          DeleteBudgetUseCase(budgetRepository),
-          WatchTransactionsUseCase(transactionsRepository),
-          CategoriesService(
-            LoadCategoriesUseCase(categoryRepository),
-            WatchCategoriesUseCase(categoryRepository),
-            CreateUserCategoryUseCase(categoryRepository),
-            UpdateUserCategoryUseCase(categoryRepository),
-            DeleteUserCategoryUseCase(categoryRepository),
-          )
-        );
+        DeleteBudgetUseCase(budgetRepository),
+        WatchTransactionsUseCase(transactionsRepository),
+        CategoriesService(
+          LoadCategoriesUseCase(categoryRepository),
+          WatchCategoriesUseCase(categoryRepository),
+          CreateUserCategoryUseCase(categoryRepository),
+          UpdateUserCategoryUseCase(categoryRepository),
+          DeleteUserCategoryUseCase(categoryRepository),
+        ),
+        currentWorkspace,
+      );
     });
 
     tearDown(() async {
       await bloc.close();
       await budgetsController.close();
       await transactionsController.close();
+      await currentWorkspace.close();
     });
 
     test('deducts matching expenses from remaining amount', () async {
@@ -211,11 +256,7 @@ void main() {
       budgetsController.add([budget]);
       await _pumpEventQueue();
 
-      transactionsController.add([
-        matching,
-        outOfRange,
-        differentCategory,
-      ]);
+      transactionsController.add([matching, outOfRange, differentCategory]);
       await _pumpEventQueue();
       await _pumpEventQueue();
 
@@ -226,50 +267,52 @@ void main() {
       expect(progress.percentage, closeTo(0.4, 1e-9));
     });
 
-    test('allows remaining amount to drop below zero when overspending occurs',
-        () async {
-      final budget = BudgetEntity(
-        id: 'budget-overspend',
-        category: 'Travel',
-        limitAmount: 1_500_000,
-        startDate: DateTime(2024, 6, 1),
-        endDate: DateTime(2024, 6, 30),
-        categoryId: 'travel',
-      );
-
-      bloc.add(const BudgetStarted());
-      await _pumpEventQueue();
-
-      budgetsController.add([budget]);
-      await _pumpEventQueue();
-
-      transactionsController.add([
-        TransactionEntity(
-          id: 'tx-overspend-1',
-          title: 'Flight',
-          amount: 1_000_000,
-          date: DateTime(2024, 6, 5),
-          type: TransactionType.expense,
+    test(
+      'allows remaining amount to drop below zero when overspending occurs',
+      () async {
+        final budget = BudgetEntity(
+          id: 'budget-overspend',
           category: 'Travel',
-        ),
-        TransactionEntity(
-          id: 'tx-overspend-2',
-          title: 'Hotel',
-          amount: 900_000,
-          date: DateTime(2024, 6, 12),
-          type: TransactionType.expense,
-          category: 'Travel',
-        ),
-      ]);
-      await _pumpEventQueue();
-      await _pumpEventQueue();
+          limitAmount: 1_500_000,
+          startDate: DateTime(2024, 6, 1),
+          endDate: DateTime(2024, 6, 30),
+          categoryId: 'travel',
+        );
 
-      final progress = bloc.state.progress[budget.id];
-      expect(progress, isNotNull);
-      expect(progress!.spentAmount, 1_900_000);
-      expect(progress.remainingAmount, -400_000);
-      expect(progress.percentage, closeTo(1_900_000 / 1_500_000, 1e-9));
-    });
+        bloc.add(const BudgetStarted());
+        await _pumpEventQueue();
+
+        budgetsController.add([budget]);
+        await _pumpEventQueue();
+
+        transactionsController.add([
+          TransactionEntity(
+            id: 'tx-overspend-1',
+            title: 'Flight',
+            amount: 1_000_000,
+            date: DateTime(2024, 6, 5),
+            type: TransactionType.expense,
+            category: 'Travel',
+          ),
+          TransactionEntity(
+            id: 'tx-overspend-2',
+            title: 'Hotel',
+            amount: 900_000,
+            date: DateTime(2024, 6, 12),
+            type: TransactionType.expense,
+            category: 'Travel',
+          ),
+        ]);
+        await _pumpEventQueue();
+        await _pumpEventQueue();
+
+        final progress = bloc.state.progress[budget.id];
+        expect(progress, isNotNull);
+        expect(progress!.spentAmount, 1_900_000);
+        expect(progress.remainingAmount, -400_000);
+        expect(progress.percentage, closeTo(1_900_000 / 1_500_000, 1e-9));
+      },
+    );
 
     test('emits error state when budget stream fails to start', () async {
       budgetRepository.watchError = AuthException('budget.failed');
@@ -286,8 +329,11 @@ void main() {
       final effectExpectation = expectLater(
         bloc.effects,
         emits(
-          isA<BudgetShowErrorEffect>()
-              .having((effect) => effect.message, 'message', 'budget.failed'),
+          isA<BudgetShowErrorEffect>().having(
+            (effect) => effect.message,
+            'message',
+            'budget.failed',
+          ),
         ),
       );
 
@@ -302,17 +348,18 @@ void main() {
       final stateExpectation = expectLater(
         bloc.stream,
         emitsThrough(
-          predicate<BudgetState>(
-            (state) => state.errorMessage == 'tx.failed',
-          ),
+          predicate<BudgetState>((state) => state.errorMessage == 'tx.failed'),
         ),
       );
 
       final effectExpectation = expectLater(
         bloc.effects,
         emits(
-          isA<BudgetShowErrorEffect>()
-              .having((effect) => effect.message, 'message', 'tx.failed'),
+          isA<BudgetShowErrorEffect>().having(
+            (effect) => effect.message,
+            'message',
+            'tx.failed',
+          ),
         ),
       );
 
@@ -333,8 +380,11 @@ void main() {
       final effectExpectation = expectLater(
         bloc.effects,
         emits(
-          isA<BudgetShowDialogAddEffect>()
-              .having((effect) => effect.budget, 'budget', budget),
+          isA<BudgetShowDialogAddEffect>().having(
+            (effect) => effect.budget,
+            'budget',
+            budget,
+          ),
         ),
       );
 
@@ -357,8 +407,7 @@ void main() {
         bloc.stream,
         emitsThrough(
           predicate<BudgetState>(
-            (state) =>
-                state.errorMessage == 'add.failed' && !state.isLoading,
+            (state) => state.errorMessage == 'add.failed' && !state.isLoading,
           ),
         ),
       );
@@ -366,8 +415,11 @@ void main() {
       final effectExpectation = expectLater(
         bloc.effects,
         emits(
-          isA<BudgetShowErrorEffect>()
-              .having((effect) => effect.message, 'message', 'add.failed'),
+          isA<BudgetShowErrorEffect>().having(
+            (effect) => effect.message,
+            'message',
+            'add.failed',
+          ),
         ),
       );
 
@@ -381,8 +433,7 @@ void main() {
         bloc.stream,
         emitsThrough(
           predicate<BudgetState>(
-            (state) =>
-                state.errorMessage == 'stream-error' && !state.isLoading,
+            (state) => state.errorMessage == 'stream-error' && !state.isLoading,
           ),
         ),
       );
@@ -390,8 +441,11 @@ void main() {
       final effectExpectation = expectLater(
         bloc.effects,
         emits(
-          isA<BudgetShowErrorEffect>()
-              .having((effect) => effect.message, 'message', 'stream-error'),
+          isA<BudgetShowErrorEffect>().having(
+            (effect) => effect.message,
+            'message',
+            'stream-error',
+          ),
         ),
       );
 
@@ -459,6 +513,41 @@ void main() {
 
       await expectation;
       expect(budgetRepository.deletedId, 'delete-me');
+    });
+
+    test('emits permission error when user cannot manage workspace', () async {
+      await currentWorkspace.select(
+        const CurrentWorkspaceSnapshot(
+          id: 'household-id',
+          type: WorkspaceType.household,
+          name: 'Household',
+          role: 'viewer',
+        ),
+      );
+
+      final budget = BudgetEntity(
+        id: 'b',
+        category: 'Food',
+        limitAmount: 100,
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 1, 31),
+      );
+
+      final effectExpectation = expectLater(
+        bloc.effects,
+        emits(
+          isA<BudgetShowErrorEffect>().having(
+            (effect) => effect.message,
+            'message',
+            'You do not have permission to manage budgets in this workspace.',
+          ),
+        ),
+      );
+
+      bloc.add(BudgetAdded(budget));
+
+      await effectExpectation;
+      expect(budgetRepository.added, isNull);
     });
   });
 }

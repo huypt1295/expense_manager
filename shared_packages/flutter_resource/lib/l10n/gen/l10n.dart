@@ -313,6 +313,191 @@ class S {
   String get profile {
     return Intl.message('Profile', name: 'profile', desc: '', args: []);
   }
+
+  /// `App settings`
+  String get app_setting {
+    return Intl.message(
+      'App settings',
+      name: 'app_setting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Workspace`
+  String get workspace {
+    return Intl.message('Workspace', name: 'workspace', desc: '', args: []);
+  }
+
+  /// `Only me`
+  String get only_me {
+    return Intl.message('Only me', name: 'only_me', desc: '', args: []);
+  }
+
+  /// `Get started`
+  String get get_started {
+    return Intl.message('Get started', name: 'get_started', desc: '', args: []);
+  }
+
+  /// `Create workspace`
+  String get create_workspace {
+    return Intl.message(
+      'Create workspace',
+      name: 'create_workspace',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You can invite your family and manage your expenses here.`
+  String get workspace_banner_content {
+    return Intl.message(
+      'You can invite your family and manage your expenses here.',
+      name: 'workspace_banner_content',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit name`
+  String get edit_name {
+    return Intl.message('Edit name', name: 'edit_name', desc: '', args: []);
+  }
+
+  /// `You are currently in this workspace. Transaction and budget data displayed according to the workspace.`
+  String get workspace_info_content {
+    return Intl.message(
+      'You are currently in this workspace. Transaction and budget data displayed according to the workspace.',
+      name: 'workspace_info_content',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Members`
+  String get members {
+    return Intl.message('Members', name: 'members', desc: '', args: []);
+  }
+
+  /// `No members in this workspace.`
+  String get empty_members_message {
+    return Intl.message(
+      'No members in this workspace.',
+      name: 'empty_members_message',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invite members`
+  String get invite_members {
+    return Intl.message(
+      'Invite members',
+      name: 'invite_members',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email or username`
+  String get invite_members_hint {
+    return Intl.message(
+      'Email or username',
+      name: 'invite_members_hint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Editable`
+  String get editable {
+    return Intl.message('Editable', name: 'editable', desc: '', args: []);
+  }
+
+  /// `View only`
+  String get view_only {
+    return Intl.message('View only', name: 'view_only', desc: '', args: []);
+  }
+
+  /// `Access role`
+  String get access_role {
+    return Intl.message('Access role', name: 'access_role', desc: '', args: []);
+  }
+
+  /// `Send invite`
+  String get send_invite {
+    return Intl.message('Send invite', name: 'send_invite', desc: '', args: []);
+  }
+
+  /// `Leave workspace`
+  String get leave_workspace {
+    return Intl.message(
+      'Leave workspace',
+      name: 'leave_workspace',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove workspace`
+  String get remove_workspace {
+    return Intl.message(
+      'Remove workspace',
+      name: 'remove_workspace',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel`
+  String get cancel {
+    return Intl.message('Cancel', name: 'cancel', desc: '', args: []);
+  }
+
+  /// `You will no longer have access to the data of this workspace. You can be invited again later.`
+  String get leave_workspace_warning {
+    return Intl.message(
+      'You will no longer have access to the data of this workspace. You can be invited again later.',
+      name: 'leave_workspace_warning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This action cannot be undone. All data will be permanently deleted.`
+  String get this_action_cannot_be_undone {
+    return Intl.message(
+      'This action cannot be undone. All data will be permanently deleted.',
+      name: 'this_action_cannot_be_undone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter workspace name to confirm`
+  String get enter_workspace_name {
+    return Intl.message(
+      'Enter workspace name to confirm',
+      name: 'enter_workspace_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Name does not match`
+  String get name_not_matching {
+    return Intl.message(
+      'Name does not match',
+      name: 'name_not_matching',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get delete {
+    return Intl.message('Delete', name: 'delete', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -12,6 +12,7 @@ class TransactionItem extends BaseStatelessWidget {
     required this.transaction,
     required this.onEdit,
     required this.onDelete,
+    this.onShare,
     this.backgroundColor,
     this.borderRadius,
   });
@@ -19,6 +20,7 @@ class TransactionItem extends BaseStatelessWidget {
   final TransactionEntity transaction;
   final VoidCallback onEdit;
   final ValueChanged<TransactionEntity> onDelete;
+  final VoidCallback? onShare;
   final Color? backgroundColor;
   final BorderRadius? borderRadius;
 
@@ -38,6 +40,7 @@ class TransactionItem extends BaseStatelessWidget {
         endActionPane: ActionPane(
           motion: const ScrollMotion(),
           children: [
+            if (onShare != null) _buildShareAction(context),
             _buildEditAction(context),
             _buildDeleteAction(context, resolvedBorderRadius),
           ],
@@ -60,6 +63,15 @@ class TransactionItem extends BaseStatelessWidget {
       backgroundColor: context.tpColors.surfaceNegativeComponent,
       foregroundColor: context.tpColors.iconReverse,
       icon: Icons.delete,
+    );
+  }
+
+  Widget _buildShareAction(BuildContext context) {
+    return SlidableAction(
+      onPressed: (_) => onShare?.call(),
+      backgroundColor: context.tpColors.surfaceNeutralComponent,
+      foregroundColor: context.tpColors.iconReverse,
+      icon: Icons.share,
     );
   }
 

@@ -14,6 +14,9 @@ class TransactionModel {
     this.deleted = false,
     this.categoryId,
     this.categoryIcon,
+    this.sharedFromWorkspaceId,
+    this.sharedFromTransactionId,
+    this.sharedByUserId,
   });
 
   final String id;
@@ -26,6 +29,9 @@ class TransactionModel {
   final bool deleted;
   final String? categoryId;
   final String? categoryIcon;
+  final String? sharedFromWorkspaceId;
+  final String? sharedFromTransactionId;
+  final String? sharedByUserId;
 
   TransactionEntity toEntity() {
     return TransactionEntity(
@@ -38,6 +44,9 @@ class TransactionModel {
       note: note,
       categoryId: categoryId,
       categoryIcon: categoryIcon,
+      sharedFromWorkspaceId: sharedFromWorkspaceId,
+      sharedFromTransactionId: sharedFromTransactionId,
+      sharedByUserId: sharedByUserId,
     );
   }
 
@@ -52,6 +61,9 @@ class TransactionModel {
     bool? deleted,
     String? categoryId,
     String? categoryIcon,
+    String? sharedFromWorkspaceId,
+    String? sharedFromTransactionId,
+    String? sharedByUserId,
   }) {
     return TransactionModel(
       id: id ?? this.id,
@@ -62,8 +74,13 @@ class TransactionModel {
       category: category ?? this.category,
       note: note ?? this.note,
       deleted: deleted ?? this.deleted,
-      categoryId: categoryId ?? this.categoryIcon,
-      categoryIcon: categoryIcon ?? this.categoryId,
+      categoryId: categoryId ?? this.categoryId,
+      categoryIcon: categoryIcon ?? this.categoryIcon,
+      sharedFromWorkspaceId:
+          sharedFromWorkspaceId ?? this.sharedFromWorkspaceId,
+      sharedFromTransactionId:
+          sharedFromTransactionId ?? this.sharedFromTransactionId,
+      sharedByUserId: sharedByUserId ?? this.sharedByUserId,
     );
   }
 
@@ -79,12 +96,15 @@ class TransactionModel {
       'updatedAt': FieldValue.serverTimestamp(),
       'categoryId': categoryId,
       'categoryIcon': categoryIcon,
+      'sharedFromWorkspaceId': sharedFromWorkspaceId,
+      'sharedFromTransactionId': sharedFromTransactionId,
+      'sharedByUserId': sharedByUserId,
     };
 
     if (!merge) {
       map['createdAt'] = FieldValue.serverTimestamp();
     }
-    return map;
+    return map..removeWhere((key, value) => value == null);
   }
 
   static TransactionModel fromFirestore(
@@ -112,6 +132,9 @@ class TransactionModel {
       deleted: (data['deleted'] as bool?) ?? false,
       categoryId: data['categoryId'] as String?,
       categoryIcon: data['categoryIcon'] as String?,
+      sharedFromWorkspaceId: data['sharedFromWorkspaceId'] as String?,
+      sharedFromTransactionId: data['sharedFromTransactionId'] as String?,
+      sharedByUserId: data['sharedByUserId'] as String?,
     );
   }
 
@@ -126,6 +149,9 @@ class TransactionModel {
       note: entity.note,
       categoryId: entity.categoryId,
       categoryIcon: entity.categoryIcon,
+      sharedFromWorkspaceId: entity.sharedFromWorkspaceId,
+      sharedFromTransactionId: entity.sharedFromTransactionId,
+      sharedByUserId: entity.sharedByUserId,
     );
   }
 }
