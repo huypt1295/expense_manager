@@ -193,7 +193,13 @@ class _WorkspaceManagementSheetState extends State<WorkspaceManagementSheet> {
       useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => DeleteWorkspaceSheet(workspaceName: workspaceName),
+      builder: (_) => DeleteWorkspaceSheet(
+        workspaceName: workspaceName,
+        onDelete: () {
+          context.pop();
+          context.read<WorkspaceMembersBloc>().add(DeleteWorkspaceEvent());
+        },
+      ),
     );
     if (confirmed == true && context.mounted) {
       context.pop();

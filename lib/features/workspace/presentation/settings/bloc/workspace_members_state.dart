@@ -1,5 +1,5 @@
-import 'package:expense_manager/features/workspace/domain/entities/household_invitation_entity.dart';
-import 'package:expense_manager/features/workspace/domain/entities/household_member_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_invitation_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_member_entity.dart';
 import 'package:flutter_core/flutter_core.dart';
 
 class WorkspaceMembersState extends BaseBlocState with EquatableMixin {
@@ -9,7 +9,7 @@ class WorkspaceMembersState extends BaseBlocState with EquatableMixin {
     this.currentUserId = '',
     this.currentUserRole = 'viewer',
     this.members = const <WorkspaceMemberEntity>[],
-    this.invitations = const <HouseholdInvitationEntity>[],
+    this.invitations = const <WorkspaceInvitationEntity>[],
     this.isLoading = true,
     this.errorMessage,
   });
@@ -19,7 +19,7 @@ class WorkspaceMembersState extends BaseBlocState with EquatableMixin {
   final String currentUserId;
   final String currentUserRole;
   final List<WorkspaceMemberEntity> members;
-  final List<HouseholdInvitationEntity> invitations;
+  final List<WorkspaceInvitationEntity> invitations;
   final bool isLoading;
   final String? errorMessage;
 
@@ -32,7 +32,7 @@ class WorkspaceMembersState extends BaseBlocState with EquatableMixin {
     String? currentUserId,
     String? currentUserRole,
     List<WorkspaceMemberEntity>? members,
-    List<HouseholdInvitationEntity>? invitations,
+    List<WorkspaceInvitationEntity>? invitations,
     bool? isLoading,
     bool clearError = false,
     String? errorMessage,

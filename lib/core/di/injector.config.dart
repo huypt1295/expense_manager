@@ -13,7 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:expense_manager/core/auth/current_user.dart' as _i79;
 import 'package:expense_manager/core/di/firebase_module.dart' as _i93;
 import 'package:expense_manager/core/routing/app_router.dart' as _i861;
-import 'package:expense_manager/core/workspace/current_workspace.dart' as _i325;
+import 'package:expense_manager/core/workspace/current_workspace.dart' as _i856;
 import 'package:expense_manager/features/add_expense/presentation/add_expense/bloc/expense_bloc.dart'
     as _i1026;
 import 'package:expense_manager/features/auth/data/datasources/firebase_auth_data_source.dart'
@@ -108,10 +108,10 @@ import 'package:expense_manager/features/transactions/domain/usecases/delete_tra
     as _i27;
 import 'package:expense_manager/features/transactions/domain/usecases/get_transactions_once_usecase.dart'
     as _i189;
+import 'package:expense_manager/features/transactions/domain/usecases/share_transaction_usecase.dart'
+    as _i416;
 import 'package:expense_manager/features/transactions/domain/usecases/update_transaction_usecase.dart'
     as _i288;
-import 'package:expense_manager/features/transactions/domain/usecases/share_transaction_usecase.dart'
-    as _i1201;
 import 'package:expense_manager/features/transactions/domain/usecases/watch_transactions_usecase.dart'
     as _i717;
 import 'package:expense_manager/features/transactions/presentation/add_transaction/bloc/add_transaction_bloc.dart'
@@ -119,15 +119,41 @@ import 'package:expense_manager/features/transactions/presentation/add_transacti
 import 'package:expense_manager/features/transactions/presentation/transactions/bloc/transactions_bloc.dart'
     as _i551;
 import 'package:expense_manager/features/workspace/application/current_workspace_controller.dart'
-    as _i108;
+    as _i397;
+import 'package:expense_manager/features/workspace/data/datasources/household_remote_data_source.dart'
+    as _i987;
 import 'package:expense_manager/features/workspace/data/datasources/workspace_remote_data_source.dart'
-    as _i450;
+    as _i848;
+import 'package:expense_manager/features/workspace/data/repositories/household_repository_impl.dart'
+    as _i155;
 import 'package:expense_manager/features/workspace/data/repositories/workspace_repository_impl.dart'
-    as _i680;
+    as _i485;
+import 'package:expense_manager/features/workspace/domain/repositories/household_repository.dart'
+    as _i1039;
 import 'package:expense_manager/features/workspace/domain/repositories/workspace_repository.dart'
-    as _i874;
+    as _i82;
+import 'package:expense_manager/features/workspace/domain/usecases/cancel_household_invitation_usecase.dart'
+    as _i76;
+import 'package:expense_manager/features/workspace/domain/usecases/create_household_usecase.dart'
+    as _i444;
+import 'package:expense_manager/features/workspace/domain/usecases/delete_household_usecase.dart'
+    as _i724;
+import 'package:expense_manager/features/workspace/domain/usecases/ensure_personal_workspace_usecase.dart'
+    as _i919;
+import 'package:expense_manager/features/workspace/domain/usecases/remove_household_member_usecase.dart'
+    as _i417;
+import 'package:expense_manager/features/workspace/domain/usecases/send_household_invitation_usecase.dart'
+    as _i672;
+import 'package:expense_manager/features/workspace/domain/usecases/update_household_member_role_usecase.dart'
+    as _i541;
+import 'package:expense_manager/features/workspace/domain/usecases/watch_household_invitations_usecase.dart'
+    as _i565;
+import 'package:expense_manager/features/workspace/domain/usecases/watch_household_members_usecase.dart'
+    as _i519;
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart'
-    as _i990;
+    as _i142;
+import 'package:expense_manager/features/workspace/presentation/settings/bloc/workspace_members_bloc.dart'
+    as _i646;
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:firebase_storage/firebase_storage.dart' as _i457;
 import 'package:flutter_common/flutter_common.dart' as _i400;
@@ -181,8 +207,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i376.TransactionsRemoteDataSource>(
       () => _i376.TransactionsRemoteDataSource(gh<_i974.FirebaseFirestore>()),
     );
-    gh.lazySingleton<_i450.WorkspaceRemoteDataSource>(
-      () => _i450.WorkspaceRemoteDataSource(gh<_i974.FirebaseFirestore>()),
+    gh.lazySingleton<_i987.HouseholdRemoteDataSource>(
+      () => _i987.HouseholdRemoteDataSource(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.lazySingleton<_i848.WorkspaceRemoteDataSource>(
+      () => _i848.WorkspaceRemoteDataSource(gh<_i974.FirebaseFirestore>()),
     );
     gh.lazySingleton<_i995.ProfileRemoteDataSource>(
       () => _i995.ProfileRemoteDataSource(
@@ -237,21 +266,58 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i79.CurrentUser>(
       () => _i524.CurrentUserFromAuthBloc(gh<_i68.AuthBloc>()),
     );
-    gh.singleton<_i325.CurrentWorkspace>(
-      () => _i108.CurrentWorkspaceController(gh<_i79.CurrentUser>()),
-    );
-    gh.lazySingleton<_i639.BudgetRepository>(
-      () => _i932.BudgetRepositoryImpl(
-        gh<_i78.BudgetRemoteDataSource>(),
-        gh<_i79.CurrentUser>(),
-        gh<_i325.CurrentWorkspace>(),
-      ),
-    );
     gh.lazySingleton<_i482.CategoryRepository>(
       () => _i939.CategoryRepositoryImpl(
         gh<_i892.CategoryRemoteDataSource>(),
         gh<_i79.CurrentUser>(),
       ),
+    );
+    gh.lazySingleton<_i1039.HouseholdRepository>(
+      () => _i155.HouseholdRepositoryImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i987.HouseholdRemoteDataSource>(),
+        gh<_i848.WorkspaceRemoteDataSource>(),
+        gh<_i79.CurrentUser>(),
+      ),
+    );
+    gh.factory<_i76.CancelHouseholdInvitationUseCase>(
+      () => _i76.CancelHouseholdInvitationUseCase(
+        gh<_i1039.HouseholdRepository>(),
+      ),
+    );
+    gh.factory<_i444.CreateHouseholdUseCase>(
+      () => _i444.CreateHouseholdUseCase(gh<_i1039.HouseholdRepository>()),
+    );
+    gh.factory<_i724.DeleteHouseholdUseCase>(
+      () => _i724.DeleteHouseholdUseCase(gh<_i1039.HouseholdRepository>()),
+    );
+    gh.factory<_i417.RemoveHouseholdMemberUseCase>(
+      () =>
+          _i417.RemoveHouseholdMemberUseCase(gh<_i1039.HouseholdRepository>()),
+    );
+    gh.factory<_i672.SendHouseholdInvitationUseCase>(
+      () => _i672.SendHouseholdInvitationUseCase(
+        gh<_i1039.HouseholdRepository>(),
+      ),
+    );
+    gh.factory<_i541.UpdateHouseholdMemberRoleUseCase>(
+      () => _i541.UpdateHouseholdMemberRoleUseCase(
+        gh<_i1039.HouseholdRepository>(),
+      ),
+    );
+    gh.singleton<_i919.EnsurePersonalWorkspaceUseCase>(
+      () => _i919.EnsurePersonalWorkspaceUseCase(
+        gh<_i1039.HouseholdRepository>(),
+      ),
+    );
+    gh.singleton<_i565.WatchHouseholdInvitationsUseCase>(
+      () => _i565.WatchHouseholdInvitationsUseCase(
+        gh<_i1039.HouseholdRepository>(),
+      ),
+    );
+    gh.singleton<_i519.WatchHouseholdMembersUseCase>(
+      () =>
+          _i519.WatchHouseholdMembersUseCase(gh<_i1039.HouseholdRepository>()),
     );
     gh.factory<_i439.ProfileBloc>(
       () => _i439.ProfileBloc(
@@ -263,17 +329,16 @@ extension GetItInjectableX on _i174.GetIt {
         logger: gh<_i453.Logger>(),
       ),
     );
-    gh.factory<_i105.AddBudgetUseCase>(
-      () => _i105.AddBudgetUseCase(gh<_i639.BudgetRepository>()),
-    );
-    gh.factory<_i1032.DeleteBudgetUseCase>(
-      () => _i1032.DeleteBudgetUseCase(gh<_i639.BudgetRepository>()),
-    );
-    gh.factory<_i740.UpdateBudgetUseCase>(
-      () => _i740.UpdateBudgetUseCase(gh<_i639.BudgetRepository>()),
-    );
-    gh.singleton<_i192.WatchBudgetsUseCase>(
-      () => _i192.WatchBudgetsUseCase(gh<_i639.BudgetRepository>()),
+    gh.factory<_i646.WorkspaceMembersBloc>(
+      () => _i646.WorkspaceMembersBloc(
+        gh<_i519.WatchHouseholdMembersUseCase>(),
+        gh<_i565.WatchHouseholdInvitationsUseCase>(),
+        gh<_i541.UpdateHouseholdMemberRoleUseCase>(),
+        gh<_i417.RemoveHouseholdMemberUseCase>(),
+        gh<_i724.DeleteHouseholdUseCase>(),
+        gh<_i672.SendHouseholdInvitationUseCase>(),
+        gh<_i76.CancelHouseholdInvitationUseCase>(),
+      ),
     );
     gh.factory<_i469.CreateUserCategoryUseCase>(
       () => _i469.CreateUserCategoryUseCase(gh<_i482.CategoryRepository>()),
@@ -290,19 +355,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i276.WatchCategoriesUseCase>(
       () => _i276.WatchCategoriesUseCase(gh<_i482.CategoryRepository>()),
     );
-    gh.lazySingleton<_i496.TransactionsRepository>(
-      () => _i596.TransactionsRepositoryImpl(
-        gh<_i376.TransactionsRemoteDataSource>(),
-        gh<_i79.CurrentUser>(),
-        gh<_i325.CurrentWorkspace>(),
-      ),
-    );
-    gh.lazySingleton<_i874.WorkspaceRepository>(
-      () => _i680.WorkspaceRepositoryImpl(
-        gh<_i450.WorkspaceRemoteDataSource>(),
-        gh<_i79.CurrentUser>(),
-      ),
-    );
     gh.lazySingleton<_i49.CategoriesService>(
       () => _i49.CategoriesService(
         gh<_i823.LoadCategoriesUseCase>(),
@@ -310,6 +362,36 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i469.CreateUserCategoryUseCase>(),
         gh<_i770.UpdateUserCategoryUseCase>(),
         gh<_i380.DeleteUserCategoryUseCase>(),
+      ),
+    );
+    gh.singleton<_i856.CurrentWorkspace>(
+      () => _i397.CurrentWorkspaceController(gh<_i79.CurrentUser>()),
+    );
+    gh.lazySingleton<_i82.WorkspaceRepository>(
+      () => _i485.WorkspaceRepositoryImpl(
+        gh<_i848.WorkspaceRemoteDataSource>(),
+        gh<_i79.CurrentUser>(),
+      ),
+    );
+    gh.lazySingleton<_i496.TransactionsRepository>(
+      () => _i596.TransactionsRepositoryImpl(
+        gh<_i376.TransactionsRemoteDataSource>(),
+        gh<_i79.CurrentUser>(),
+        gh<_i856.CurrentWorkspace>(),
+      ),
+    );
+    gh.factory<_i142.WorkspaceBloc>(
+      () => _i142.WorkspaceBloc(
+        gh<_i82.WorkspaceRepository>(),
+        gh<_i856.CurrentWorkspace>(),
+        logger: gh<_i453.Logger>(),
+      ),
+    );
+    gh.lazySingleton<_i639.BudgetRepository>(
+      () => _i932.BudgetRepositoryImpl(
+        gh<_i78.BudgetRemoteDataSource>(),
+        gh<_i79.CurrentUser>(),
+        gh<_i856.CurrentWorkspace>(),
       ),
     );
     gh.singleton<_i717.WatchTransactionsUseCase>(
@@ -321,12 +403,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i27.DeleteTransactionUseCase>(
       () => _i27.DeleteTransactionUseCase(gh<_i496.TransactionsRepository>()),
     );
-    gh.factory<_i1201.ShareTransactionUseCase>(
-      () => _i1201.ShareTransactionUseCase(gh<_i496.TransactionsRepository>()),
-    );
     gh.factory<_i189.GetTransactionsOnceUseCase>(
       () =>
           _i189.GetTransactionsOnceUseCase(gh<_i496.TransactionsRepository>()),
+    );
+    gh.factory<_i416.ShareTransactionUseCase>(
+      () => _i416.ShareTransactionUseCase(gh<_i496.TransactionsRepository>()),
     );
     gh.factory<_i288.UpdateTransactionUseCase>(
       () => _i288.UpdateTransactionUseCase(gh<_i496.TransactionsRepository>()),
@@ -335,13 +417,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i983.SummaryBloc(
         gh<_i79.CurrentUser>(),
         gh<_i717.WatchTransactionsUseCase>(),
-        logger: gh<_i453.Logger>(),
-      ),
-    );
-    gh.factory<_i990.WorkspaceBloc>(
-      () => _i990.WorkspaceBloc(
-        gh<_i874.WorkspaceRepository>(),
-        gh<_i325.CurrentWorkspace>(),
         logger: gh<_i453.Logger>(),
       ),
     );
@@ -358,8 +433,21 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i892.AddTransactionUseCase>(),
         gh<_i288.UpdateTransactionUseCase>(),
         gh<_i27.DeleteTransactionUseCase>(),
-        gh<_i1201.ShareTransactionUseCase>(),
+        gh<_i416.ShareTransactionUseCase>(),
+        undoDuration: gh<Duration>(),
       ),
+    );
+    gh.factory<_i105.AddBudgetUseCase>(
+      () => _i105.AddBudgetUseCase(gh<_i639.BudgetRepository>()),
+    );
+    gh.factory<_i1032.DeleteBudgetUseCase>(
+      () => _i1032.DeleteBudgetUseCase(gh<_i639.BudgetRepository>()),
+    );
+    gh.factory<_i740.UpdateBudgetUseCase>(
+      () => _i740.UpdateBudgetUseCase(gh<_i639.BudgetRepository>()),
+    );
+    gh.singleton<_i192.WatchBudgetsUseCase>(
+      () => _i192.WatchBudgetsUseCase(gh<_i639.BudgetRepository>()),
     );
     gh.factory<_i1026.ExpenseBloc>(
       () => _i1026.ExpenseBloc(gh<_i892.AddTransactionUseCase>()),
@@ -372,7 +460,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1032.DeleteBudgetUseCase>(),
         gh<_i717.WatchTransactionsUseCase>(),
         gh<_i49.CategoriesService>(),
-        gh<_i325.CurrentWorkspace>(),
+        gh<_i856.CurrentWorkspace>(),
       ),
     );
     return this;

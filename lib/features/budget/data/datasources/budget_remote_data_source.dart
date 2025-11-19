@@ -13,14 +13,8 @@ class BudgetRemoteDataSource {
   CollectionReference<Map<String, dynamic>> _collection(
     WorkspaceContext context,
   ) {
-    if (context.isPersonal) {
-      return _firestore
-          .collection('users')
-          .doc(context.userId)
-          .collection('budgets');
-    }
     return _firestore
-        .collection('households')
+        .collection('workspaces')
         .doc(context.workspaceId)
         .collection('budgets');
   }

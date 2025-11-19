@@ -1,4 +1,6 @@
 import 'package:expense_manager/core/auth/current_user.dart';
+import 'package:expense_manager/core/workspace/current_workspace.dart';
+import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/categories/data/datasources/category_remote_data_source.dart';
 import 'package:expense_manager/features/categories/data/models/category_model.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
@@ -8,10 +10,15 @@ import 'package:rxdart/rxdart.dart';
 
 @LazySingleton(as: CategoryRepository)
 class CategoryRepositoryImpl implements CategoryRepository {
-  CategoryRepositoryImpl(this._remoteDataSource, this._currentUser);
+  CategoryRepositoryImpl(
+    this._remoteDataSource,
+    this._currentUser,
+    this._currentWorkspace,
+  );
 
   final CategoryRemoteDataSource _remoteDataSource;
   final CurrentUser _currentUser;
+  final CurrentWorkspace _currentWorkspace;
 
   @override
   Stream<List<CategoryEntity>> watchCombined() {
@@ -158,5 +165,96 @@ class CategoryRepositoryImpl implements CategoryRepository {
       throw AuthException('auth.required', tokenExpired: true);
     }
     return uid;
+  }
+
+  WorkspaceContext _requireWorkspaceContext() {
+    final snapshot = _currentWorkspace.now();
+    if (snapshot == null) {
+      throw Exception('No workspace selected');
+    }
+    final uid = _currentUser.now()?.uid;
+    if (uid == null || uid.isEmpty) {
+      throw AuthException('auth.required', tokenExpired: true);
+    }
+    return WorkspaceContext(
+      userId: uid,
+      workspaceId: snapshot.id,
+      type: snapshot.type,
+    );
+  }
+
+  // ========== Workspace-aware methods ==========
+
+  @override
+  Stream<List<CategoryEntity>> watchWorkspaceCategories() {
+    final context = _requireWorkspaceContext();
+    final defaultStream = _remoteDataSource.watchDefault();
+    final workspaceStream = _remoteDataSource.watchForWorkspace(context);
+
+    return Rx.combineLatest2<
+          List<CategoryModel>,
+          List<CategoryModel>,
+          List<CategoryEntity>
+        >(
+          defaultStream,
+          workspaceStream,
+          (defaults, workspace) => _mapModelsToEntities(defaults, workspace),
+        )
+        .map(List<CategoryEntity>.unmodifiable);
+  }
+
+  @override
+  Future<List<CategoryEntity>> fetchWorkspaceCategories() async {
+    final context = _requireWorkspaceContext();
+    final defaultModels = await _remoteDataSource.fetchDefault();
+    final workspaceModels = await _remoteDataSource.fetchForWorkspace(context);
+    return List<CategoryEntity>.unmodifiable(
+      _mapModelsToEntities(defaultModels, workspaceModels),
+    );
+  }
+
+  @override
+  Future<CategoryEntity> createWorkspaceCategory(CategoryEntity entity) async {
+    final context = _requireWorkspaceContext();
+    if (!entity.isCustom) {
+      throw ArgumentError.value(
+        entity.isCustom,
+        'isCustom',
+        'Only custom categories can be created for workspaces.',
+      );
+    }
+
+    final model = CategoryModel.fromEntity(
+      entity.copyWith(
+        id: entity.id.isEmpty ? '' : entity.id,
+        ownerId: context.userId,
+        isArchived: false,
+        isActive: entity.isActive,
+      ),
+    );
+
+    final created = await _remoteDataSource.createForWorkspace(context, model);
+    return created.toEntity();
+  }
+
+  @override
+  Future<void> updateWorkspaceCategory(CategoryEntity entity) {
+    final context = _requireWorkspaceContext();
+    if (!entity.isCustom) {
+      throw ArgumentError.value(
+        entity.isCustom,
+        'isCustom',
+        'Default categories cannot be updated.',
+      );
+    }
+
+    final model = CategoryModel.fromEntity(entity);
+    return _remoteDataSource.updateForWorkspace(context, model);
+  }
+
+  @override
+  Future<void> deleteWorkspaceCategory(String id) {
+    final context = _requireWorkspaceContext();
+    return _remoteDataSource.deleteForWorkspace(context, id);
   }
 }

@@ -37,9 +37,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "cancel": MessageLookupByLibrary.simpleMessage("Hủy"),
     "category": MessageLookupByLibrary.simpleMessage("Danh mục"),
-    "create_workspace": MessageLookupByLibrary.simpleMessage(
-      "Tạo workspace chung",
-    ),
+    "create_workspace": MessageLookupByLibrary.simpleMessage("Tạo workspace"),
     "date_time": MessageLookupByLibrary.simpleMessage("Thời gian"),
     "delete": MessageLookupByLibrary.simpleMessage("Xóa"),
     "done": MessageLookupByLibrary.simpleMessage("Xong"),
@@ -112,6 +110,16 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "workspace_info_content": MessageLookupByLibrary.simpleMessage(
       "Bạn đang ở workspace này. Dữ liệu giao dịch & ngân sách hiển thị theo workspace.",
+    ),
+    "workspace_name": MessageLookupByLibrary.simpleMessage("Tên workspace"),
+    "workspace_wizard_choose_icon": MessageLookupByLibrary.simpleMessage(
+      "Chọn icon",
+    ),
+    "workspace_wizard_description": MessageLookupByLibrary.simpleMessage(
+      "Tạo workspace để chia sẻ giao dịch và ngân sách với gia đình hoặc đồng nghiệp",
+    ),
+    "workspace_wizard_title": MessageLookupByLibrary.simpleMessage(
+      "Bạn chưa tham gia workspace nào",
     ),
   };
 }

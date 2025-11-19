@@ -1,33 +1,36 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_manager/core/auth/current_user.dart';
 import 'package:expense_manager/core/workspace/workspace_context.dart';
-import 'package:expense_manager/features/workspace/data/datasources/household_remote_data_source.dart';
+import 'package:expense_manager/features/workspace/data/datasources/workspace_detail_remote_data_source.dart';
 import 'package:expense_manager/features/workspace/data/datasources/workspace_remote_data_source.dart';
-import 'package:expense_manager/features/workspace/data/models/household_invitation_model.dart';
-import 'package:expense_manager/features/workspace/data/models/household_member_model.dart';
-import 'package:expense_manager/features/workspace/data/models/household_model.dart';
+import 'package:expense_manager/features/workspace/data/models/workspace_invitation_model.dart';
+import 'package:expense_manager/features/workspace/data/models/workspace_member_model.dart';
+import 'package:expense_manager/features/workspace/data/models/workspace_detail_model.dart';
 import 'package:expense_manager/features/workspace/data/models/workspace_model.dart';
-import 'package:expense_manager/features/workspace/domain/entities/household_entity.dart';
-import 'package:expense_manager/features/workspace/domain/entities/household_invitation_entity.dart';
-import 'package:expense_manager/features/workspace/domain/entities/household_member_entity.dart';
-import 'package:expense_manager/features/workspace/domain/repositories/household_repository.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_detail_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_invitation_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_member_entity.dart';
+import 'package:expense_manager/features/workspace/domain/repositories/workspace_detail_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-@LazySingleton(as: HouseholdRepository)
-class HouseholdRepositoryImpl implements HouseholdRepository {
-  HouseholdRepositoryImpl(
+@LazySingleton(as: WorkspaceDetailRepository)
+class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
+  WorkspaceDetailRepositoryImpl(
+    this._firestore,
     this._householdRemote,
     this._workspaceRemote,
     this._currentUser,
   );
 
-  final HouseholdRemoteDataSource _householdRemote;
+  final FirebaseFirestore _firestore;
+  final WorkspaceDetailRemoteDataSource _householdRemote;
   final WorkspaceRemoteDataSource _workspaceRemote;
   final CurrentUser _currentUser;
 
   @override
-  Future<HouseholdEntity> createHousehold({
+  Future<WorkspaceDetailEntity> createHousehold({
     required String name,
     required String currencyCode,
     required List<String> inviteEmails,
@@ -44,7 +47,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     final now = DateTime.now();
 
     final householdId = await _householdRemote.createHousehold(
-      HouseholdModel(
+      WorkspaceDetailModel(
         id: '',
         name: normalizedName,
         currencyCode: currencyCode,
@@ -66,12 +69,12 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
 
     await _householdRemote.upsertMember(
       householdId,
-      HouseholdMemberModel(
+      WorkspaceMemberModel(
         userId: uid,
         displayName: ownerName?.isNotEmpty == true ? ownerName! : ownerEmail,
         email: ownerEmail,
         role: 'owner',
-        status: HouseholdMemberStatus.active,
+        status: WorkspaceMemberStatus.active,
         joinedAt: now,
       ),
     );
@@ -84,18 +87,18 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     for (final email in uniqueInvites) {
       await _householdRemote.createInvitation(
         householdId,
-        HouseholdInvitationModel(
+        WorkspaceInvitationModel(
           id: '',
           email: email,
           role: 'viewer',
           invitedBy: uid,
-          status: HouseholdInvitationStatus.pending,
+          status: WorkspaceInvitationStatus.pending,
           createdAt: now,
         ),
       );
     }
 
-    return HouseholdEntity(
+    return WorkspaceDetailEntity(
       id: householdId,
       name: normalizedName,
       currencyCode: currencyCode,
@@ -113,7 +116,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
   }
 
   @override
-  Stream<List<HouseholdInvitationEntity>> watchInvitations(String householdId) {
+  Stream<List<WorkspaceInvitationEntity>> watchInvitations(String householdId) {
     return _householdRemote
         .watchInvitations(householdId)
         .map((models) => models.map((model) => model.toEntity()).toList());
@@ -138,6 +141,51 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
   }
 
   @override
+  Future<void> deleteWorkspace({
+    required String userId,
+    required String workspaceId,
+  }) async {
+    // 1. Verify owner
+    final ownerMember = await _householdRemote.getMember(workspaceId, userId);
+    if (ownerMember == null || ownerMember.role != 'owner') {
+      throw Exception('Chỉ owner mới có quyền xóa workspace');
+    }
+
+    // 2. *** LẤY MEMBERS NGAY LẬP TỨC - KHI CHƯA XÓA GÌ CẢ ***
+    final members = await _householdRemote.getAllMembers(workspaceId);
+
+    // 3. Batch delete tất cả
+    final batch = _firestore.batch();
+
+    // 3.1. Xóa user memberships
+    for (final member in members) {
+      final ref = _firestore
+          .collection('users')
+          .doc(member.userId)
+          .collection('workspaces')
+          .doc(workspaceId);
+      batch.delete(ref);
+    }
+
+    // 3.2. Xóa members subcollection
+    for (final member in members) {
+      final ref = _firestore
+          .collection('households')
+          .doc(workspaceId)
+          .collection('members')
+          .doc(member.userId);
+      batch.delete(ref);
+    }
+
+    // 3.3. Xóa household document
+    final householdRef = _firestore.collection('households').doc(workspaceId);
+    batch.delete(householdRef);
+
+    // 4. Commit batch một lần
+    await batch.commit();
+  }
+
+  @override
   Future<void> sendInvitation({
     required String householdId,
     required String email,
@@ -151,12 +199,12 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     final now = DateTime.now();
     await _householdRemote.createInvitation(
       householdId,
-      HouseholdInvitationModel(
+      WorkspaceInvitationModel(
         id: '',
         email: email.trim().toLowerCase(),
         role: role,
         invitedBy: uid,
-        status: HouseholdInvitationStatus.pending,
+        status: WorkspaceInvitationStatus.pending,
         createdAt: now,
       ),
     );
@@ -179,10 +227,43 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     }
 
     final displayName = snapshot?.displayName?.trim();
+    final email = snapshot?.email ?? '';
     final name = (displayName != null && displayName.isNotEmpty)
         ? displayName
         : 'Personal';
 
+    // 1. Create/update personal workspace document
+    final now = DateTime.now();
+    final workspaceDoc = await _firestore.collection('workspaces').doc(uid).get();
+    
+    if (!workspaceDoc.exists) {
+      await _householdRemote.createHousehold(
+        WorkspaceDetailModel(
+          id: uid,
+          name: name,
+          currencyCode: 'VND',
+          ownerId: uid,
+          type: WorkspaceType.personal,
+          createdAt: now,
+          updatedAt: now,
+        ),
+      );
+
+      // 2. Create member entry for personal workspace
+      await _householdRemote.upsertMember(
+        uid,
+        WorkspaceMemberModel(
+          userId: uid,
+          displayName: displayName ?? email,
+          email: email,
+          role: 'owner',
+          status: WorkspaceMemberStatus.active,
+          joinedAt: now,
+        ),
+      );
+    }
+
+    // 3. Ensure denormalized membership exists
     await _workspaceRemote.upsertMembership(
       uid,
       WorkspaceModel.personal(id: uid, name: name),

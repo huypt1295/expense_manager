@@ -17,37 +17,48 @@ class WorkspaceManagementActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Column(
       children: [
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: onLeave,
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              backgroundColor: context.tpColors.surfaceWarning,
-              foregroundColor: context.tpColors.textNegative,
-            ),
-            label: Text(S.current.leave_workspace),
-            icon: Icon(CupertinoIcons.square_arrow_right),
-          ),
-        ),
+        _buildLeaveWorkspaceButton(context),
         const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: isOwner ? onDelete : null,
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              backgroundColor: context.tpColors.surfaceNegative,
-              foregroundColor: context.tpColors.textNegative,
-            ),
-            label: Text(S.current.remove_workspace),
-            icon: Icon(CupertinoIcons.trash),
-          ),
-        ),
+        _buildDeleteWorkspaceButton(context),
       ],
     );
+  }
+
+  Widget _buildLeaveWorkspaceButton(BuildContext context) {
+    return isOwner
+        ? const SizedBox.shrink()
+        : SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: onLeave,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: context.tpColors.surfaceWarning,
+                foregroundColor: context.tpColors.textNegative,
+              ),
+              label: Text(S.current.leave_workspace),
+              icon: Icon(CupertinoIcons.square_arrow_right),
+            ),
+          );
+  }
+
+  Widget _buildDeleteWorkspaceButton(BuildContext context) {
+    return !isOwner
+        ? const SizedBox.shrink()
+        : SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: isOwner ? onDelete : null,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: context.tpColors.surfaceNegative,
+                foregroundColor: context.tpColors.textNegative,
+              ),
+              label: Text(S.current.remove_workspace),
+              icon: Icon(CupertinoIcons.trash),
+            ),
+          );
   }
 }

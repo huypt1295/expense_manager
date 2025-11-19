@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expense_manager/features/workspace/domain/entities/household_member_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_member_entity.dart';
 
-class HouseholdMemberModel {
-  const HouseholdMemberModel({
+class WorkspaceMemberModel {
+  const WorkspaceMemberModel({
     required this.userId,
     required this.displayName,
     required this.email,
@@ -15,7 +15,7 @@ class HouseholdMemberModel {
   final String displayName;
   final String email;
   final String role;
-  final HouseholdMemberStatus status;
+  final WorkspaceMemberStatus status;
   final DateTime joinedAt;
 
   Map<String, dynamic> toFirestore() {
@@ -39,11 +39,11 @@ class HouseholdMemberModel {
     );
   }
 
-  static HouseholdMemberModel fromFirestore(
+  static WorkspaceMemberModel fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
   ) {
     final data = snapshot.data() ?? const <String, dynamic>{};
-    return HouseholdMemberModel(
+    return WorkspaceMemberModel(
       userId: snapshot.id,
       displayName: (data['displayName'] as String?) ?? '',
       email: (data['email'] as String?) ?? '',
@@ -53,16 +53,36 @@ class HouseholdMemberModel {
     );
   }
 
-  static HouseholdMemberStatus _parseStatus(dynamic raw) {
+  static WorkspaceMemberModel fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data() ?? <String, dynamic>{};
+    return _fromDocData(doc.id, data, isUserDefined: true);
+  }
+
+  static WorkspaceMemberModel _fromDocData(
+      String id,
+      Map<String, dynamic> data, {
+        required bool isUserDefined,
+      }) {
+    return WorkspaceMemberModel(
+      userId: id,
+      displayName: (data['displayName'] as String?) ?? '',
+      email: (data['email'] as String?) ?? '',
+      role: (data['role'] as String?) ?? 'viewer',
+      status: _parseStatus(data['status']),
+      joinedAt: _parseTimestamp(data['joinedAt']),
+    );
+  }
+
+  static WorkspaceMemberStatus _parseStatus(dynamic raw) {
     final value = (raw as String?)?.toLowerCase();
     switch (value) {
       case 'pendingremoval':
       case 'pending_removal':
       case 'pending-removal':
-        return HouseholdMemberStatus.pendingRemoval;
+        return WorkspaceMemberStatus.pendingRemoval;
       case 'active':
       default:
-        return HouseholdMemberStatus.active;
+        return WorkspaceMemberStatus.active;
     }
   }
 

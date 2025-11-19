@@ -2,15 +2,15 @@ import 'package:expense_manager/core/workspace/current_workspace.dart';
 import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/create_household_usecase.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/ensure_personal_workspace_usecase.dart';
-import 'package:expense_manager/features/workspace/presentation/onboarding/cubit/household_onboarding_state.dart';
+import 'package:expense_manager/features/workspace/presentation/onboarding/cubit/workspace_onboarding_state.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-class HouseholdOnboardingCubit extends Cubit<HouseholdOnboardingState> {
-  HouseholdOnboardingCubit(
+class WorkspaceOnboardingCubit extends Cubit<WorkspaceOnboardingState> {
+  WorkspaceOnboardingCubit(
     this._createHouseholdUseCase,
     this._ensurePersonalWorkspaceUseCase,
     this._currentWorkspace,
-  ) : super(const HouseholdOnboardingState());
+  ) : super(const WorkspaceOnboardingState());
 
   final CreateHouseholdUseCase _createHouseholdUseCase;
   final EnsurePersonalWorkspaceUseCase _ensurePersonalWorkspaceUseCase;

@@ -1,4 +1,4 @@
-import 'package:expense_manager/features/workspace/domain/entities/household_member_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_member_entity.dart';
 import 'package:expense_manager/features/workspace/presentation/settings/bloc/workspace_members_bloc.dart';
 import 'package:expense_manager/features/workspace/presentation/settings/bloc/workspace_members_event.dart';
 import 'package:expense_manager/features/workspace/presentation/settings/bloc/workspace_members_state.dart';
@@ -51,12 +51,16 @@ class _MemberTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isCurrentUser = member.userId == state.currentUserId;
     final canManage = state.isOwner && !isCurrentUser;
+    final menuSettingShowing = canManage;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(
+        12,
+      ).copyWith(right: menuSettingShowing ? 0 : 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: context.tpColors.surfaceSub),
+        color: context.tpColors.surfaceSub,
+      ),
       child: Row(
         children: [
           _buildAvatar(context),
@@ -127,8 +131,8 @@ class _MemberTile extends StatelessWidget {
     );
   }
 
-  PopupMenuButton<String> _buildRoleMenuSetting(BuildContext context) {
-    return PopupMenuButton<String>(
+  CommonPopupMenu<String> _buildRoleMenuSetting(BuildContext context) {
+    return CommonPopupMenu<String>(
       onSelected: (value) {
         if (value == 'remove') {
           context.read<WorkspaceMembersBloc>().add(

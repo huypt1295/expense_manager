@@ -8,6 +8,7 @@ import 'package:expense_manager/features/workspace/data/repositories/household_r
 import 'package:expense_manager/features/workspace/domain/repositories/household_repository.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/cancel_household_invitation_usecase.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/create_household_usecase.dart';
+import 'package:expense_manager/features/workspace/domain/usecases/delete_household_usecase.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/ensure_personal_workspace_usecase.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/remove_household_member_usecase.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/send_household_invitation_usecase.dart';
@@ -51,93 +52,6 @@ Future<GetIt> configureDependencies() async {
   await getIt.init();
 
   LoggerProvider.instance ??= getIt<Logger>();
-
-  if (!getIt.isRegistered<HouseholdRemoteDataSource>()) {
-    getIt.registerLazySingleton<HouseholdRemoteDataSource>(
-      () => HouseholdRemoteDataSource(getIt<FirebaseFirestore>()),
-    );
-  }
-
-  if (!getIt.isRegistered<HouseholdRepository>()) {
-    getIt.registerLazySingleton<HouseholdRepository>(
-      () => HouseholdRepositoryImpl(
-        getIt<HouseholdRemoteDataSource>(),
-        getIt<WorkspaceRemoteDataSource>(),
-        getIt<CurrentUser>(),
-      ),
-    );
-  }
-
-  if (!getIt.isRegistered<CreateHouseholdUseCase>()) {
-    getIt.registerFactory<CreateHouseholdUseCase>(
-      () => CreateHouseholdUseCase(getIt<HouseholdRepository>()),
-    );
-  }
-
-  if (!getIt.isRegistered<EnsurePersonalWorkspaceUseCase>()) {
-    getIt.registerLazySingleton<EnsurePersonalWorkspaceUseCase>(
-      () => EnsurePersonalWorkspaceUseCase(getIt<HouseholdRepository>()),
-    );
-  }
-
-  if (!getIt.isRegistered<WatchHouseholdMembersUseCase>()) {
-    getIt.registerLazySingleton<WatchHouseholdMembersUseCase>(
-      () => WatchHouseholdMembersUseCase(getIt<HouseholdRepository>()),
-    );
-  }
-
-  if (!getIt.isRegistered<WatchHouseholdInvitationsUseCase>()) {
-    getIt.registerLazySingleton<WatchHouseholdInvitationsUseCase>(
-      () => WatchHouseholdInvitationsUseCase(getIt<HouseholdRepository>()),
-    );
-  }
-
-  if (!getIt.isRegistered<UpdateHouseholdMemberRoleUseCase>()) {
-    getIt.registerFactory<UpdateHouseholdMemberRoleUseCase>(
-      () => UpdateHouseholdMemberRoleUseCase(getIt<HouseholdRepository>()),
-    );
-  }
-
-  if (!getIt.isRegistered<RemoveHouseholdMemberUseCase>()) {
-    getIt.registerFactory<RemoveHouseholdMemberUseCase>(
-      () => RemoveHouseholdMemberUseCase(getIt<HouseholdRepository>()),
-    );
-  }
-
-  if (!getIt.isRegistered<SendHouseholdInvitationUseCase>()) {
-    getIt.registerFactory<SendHouseholdInvitationUseCase>(
-      () => SendHouseholdInvitationUseCase(getIt<HouseholdRepository>()),
-    );
-  }
-
-  if (!getIt.isRegistered<CancelHouseholdInvitationUseCase>()) {
-    getIt.registerFactory<CancelHouseholdInvitationUseCase>(
-      () => CancelHouseholdInvitationUseCase(getIt<HouseholdRepository>()),
-    );
-  }
-
-  if (!getIt.isRegistered<HouseholdOnboardingCubit>()) {
-    getIt.registerFactory<HouseholdOnboardingCubit>(
-      () => HouseholdOnboardingCubit(
-        getIt<CreateHouseholdUseCase>(),
-        getIt<EnsurePersonalWorkspaceUseCase>(),
-        getIt<CurrentWorkspace>(),
-      ),
-    );
-  }
-
-  if (!getIt.isRegistered<WorkspaceMembersBloc>()) {
-    getIt.registerFactory<WorkspaceMembersBloc>(
-      () => WorkspaceMembersBloc(
-        getIt<WatchHouseholdMembersUseCase>(),
-        getIt<WatchHouseholdInvitationsUseCase>(),
-        getIt<UpdateHouseholdMemberRoleUseCase>(),
-        getIt<RemoveHouseholdMemberUseCase>(),
-        getIt<SendHouseholdInvitationUseCase>(),
-        getIt<CancelHouseholdInvitationUseCase>(),
-      ),
-    );
-  }
 
   return getIt;
 }

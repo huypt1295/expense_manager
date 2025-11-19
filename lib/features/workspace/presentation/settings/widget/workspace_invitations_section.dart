@@ -1,4 +1,4 @@
-import 'package:expense_manager/features/workspace/domain/entities/household_invitation_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_invitation_entity.dart';
 import 'package:expense_manager/features/workspace/presentation/settings/bloc/workspace_members_bloc.dart';
 import 'package:expense_manager/features/workspace/presentation/settings/bloc/workspace_members_event.dart';
 import 'package:expense_manager/features/workspace/presentation/settings/bloc/workspace_members_state.dart';
@@ -38,17 +38,17 @@ class WorkspaceInvitationsSection extends StatelessWidget {
 class _InvitationTile extends StatelessWidget {
   const _InvitationTile({required this.invitation, required this.canCancel});
 
-  final HouseholdInvitationEntity invitation;
+  final WorkspaceInvitationEntity invitation;
   final bool canCancel;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final statusLabel = switch (invitation.status) {
-      HouseholdInvitationStatus.pending => 'Dang cho',
-      HouseholdInvitationStatus.accepted => 'Da chap nhan',
-      HouseholdInvitationStatus.revoked => 'Da thu hoi',
-      HouseholdInvitationStatus.expired => 'Het han',
+      WorkspaceInvitationStatus.pending => 'Dang cho',
+      WorkspaceInvitationStatus.accepted => 'Da chap nhan',
+      WorkspaceInvitationStatus.revoked => 'Da thu hoi',
+      WorkspaceInvitationStatus.expired => 'Het han',
     };
 
     return Material(
@@ -79,7 +79,7 @@ class _InvitationTile extends StatelessWidget {
               ),
             ),
             if (canCancel &&
-                invitation.status == HouseholdInvitationStatus.pending)
+                invitation.status == WorkspaceInvitationStatus.pending)
               TextButton(
                 onPressed: () {
                   context.read<WorkspaceMembersBloc>().add(

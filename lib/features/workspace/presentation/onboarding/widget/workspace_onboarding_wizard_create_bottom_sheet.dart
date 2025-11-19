@@ -1,124 +1,20 @@
 import 'package:expense_manager/core/auth/current_user.dart';
-import 'package:expense_manager/features/workspace/presentation/onboarding/cubit/household_onboarding_cubit.dart';
-import 'package:expense_manager/features/workspace/presentation/onboarding/cubit/household_onboarding_state.dart';
-import 'package:expense_manager/features/workspace/presentation/settings/workspace_management_sheet.dart';
+import 'package:expense_manager/features/workspace/presentation/onboarding/cubit/workspace_onboarding_cubit.dart';
+import 'package:expense_manager/features/workspace/presentation/onboarding/cubit/workspace_onboarding_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_core/flutter_core.dart';
+import 'package:flutter_resource/flutter_resource.dart';
 
-class HouseholdOnboardingWizard {
-  const HouseholdOnboardingWizard._();
-
-  static Future<void> show(BuildContext context) async {
-    final shouldCreate = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _WorkspaceEmptySheet(),
-    );
-
-    if (shouldCreate != true) {
-      return;
-    }
-
-    final creationResult =
-        await showModalBottomSheet<_HouseholdCreationResult>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => BlocProvider(
-        create: (_) => tpGetIt.get<HouseholdOnboardingCubit>(),
-        child: const _WorkspaceCreateSheet(),
-      ),
-    );
-
-    if (creationResult == null) {
-      return;
-    }
-
-    await WorkspaceManagementSheet.show(
-      context,
-      householdId: creationResult.householdId,
-      householdName: creationResult.householdName,
-      currentRole: 'owner',
-    );
-  }
-}
-
-class _WorkspaceEmptySheet extends StatelessWidget {
-  const _WorkspaceEmptySheet();
+class WorkspaceOnboardingWizardCreateBottomSheet extends StatefulWidget {
+  const WorkspaceOnboardingWizardCreateBottomSheet({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return _BaseBottomSheet(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Workspace',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.of(context).maybePop(false),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Center(
-              child: CircleAvatar(
-                radius: 36,
-                backgroundColor:
-                    Theme.of(context).colorScheme.primaryContainer,
-                child: Icon(
-                  Icons.group_outlined,
-                  size: 36,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Bạn chưa tham gia workspace nào',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Tạo workspace để chia sẻ giao dịch và ngân sách với gia đình hoặc đồng nghiệp',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: () => Navigator.of(context).maybePop(true),
-                icon: const Icon(Icons.add),
-                label: const Text('Tạo workspace'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  State<WorkspaceOnboardingWizardCreateBottomSheet> createState() =>
+      WorkspaceOnboardingWizardCreateBottomSheetState();
 }
 
-class _WorkspaceCreateSheet extends StatefulWidget {
-  const _WorkspaceCreateSheet();
-
-  @override
-  State<_WorkspaceCreateSheet> createState() => _WorkspaceCreateSheetState();
-}
-
-class _WorkspaceCreateSheetState extends State<_WorkspaceCreateSheet> {
+class WorkspaceOnboardingWizardCreateBottomSheetState
+    extends State<WorkspaceOnboardingWizardCreateBottomSheet> {
   late final TextEditingController _controller;
 
   @override
@@ -136,19 +32,19 @@ class _WorkspaceCreateSheetState extends State<_WorkspaceCreateSheet> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    return BlocConsumer<HouseholdOnboardingCubit, HouseholdOnboardingState>(
+    return BlocConsumer<WorkspaceOnboardingCubit, WorkspaceOnboardingState>(
       listenWhen: (previous, current) =>
           previous.errorMessage != current.errorMessage ||
           previous.completedHouseholdId != current.completedHouseholdId,
       listener: (context, state) {
         if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage!)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
         }
         if (state.isCompleted) {
           Navigator.of(context).maybePop(
-            _HouseholdCreationResult(
+            HouseholdCreationResult(
               householdId: state.completedHouseholdId!,
               householdName: state.name.trim(),
             ),
@@ -162,8 +58,7 @@ class _WorkspaceCreateSheetState extends State<_WorkspaceCreateSheet> {
             selection: TextSelection.collapsed(offset: state.name.length),
           );
         }
-        final owner =
-            tpGetIt.get<CurrentUser>().now()?.displayName ?? 'Bạn';
+        final owner = tpGetIt.get<CurrentUser>().now()?.displayName ?? 'Bạn';
         final theme = Theme.of(context);
         final isBusy = state.isSubmitting;
         final canSubmit = state.canSubmit && !isBusy;
@@ -181,13 +76,14 @@ class _WorkspaceCreateSheetState extends State<_WorkspaceCreateSheet> {
                   Row(
                     children: [
                       TextButton(
-                        onPressed:
-                            isBusy ? null : () => Navigator.of(context).maybePop(),
-                        child: const Text('Hủy'),
+                        onPressed: isBusy
+                            ? null
+                            : () => Navigator.of(context).maybePop(),
+                        child: Text(S.current.cancel),
                       ),
                       Expanded(
                         child: Text(
-                          'Tạo workspace',
+                          S.current.create_workspace,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
@@ -199,7 +95,7 @@ class _WorkspaceCreateSheetState extends State<_WorkspaceCreateSheet> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Chọn icon',
+                    S.current.workspace_wizard_choose_icon,
                     style: theme.textTheme.titleSmall,
                   ),
                   const SizedBox(height: 12),
@@ -213,8 +109,9 @@ class _WorkspaceCreateSheetState extends State<_WorkspaceCreateSheet> {
                         selected: state.iconIndex == index,
                         onTap: isBusy
                             ? null
-                            : () =>
-                                context.read<HouseholdOnboardingCubit>().selectIcon(index),
+                            : () => context
+                                  .read<WorkspaceOnboardingCubit>()
+                                  .selectIcon(index),
                       ),
                     ),
                   ),
@@ -223,11 +120,13 @@ class _WorkspaceCreateSheetState extends State<_WorkspaceCreateSheet> {
                     controller: _controller,
                     enabled: !isBusy,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      labelText: 'Tên workspace',
-                      hintText: 'VD: Gia đình Nguyễn',
+                    decoration: InputDecoration(
+                      labelText: S.current.create_workspace,
+                      hintText: 'VD: Gia đình Cam',
                     ),
-                    onChanged: context.read<HouseholdOnboardingCubit>().updateName,
+                    onChanged: context
+                        .read<WorkspaceOnboardingCubit>()
+                        .updateName,
                   ),
                   const SizedBox(height: 16),
                   if (state.name.trim().isNotEmpty)
@@ -241,8 +140,9 @@ class _WorkspaceCreateSheetState extends State<_WorkspaceCreateSheet> {
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: canSubmit
-                          ? () =>
-                              context.read<HouseholdOnboardingCubit>().submit()
+                          ? () => context
+                                .read<WorkspaceOnboardingCubit>()
+                                .submit()
                           : null,
                       child: isBusy
                           ? const SizedBox(
@@ -250,7 +150,7 @@ class _WorkspaceCreateSheetState extends State<_WorkspaceCreateSheet> {
                               width: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Text('Tạo workspace'),
+                          : Text(S.current.create_workspace),
                     ),
                   ),
                 ],
@@ -292,10 +192,7 @@ class _WorkspacePreviewCard extends StatelessWidget {
           CircleAvatar(
             radius: 24,
             backgroundColor: option.backgroundColor,
-            child: Icon(
-              option.icon,
-              color: Colors.white,
-            ),
+            child: Icon(option.icon, color: Colors.white),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -303,15 +200,9 @@ class _WorkspacePreviewCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  name,
-                  style: theme.textTheme.titleMedium,
-                ),
+                Text(name, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 4),
-                Text(
-                  'Owner: $ownerName',
-                  style: theme.textTheme.bodySmall,
-                ),
+                Text('Owner: $ownerName', style: theme.textTheme.bodySmall),
               ],
             ),
           ),
@@ -348,15 +239,9 @@ class _IconChoice extends StatelessWidget {
           decoration: BoxDecoration(
             color: option.backgroundColor.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: borderColor,
-              width: 2,
-            ),
+            border: Border.all(color: borderColor, width: 2),
           ),
-          child: Icon(
-            option.icon,
-            color: option.backgroundColor.darken(),
-          ),
+          child: Icon(option.icon, color: option.backgroundColor.darken()),
         ),
       ),
     );
@@ -407,17 +292,14 @@ class _BaseBottomSheet extends StatelessWidget {
 }
 
 class _IconOption {
-  const _IconOption({
-    required this.icon,
-    required this.backgroundColor,
-  });
+  const _IconOption({required this.icon, required this.backgroundColor});
 
   final IconData icon;
   final Color backgroundColor;
 }
 
-class _HouseholdCreationResult {
-  const _HouseholdCreationResult({
+class HouseholdCreationResult {
+  const HouseholdCreationResult({
     required this.householdId,
     required this.householdName,
   });
@@ -437,10 +319,22 @@ extension on Color {
 const List<_IconOption> _iconOptions = [
   _IconOption(icon: Icons.home_rounded, backgroundColor: Color(0xFF8E7CFF)),
   _IconOption(icon: Icons.groups_rounded, backgroundColor: Color(0xFF7BD88A)),
-  _IconOption(icon: Icons.business_center_rounded, backgroundColor: Color(0xFFFFB74D)),
-  _IconOption(icon: Icons.apartment_rounded, backgroundColor: Color(0xFF66BFFF)),
-  _IconOption(icon: Icons.track_changes_rounded, backgroundColor: Color(0xFFFF8A65)),
+  _IconOption(
+    icon: Icons.business_center_rounded,
+    backgroundColor: Color(0xFFFFB74D),
+  ),
+  _IconOption(
+    icon: Icons.apartment_rounded,
+    backgroundColor: Color(0xFF66BFFF),
+  ),
+  _IconOption(
+    icon: Icons.track_changes_rounded,
+    backgroundColor: Color(0xFFFF8A65),
+  ),
   _IconOption(icon: Icons.savings_rounded, backgroundColor: Color(0xFFFFCF66)),
-  _IconOption(icon: Icons.attach_money_rounded, backgroundColor: Color(0xFF4DB6AC)),
+  _IconOption(
+    icon: Icons.attach_money_rounded,
+    backgroundColor: Color(0xFF4DB6AC),
+  ),
   _IconOption(icon: Icons.wb_sunny_rounded, backgroundColor: Color(0xFFFFE082)),
 ];

@@ -61,5 +61,9 @@
   "this_action_cannot_be_undone": "This action cannot be undone. All data will be permanently deleted.",
   "enter_workspace_name": "Enter workspace name to confirm",
   "name_not_matching": "Name does not match",
-  "delete": "Delete"
+  "delete": "Delete",
+  "workspace_wizard_title": "You haven't joined any workspace yet",
+  "workspace_wizard_description": "Create a workspace to share expenses and budgets with family or friends",
+  "workspace_wizard_choose_icon": "Choose icon",
+  "workspace_name": "Workspace name"
 }

@@ -13,7 +13,6 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.state, required this.child});
 
   static const double _bottomNavHeight = 75.0;
-  static const double _bottomNavVisualHeight = 100.0;
 
   final GoRouterState state;
   final Widget child;
@@ -32,13 +31,10 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildHomeBody(BuildContext context) {
-    final double bottomPadding =
-        MediaQuery.of(context).padding.bottom + _bottomNavVisualHeight;
-
     return Container(
       color: context.tpColors.backgroundMain,
       child: Padding(
-        padding: EdgeInsets.only(bottom: bottomPadding),
+        padding: EdgeInsets.only(bottom: 0),
         child: SafeArea(
           bottom: false,
           child: KeyedSubtree(

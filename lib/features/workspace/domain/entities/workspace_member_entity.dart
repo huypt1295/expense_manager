@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum HouseholdMemberStatus {
+enum WorkspaceMemberStatus {
   active,
   pendingRemoval,
 }
@@ -19,7 +19,7 @@ class WorkspaceMemberEntity extends Equatable {
   final String displayName;
   final String email;
   final String role;
-  final HouseholdMemberStatus status;
+  final WorkspaceMemberStatus status;
   final DateTime joinedAt;
 
   bool get isOwner => role.toLowerCase() == 'owner';
@@ -33,7 +33,7 @@ class WorkspaceMemberEntity extends Equatable {
     String? displayName,
     String? email,
     String? role,
-    HouseholdMemberStatus? status,
+    WorkspaceMemberStatus? status,
     DateTime? joinedAt,
   }) {
     return WorkspaceMemberEntity(

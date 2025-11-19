@@ -1,5 +1,5 @@
-import 'package:expense_manager/features/workspace/domain/entities/household_entity.dart';
-import 'package:expense_manager/features/workspace/domain/repositories/household_repository.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_detail_entity.dart';
+import 'package:expense_manager/features/workspace/domain/repositories/workspace_detail_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
 class CreateHouseholdParams {
@@ -15,12 +15,12 @@ class CreateHouseholdParams {
 }
 
 @injectable
-class CreateHouseholdUseCase {
-  const CreateHouseholdUseCase(this._repository);
+class CreateWorkspaceUseCase {
+  const CreateWorkspaceUseCase(this._repository);
 
-  final HouseholdRepository _repository;
+  final WorkspaceDetailRepository _repository;
 
-  Future<HouseholdEntity> call(CreateHouseholdParams params) {
+  Future<WorkspaceDetailEntity> call(CreateHouseholdParams params) {
     return _repository.createHousehold(
       name: params.name,
       currencyCode: params.currencyCode,

@@ -4,9 +4,10 @@ import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_resource/l10n/gen/l10n.dart';
 
 class DeleteWorkspaceSheet extends StatefulWidget {
-  const DeleteWorkspaceSheet({super.key, required this.workspaceName});
+  const DeleteWorkspaceSheet({super.key, required this.workspaceName, required this.onDelete});
 
   final String workspaceName;
+  final VoidCallback onDelete;
 
   @override
   State<DeleteWorkspaceSheet> createState() => _DeleteWorkspaceSheetState();
@@ -46,7 +47,7 @@ class _DeleteWorkspaceSheetState extends State<DeleteWorkspaceSheet> {
           onChanged: (_) => setState(() {}),
         ),
       ),
-      onConfirm: canConfirm ? () => Navigator.of(context).maybePop(true) : null,
+      onConfirm: true ? widget.onDelete : null,
     );
   }
 }

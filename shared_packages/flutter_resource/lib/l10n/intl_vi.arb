@@ -42,7 +42,7 @@
   "workspace": "Workspace",
   "only_me": "Chỉ mình tôi",
   "get_started": "Bắt đầu",
-  "create_workspace": "Tạo workspace chung",
+  "create_workspace": "Tạo workspace",
   "workspace_banner_content": "Bạn có thể mời người thân và quản lý chi tiêu chung tại đây.",
   "edit_name": "Đổi tên",
   "workspace_info_content": "Bạn đang ở workspace này. Dữ liệu giao dịch & ngân sách hiển thị theo workspace.",
@@ -61,6 +61,10 @@
   "this_action_cannot_be_undone": "Hành động này không thể hoàn tác. Tất cả dữ liệu sẽ bị xóa vĩnh viễn.",
   "enter_workspace_name": "Nhập tên workspace để xác nhận",
   "name_not_matching": "Tên không khớp",
-  "delete": "Xóa"
+  "delete": "Xóa",
+  "workspace_wizard_title": "Bạn chưa tham gia workspace nào",
+  "workspace_wizard_description": "Tạo workspace để chia sẻ giao dịch và ngân sách với gia đình hoặc đồng nghiệp",
+  "workspace_wizard_choose_icon": "Chọn icon",
+  "workspace_name": "Tên workspace"
 
 }

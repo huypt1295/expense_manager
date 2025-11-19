@@ -1,4 +1,4 @@
-import 'package:expense_manager/features/workspace/domain/repositories/household_repository.dart';
+import 'package:expense_manager/features/workspace/domain/repositories/workspace_detail_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
 class UpdateHouseholdMemberRoleParams {
@@ -14,10 +14,10 @@ class UpdateHouseholdMemberRoleParams {
 }
 
 @injectable
-class UpdateHouseholdMemberRoleUseCase {
-  const UpdateHouseholdMemberRoleUseCase(this._repository);
+class UpdateWorkspaceMemberRoleUseCase {
+  const UpdateWorkspaceMemberRoleUseCase(this._repository);
 
-  final HouseholdRepository _repository;
+  final WorkspaceDetailRepository _repository;
 
   Future<void> call(UpdateHouseholdMemberRoleParams params) {
     return _repository.updateMemberRole(

@@ -498,6 +498,46 @@ class S {
   String get delete {
     return Intl.message('Delete', name: 'delete', desc: '', args: []);
   }
+
+  /// `You haven't joined any workspace yet`
+  String get workspace_wizard_title {
+    return Intl.message(
+      'You haven\'t joined any workspace yet',
+      name: 'workspace_wizard_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create a workspace to share expenses and budgets with family or friends`
+  String get workspace_wizard_description {
+    return Intl.message(
+      'Create a workspace to share expenses and budgets with family or friends',
+      name: 'workspace_wizard_description',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose icon`
+  String get workspace_wizard_choose_icon {
+    return Intl.message(
+      'Choose icon',
+      name: 'workspace_wizard_choose_icon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Workspace name`
+  String get workspace_name {
+    return Intl.message(
+      'Workspace name',
+      name: 'workspace_name',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

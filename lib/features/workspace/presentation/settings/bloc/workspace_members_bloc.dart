@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import 'package:expense_manager/features/workspace/domain/entities/household_invitation_entity.dart';
-import 'package:expense_manager/features/workspace/domain/entities/household_member_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_invitation_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_member_entity.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/cancel_household_invitation_usecase.dart';
+import 'package:expense_manager/features/workspace/domain/usecases/delete_household_usecase.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/remove_household_member_usecase.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/send_household_invitation_usecase.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/update_household_member_role_usecase.dart';
@@ -20,6 +21,7 @@ class WorkspaceMembersBloc
     this._watchInvitationsUseCase,
     this._updateMemberRoleUseCase,
     this._removeMemberUseCase,
+    this._deleteHouseholdUseCase,
     this._sendInvitationUseCase,
     this._cancelInvitationUseCase,
   ) : super(const WorkspaceMembersState()) {
@@ -28,6 +30,7 @@ class WorkspaceMembersBloc
     on<WorkspaceMembersErrorOccurred>(_onErrorOccurred);
     on<WorkspaceMembersRoleChanged>(_onRoleChanged);
     on<WorkspaceMembersRemoved>(_onRemoved);
+    on<DeleteWorkspaceEvent>(_deleteWorkspace);
     on<WorkspaceMembersInvitationSent>(_onInvitationSent);
     on<WorkspaceMembersInvitationCancelled>(_onInvitationCancelled);
   }
@@ -36,11 +39,12 @@ class WorkspaceMembersBloc
   final WatchHouseholdInvitationsUseCase _watchInvitationsUseCase;
   final UpdateHouseholdMemberRoleUseCase _updateMemberRoleUseCase;
   final RemoveHouseholdMemberUseCase _removeMemberUseCase;
+  final DeleteHouseholdUseCase _deleteHouseholdUseCase;
   final SendHouseholdInvitationUseCase _sendInvitationUseCase;
   final CancelHouseholdInvitationUseCase _cancelInvitationUseCase;
 
   StreamSubscription<List<WorkspaceMemberEntity>>? _membersSubscription;
-  StreamSubscription<List<HouseholdInvitationEntity>>? _invitationsSubscription;
+  StreamSubscription<List<WorkspaceInvitationEntity>>? _invitationsSubscription;
 
   Future<void> _onStarted(
     WorkspaceMembersStarted event,
@@ -142,6 +146,21 @@ class WorkspaceMembersBloc
       RemoveHouseholdMemberParams(
         householdId: state.householdId,
         memberId: event.memberId,
+      ),
+    );
+  }
+
+  Future<void> _deleteWorkspace(
+    DeleteWorkspaceEvent event,
+    Emitter<WorkspaceMembersState> emit,
+  ) async {
+    if (!state.isOwner) {
+      return;
+    }
+    await _deleteHouseholdUseCase(
+      DeleteHouseholdParams(
+        userId: state.currentUserId,
+        workspaceId: state.householdId,
       ),
     );
   }

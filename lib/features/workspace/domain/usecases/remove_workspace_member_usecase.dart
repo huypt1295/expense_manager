@@ -1,4 +1,4 @@
-import 'package:expense_manager/features/workspace/domain/repositories/household_repository.dart';
+import 'package:expense_manager/features/workspace/domain/repositories/workspace_detail_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
 class RemoveHouseholdMemberParams {
@@ -12,10 +12,10 @@ class RemoveHouseholdMemberParams {
 }
 
 @injectable
-class RemoveHouseholdMemberUseCase {
-  const RemoveHouseholdMemberUseCase(this._repository);
+class RemoveWorkspaceMemberUseCase {
+  const RemoveWorkspaceMemberUseCase(this._repository);
 
-  final HouseholdRepository _repository;
+  final WorkspaceDetailRepository _repository;
 
   Future<void> call(RemoveHouseholdMemberParams params) {
     return _repository.removeMember(

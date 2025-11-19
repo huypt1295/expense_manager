@@ -52,13 +52,7 @@ class WorkspaceInviteForm extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        PopupMenuButton<int>(
-          tooltip: '',
-          color: context.tpColors.surfaceMain,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: context.tpColors.borderDefault, width: 1),
-          ),
+        CommonPopupMenu<int>(
           itemBuilder: (context) => [
             PopupMenuItem<int>(
               value: 0,

@@ -1,5 +1,5 @@
-import 'package:expense_manager/features/workspace/domain/entities/household_invitation_entity.dart';
-import 'package:expense_manager/features/workspace/domain/entities/household_member_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_invitation_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_member_entity.dart';
 import 'package:flutter_core/flutter_core.dart';
 
 abstract class WorkspaceMembersEvent extends BaseBlocEvent with EquatableMixin {
@@ -23,8 +23,12 @@ class WorkspaceMembersStarted extends WorkspaceMembersEvent {
   final String currentUserRole;
 
   @override
-  List<Object?> get props =>
-      <Object?>[householdId, householdName, currentUserId, currentUserRole];
+  List<Object?> get props => <Object?>[
+    householdId,
+    householdName,
+    currentUserId,
+    currentUserRole,
+  ];
 }
 
 class WorkspaceMembersRoleChanged extends WorkspaceMembersEvent {
@@ -75,7 +79,7 @@ class WorkspaceMembersDataUpdated extends WorkspaceMembersEvent {
   });
 
   final List<WorkspaceMemberEntity> members;
-  final List<HouseholdInvitationEntity> invitations;
+  final List<WorkspaceInvitationEntity> invitations;
 
   @override
   List<Object?> get props => <Object?>[members, invitations];
@@ -90,3 +94,8 @@ class WorkspaceMembersErrorOccurred extends WorkspaceMembersEvent {
   List<Object?> get props => <Object?>[message];
 }
 
+class DeleteWorkspaceEvent extends WorkspaceMembersEvent {
+
+  @override
+  List<Object?> get props => <Object?>[];
+}

@@ -119,5 +119,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "workspace_info_content": MessageLookupByLibrary.simpleMessage(
       "You are currently in this workspace. Transaction and budget data displayed according to the workspace.",
     ),
+    "workspace_name": MessageLookupByLibrary.simpleMessage("Workspace name"),
+    "workspace_wizard_choose_icon": MessageLookupByLibrary.simpleMessage(
+      "Choose icon",
+    ),
+    "workspace_wizard_description": MessageLookupByLibrary.simpleMessage(
+      "Create a workspace to share expenses and budgets with family or friends",
+    ),
+    "workspace_wizard_title": MessageLookupByLibrary.simpleMessage(
+      "You haven\'t joined any workspace yet",
+    ),
   };
 }

@@ -1,7 +1,7 @@
 import 'package:flutter_core/flutter_core.dart';
 
-class HouseholdOnboardingState extends BaseBlocState with EquatableMixin {
-  const HouseholdOnboardingState({
+class WorkspaceOnboardingState extends BaseBlocState with EquatableMixin {
+  const WorkspaceOnboardingState({
     this.name = '',
     this.iconIndex = 0,
     this.isSubmitting = false,
@@ -19,7 +19,7 @@ class HouseholdOnboardingState extends BaseBlocState with EquatableMixin {
 
   bool get isCompleted => completedHouseholdId != null;
 
-  HouseholdOnboardingState copyWith({
+  WorkspaceOnboardingState copyWith({
     String? name,
     int? iconIndex,
     bool? isSubmitting,
@@ -27,7 +27,7 @@ class HouseholdOnboardingState extends BaseBlocState with EquatableMixin {
     String? errorMessage,
     String? completedHouseholdId,
   }) {
-    return HouseholdOnboardingState(
+    return WorkspaceOnboardingState(
       name: name ?? this.name,
       iconIndex: iconIndex ?? this.iconIndex,
       isSubmitting: isSubmitting ?? this.isSubmitting,
