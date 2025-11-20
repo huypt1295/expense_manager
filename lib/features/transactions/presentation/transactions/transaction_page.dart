@@ -119,6 +119,8 @@ class _TransactionViewState extends State<_TransactionView> {
       );
     } else if (effect is TransactionsShowErrorEffect) {
       emitUi.showSnackBar(SnackBar(content: Text(effect.message)));
+    } else if (effect is TransactionsShowSuccessEffect) {
+      emitUi.showSnackBar(SnackBar(content: Text(effect.message)));
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_event.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/budget_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -12,10 +13,12 @@ class BudgetSliverListWidget extends BaseStatelessWidget {
     super.key,
     required this.budgets,
     required this.progress,
+    required this.canManage,
   });
 
   final List<BudgetEntity> budgets;
   final Map<String, BudgetProgress> progress;
+  final bool canManage;
 
   @override
   Widget buildContent(BuildContext context) {
@@ -31,6 +34,7 @@ class BudgetSliverListWidget extends BaseStatelessWidget {
             return BudgetItem(
               budget: budget,
               progress: progress,
+              canManage: canManage,
               onEdit: () => context.read<BudgetBloc>().add(
                 BudgetShowDialogAdd(budget: budget),
               ),

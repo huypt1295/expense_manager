@@ -8,6 +8,7 @@ class UserProfileModel {
     this.displayName,
     this.address,
     this.avatarUrl,
+    this.defaultWorkspaceId,
   });
 
   final String uid;
@@ -15,6 +16,7 @@ class UserProfileModel {
   final String? displayName;
   final String? address;
   final String? avatarUrl;
+  final String? defaultWorkspaceId;
 
   UserProfileEntity toEntity() {
     return UserProfileEntity(
@@ -23,6 +25,7 @@ class UserProfileModel {
       displayName: displayName,
       address: address,
       avatarUrl: avatarUrl,
+      defaultWorkspaceId: defaultWorkspaceId,
     );
   }
 
@@ -32,6 +35,7 @@ class UserProfileModel {
       'displayName': displayName,
       'address': address,
       'avatarUrl': avatarUrl,
+      'defaultWorkspaceId': defaultWorkspaceId,
       'updatedAt': FieldValue.serverTimestamp(),
     };
     if (!merge) {
@@ -50,6 +54,7 @@ class UserProfileModel {
       displayName: data['displayName'] as String?,
       address: data['address'] as String?,
       avatarUrl: data['avatarUrl'] as String?,
+      defaultWorkspaceId: data['defaultWorkspaceId'] as String?,
     );
   }
 
@@ -60,6 +65,7 @@ class UserProfileModel {
       displayName: entity.displayName,
       address: entity.address,
       avatarUrl: entity.avatarUrl,
+      defaultWorkspaceId: entity.defaultWorkspaceId,
     );
   }
 }

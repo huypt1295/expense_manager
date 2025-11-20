@@ -105,7 +105,7 @@ class CommonTextFormField extends StatelessWidget {
               border: border,
               enabledBorder: border,
               focusedBorder: border.copyWith(
-                borderSide: BorderSide(color: colors.borderDefault),
+                borderSide: BorderSide(color: colors.borderNeutralComponent),
               ),
               disabledBorder: border,
               errorBorder: border.copyWith(

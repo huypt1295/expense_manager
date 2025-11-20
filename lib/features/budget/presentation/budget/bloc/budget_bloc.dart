@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:expense_manager/core/constants/data_constant.dart';
+import 'package:expense_manager/core/workspace/current_workspace.dart';
 import 'package:expense_manager/features/budget/domain/entities/budget_entity.dart';
 import 'package:expense_manager/features/budget/domain/entities/budget_progress.dart';
 import 'package:expense_manager/features/budget/domain/usecases/add_budget_usecase.dart';
@@ -28,6 +29,7 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     this._deleteBudgetUseCase,
     this._watchTransactionsUseCase,
     this._categoriesService,
+    this._currentWorkspace,
   ) : super(const BudgetState()) {
     on<BudgetStarted>(_onStarted);
     on<BudgetShowDialogAdd>(_showDialogAddBudget);
@@ -42,12 +44,16 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     on<BudgetCategoriesRequested>(_onCategoriesRequested);
   }
 
+  static const String _permissionErrorMessage =
+      'You do not have permission to manage budgets in this workspace.';
+
   final WatchBudgetsUseCase _watchBudgetsUseCase;
   final AddBudgetUseCase _addBudgetUseCase;
   final UpdateBudgetUseCase _updateBudgetUseCase;
   final DeleteBudgetUseCase _deleteBudgetUseCase;
   final WatchTransactionsUseCase _watchTransactionsUseCase;
   final CategoriesService _categoriesService;
+  final CurrentWorkspace _currentWorkspace;
 
   StreamSubscription<List<BudgetEntity>>? _budgetsSubscription;
   StreamSubscription<List<TransactionEntity>>? _transactionsSubscription;
@@ -101,6 +107,9 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     BudgetShowDialogAdd event,
     Emitter<BudgetState> emit,
   ) {
+    if (!_shouldAllowManage(emit)) {
+      return;
+    }
     emitEffect(BudgetShowDialogAddEffect(budget: event.budget));
   }
 
@@ -137,6 +146,10 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
   }
 
   Future<void> _onAdded(BudgetAdded event, Emitter<BudgetState> emit) async {
+    if (!_shouldAllowManage(emit)) {
+      return;
+    }
+
     await runResult<void>(
       emit: emit,
       task: () => _addBudgetUseCase(AddBudgetParams(event.entity)),
@@ -156,6 +169,10 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     BudgetUpdated event,
     Emitter<BudgetState> emit,
   ) async {
+    if (!_shouldAllowManage(emit)) {
+      return;
+    }
+
     await runResult<void>(
       emit: emit,
       task: () => _updateBudgetUseCase(UpdateBudgetParams(event.entity)),
@@ -177,6 +194,10 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
   ) {
     _commitPendingDeletion();
 
+    if (!_shouldAllowManage(emit)) {
+      return;
+    }
+
     final currentItems = state.budgets;
     final index = currentItems.indexWhere((item) => item.id == event.entity.id);
     if (index == -1) {
@@ -190,7 +211,7 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     _startPendingDeletionTimer();
 
     emitEffect(
-      BudgetShowUndoDeleteEffect(
+      const BudgetShowUndoDeleteEffect(
         message: 'Budget deleted',
         actionLabel: 'Undo',
         duration: kUndoDuration,
@@ -241,6 +262,20 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
     BudgetDeleted event,
     Emitter<BudgetState> emit,
   ) async {
+    if (!_shouldAllowManage(emit)) {
+      final committing = _committingDeletion;
+      if (committing != null) {
+        final items = List<BudgetEntity>.of(state.budgets)
+          ..removeWhere((item) => item.id == committing.entity.id);
+        final insertIndex = committing.index.clamp(0, items.length);
+        items.insert(insertIndex, committing.entity);
+        _committingDeletion = null;
+
+        emit(state.copyWith(budgets: items, clearError: true));
+      }
+      return;
+    }
+
     await runResult<void>(
       emit: emit,
       task: () => _deleteBudgetUseCase(DeleteBudgetParams(event.id)),
@@ -366,6 +401,27 @@ class BudgetBloc extends BaseBloc<BudgetEvent, BudgetState, BudgetEffect> {
 
   BudgetState _errorState(String message) {
     return state.copyWith(isLoading: false, errorMessage: message);
+  }
+
+  bool _shouldAllowManage(Emitter<BudgetState> emit) {
+    if (_canManageCurrentWorkspace()) {
+      return true;
+    }
+
+    emit(
+      state.copyWith(isLoading: false, errorMessage: _permissionErrorMessage),
+    );
+    emitEffect(const BudgetShowErrorEffect(_permissionErrorMessage));
+    return false;
+  }
+
+  bool _canManageCurrentWorkspace() {
+    final snapshot = _currentWorkspace.now();
+    if (snapshot == null || snapshot.isPersonal) {
+      return true;
+    }
+    final role = (snapshot.role ?? '').toLowerCase().trim();
+    return role == 'owner' || role == 'editor';
   }
 
   @override

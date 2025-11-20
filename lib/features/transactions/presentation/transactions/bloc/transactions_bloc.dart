@@ -5,6 +5,7 @@ import 'package:expense_manager/features/transactions/domain/entities/transactio
 import 'package:expense_manager/features/transactions/domain/usecases/add_transaction_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/delete_transaction_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/update_transaction_usecase.dart';
+import 'package:expense_manager/features/transactions/domain/usecases/share_transaction_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/watch_transactions_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/transactions_failure_mapper.dart';
 import 'package:expense_manager/features/transactions/presentation/transactions/bloc/transactions_effect.dart';
@@ -20,7 +21,10 @@ class TransactionsBloc
     this._addTransactionUseCase,
     this._updateTransactionUseCase,
     this._deleteTransactionUseCase,
-  ) : super(const TransactionsState()) {
+    this._shareTransactionUseCase,
+    {Duration undoDuration = kUndoDuration,}
+  )   : _undoDuration = undoDuration,
+        super(const TransactionsState()) {
     on<TransactionsStarted>(_onStarted);
     on<TransactionsStreamChanged>(_onStreamChanged);
     on<TransactionsStreamFailed>(_onStreamFailed);
@@ -29,12 +33,15 @@ class TransactionsBloc
     on<TransactionsDeleteRequested>(_onDeleteRequested);
     on<TransactionsDeleteUndoRequested>(_onDeleteUndoRequested);
     on<TransactionsDeleted>(_onDeleted);
+    on<TransactionsShareRequested>(_onShareRequested);
   }
 
   final WatchTransactionsUseCase _watchTransactionsUseCase;
   final AddTransactionUseCase _addTransactionUseCase;
   final UpdateTransactionUseCase _updateTransactionUseCase;
   final DeleteTransactionUseCase _deleteTransactionUseCase;
+  final ShareTransactionUseCase _shareTransactionUseCase;
+  final Duration _undoDuration;
 
   StreamSubscription<List<TransactionEntity>>? _subscription;
   _PendingDeletion? _pendingDeletion;
@@ -163,7 +170,7 @@ class TransactionsBloc
       TransactionsShowUndoDeleteEffect(
         message: 'Transaction deleted',
         actionLabel: 'Undo',
-        duration: kUndoDuration,
+        duration: _undoDuration,
       ),
     );
   }
@@ -191,7 +198,7 @@ class TransactionsBloc
 
   void _startPendingDeletionTimer() {
     _pendingDeletionTimer?.cancel();
-    _pendingDeletionTimer = Timer(kUndoDuration, _commitPendingDeletion);
+    _pendingDeletionTimer = Timer(_undoDuration, _commitPendingDeletion);
   }
 
   void _commitPendingDeletion() {
@@ -248,6 +255,37 @@ class TransactionsBloc
       },
       trackKey: 'transactions.delete',
       spanName: 'transactions.delete',
+    );
+  }
+
+  Future<void> _onShareRequested(
+    TransactionsShareRequested event,
+    Emitter<TransactionsState> emit,
+  ) async {
+    await runResult<void>(
+      emit: emit,
+      task: () => _shareTransactionUseCase(
+        ShareTransactionParams(
+          entity: event.entity,
+          targetWorkspaceId: event.targetWorkspaceId,
+        ),
+      ),
+      onStart: (state) => state.copyWith(isLoading: true, clearError: true),
+      onOk: (state, _) {
+        emitEffect(
+          TransactionsShowSuccessEffect(
+            'Shared to ${event.targetWorkspaceName}',
+          ),
+        );
+        return state.copyWith(isLoading: false);
+      },
+      onErr: (currentState, failure) {
+        final message = failure.message ?? failure.code;
+        emitEffect(TransactionsShowErrorEffect(message));
+        emit(currentState.copyWith(isLoading: false, errorMessage: message));
+      },
+      trackKey: 'transactions.share',
+      spanName: 'transactions.share',
     );
   }
 
