@@ -23,7 +23,7 @@ void main() {
       householdContext = const WorkspaceContext(
         userId: uid,
         workspaceId: householdId,
-        type: WorkspaceType.household,
+        type: WorkspaceType.workspace,
       );
     });
 

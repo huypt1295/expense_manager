@@ -36,11 +36,11 @@ class WorkspaceRepositoryImpl implements WorkspaceRepository {
 
         remoteSubscription = _remoteDataSource.watchMemberships(uid).listen(
           (models) {
-            final households = models
-                .where((model) => model.type == WorkspaceType.household)
+            final workspaces = models
+                .where((model) => model.type == WorkspaceType.workspace)
                 .map((model) => model.toEntity())
                 .toList();
-            controller.add(<WorkspaceEntity>[personal, ...households]);
+            controller.add(<WorkspaceEntity>[personal, ...workspaces]);
           },
           onError: controller.addError,
         );

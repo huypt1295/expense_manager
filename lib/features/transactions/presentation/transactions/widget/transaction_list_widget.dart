@@ -35,11 +35,11 @@ class TransactionSliverListWidget extends BaseStatelessWidget {
     selectedWorkspace ??= workspaceState.workspaces.isNotEmpty
         ? workspaceState.workspaces.first
         : null;
-    final households = workspaceState.workspaces
+    final workspaces = workspaceState.workspaces
         .where((workspace) => !workspace.isPersonal)
         .toList(growable: false);
     final canShare =
-        (selectedWorkspace?.isPersonal ?? true) && households.isNotEmpty;
+        (selectedWorkspace?.isPersonal ?? true) && workspaces.isNotEmpty;
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -61,7 +61,7 @@ class TransactionSliverListWidget extends BaseStatelessWidget {
                   ? (transaction) => _showShareBottomSheet(
                         context,
                         transaction,
-                        households,
+                        workspaces,
                       )
                   : null,
             ),
@@ -87,9 +87,9 @@ class TransactionSliverListWidget extends BaseStatelessWidget {
   Future<void> _showShareBottomSheet(
     BuildContext context,
     TransactionEntity transaction,
-    List<WorkspaceEntity> households,
+    List<WorkspaceEntity> workspaces,
   ) async {
-    if (households.isEmpty) {
+    if (workspaces.isEmpty) {
       return;
     }
     final selected = await showModalBottomSheet<WorkspaceEntity>(
@@ -98,14 +98,14 @@ class TransactionSliverListWidget extends BaseStatelessWidget {
         return SafeArea(
           child: ListView.separated(
             shrinkWrap: true,
-            itemCount: households.length,
+            itemCount: workspaces.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (context, index) {
-              final household = households[index];
+              final workspace = workspaces[index];
               return ListTile(
                 leading: const Icon(Icons.group_outlined),
-                title: Text(household.name),
-                onTap: () => Navigator.of(context).pop(household),
+                title: Text(workspace.name),
+                onTap: () => Navigator.of(context).pop(workspace),
               );
             },
           ),

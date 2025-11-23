@@ -35,11 +35,13 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
           remoteSubscription = _remoteDataSource
               .watchTransactions(context)
               .listen(
-            (models) {
-              controller.add(_mapModels(models));
-            },
-            onError: controller.addError,
-          );
+                (models) {
+                  controller.add(_mapModels(models));
+                },
+                onError: (e, t) {
+                  controller.addError(e, t);
+                },
+              );
         } catch (error, stackTrace) {
           controller.addError(error, stackTrace);
         }
@@ -47,14 +49,19 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
 
       workspaceSubscription = _currentWorkspace.watch().listen(
         (snapshot) {
-          if (!controller.isClosed) {
+          if (!controller.isClosed && snapshot != null) {
             listenRemote();
           }
         },
-        onError: controller.addError,
+        onError: (e, t) {
+          controller.addError(e, t);
+        },
       );
 
-      listenRemote();
+      // Only listen if workspace is already available
+      if (_currentWorkspace.now() != null) {
+        listenRemote();
+      }
 
       controller
         ..onPause = () {
@@ -83,9 +90,7 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
     final id = entity.id.isEmpty
         ? _remoteDataSource.allocateId(context)
         : entity.id;
-    final model = TransactionModel.fromEntity(
-      entity.copyWith(id: id),
-    );
+    final model = TransactionModel.fromEntity(entity.copyWith(id: id));
     return _remoteDataSource.upsert(context, model);
   }
 
@@ -121,7 +126,7 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
     final targetContext = WorkspaceContext(
       userId: uid,
       workspaceId: workspaceId,
-      type: WorkspaceType.household,
+      type: WorkspaceType.workspace,
     );
 
     final newId = _remoteDataSource.allocateId(targetContext);
@@ -155,5 +160,4 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
     }
     return workspace.toContext(userId: uid);
   }
-
 }

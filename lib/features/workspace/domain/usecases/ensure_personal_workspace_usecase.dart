@@ -10,5 +10,14 @@ class EnsurePersonalWorkspaceUseCase {
   Future<void> call() {
     return _repository.ensurePersonalWorkspace();
   }
-}
 
+  Future<bool> verifyMemberExists({
+    required String workspaceId,
+    required String userId,
+  }) {
+    return _repository.verifyMemberExists(
+      workspaceId: workspaceId,
+      userId: userId,
+    );
+  }
+}

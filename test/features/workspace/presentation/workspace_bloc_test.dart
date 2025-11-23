@@ -61,7 +61,7 @@ void main() {
     final household = WorkspaceEntity(
       id: 'household-1',
       name: 'Family',
-      type: WorkspaceType.household,
+      type: WorkspaceType.workspace,
       role: 'editor',
     );
 
@@ -113,7 +113,7 @@ void main() {
       await currentWorkspace.select(
         CurrentWorkspaceSnapshot(
           id: household.id,
-          type: WorkspaceType.household,
+          type: WorkspaceType.workspace,
           name: household.name,
           role: household.role,
         ),

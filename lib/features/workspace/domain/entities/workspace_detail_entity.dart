@@ -9,7 +9,7 @@ class WorkspaceDetailEntity extends Equatable {
     required this.ownerId,
     required this.createdAt,
     required this.updatedAt,
-    this.type = WorkspaceType.household,
+    this.type = WorkspaceType.workspace,
   });
 
   final String id;

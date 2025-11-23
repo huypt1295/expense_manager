@@ -519,7 +519,7 @@ void main() {
       await currentWorkspace.select(
         const CurrentWorkspaceSnapshot(
           id: 'household-id',
-          type: WorkspaceType.household,
+          type: WorkspaceType.workspace,
           name: 'Household',
           role: 'viewer',
         ),

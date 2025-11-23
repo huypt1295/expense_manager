@@ -10,19 +10,22 @@ class WorkspaceDetailRemoteDataSource {
 
   final FirebaseFirestore _firestore;
 
-  CollectionReference<Map<String, dynamic>> get _households =>
+  CollectionReference<Map<String, dynamic>> get _workspaces =>
       _firestore.collection('workspaces');
 
-  CollectionReference<Map<String, dynamic>> _members(String householdId) {
-    return _households.doc(householdId).collection('members');
+  CollectionReference<Map<String, dynamic>> _members(String workspaceId) {
+    return _workspaces.doc(workspaceId).collection('members');
   }
 
-  CollectionReference<Map<String, dynamic>> _invitations(String householdId) {
-    return _households.doc(householdId).collection('invitations');
+  CollectionReference<Map<String, dynamic>> _invitations(String workspaceId) {
+    return _workspaces.doc(workspaceId).collection('invitations');
   }
 
-  Future<String> createHousehold(WorkspaceDetailModel model) async {
-    final doc = _households.doc();
+  Future<String> createWorkspace(WorkspaceDetailModel model) async {
+    // Use model.id if provided (for personal workspace), otherwise generate new ID
+    final doc = model.id.isNotEmpty
+        ? _workspaces.doc(model.id)
+        : _workspaces.doc();
     await doc.set(model.toFirestore());
     return doc.id;
   }
@@ -43,7 +46,6 @@ class WorkspaceDetailRemoteDataSource {
         .toList(growable: false);
   }
 
-  // Trong HouseholdRemote
   Future<void> deleteAllMembers(String workspaceId) async {
     final snapshot = await _members(workspaceId).get();
     final batch = _firestore.batch();
@@ -55,44 +57,44 @@ class WorkspaceDetailRemoteDataSource {
     await batch.commit();
   }
 
-  Future<void> deleteHousehold(String householdId, String userId) async {
-    final snapshot = await _members(householdId).doc(userId).get();
+  Future<void> deleteWorkspace(String workspaceId, String userId) async {
+    final snapshot = await _members(workspaceId).doc(userId).get();
     if (!snapshot.exists) return;
     final member = WorkspaceMemberModel.fromFirestore(snapshot);
     if (member.role != 'owner') return;
 
-    return _households.doc(householdId).delete();
+    return _workspaces.doc(workspaceId).delete();
   }
 
-  Future<void> updateHousehold(String id, WorkspaceDetailModel model) {
-    return _households
+  Future<void> updateWorkspace(String id, WorkspaceDetailModel model) {
+    return _workspaces
         .doc(id)
         .set(model.toFirestore(), SetOptions(merge: true));
   }
 
-  Future<void> upsertMember(String householdId, WorkspaceMemberModel model) {
+  Future<void> upsertMember(String workspaceId, WorkspaceMemberModel model) {
     return _members(
-      householdId,
+      workspaceId,
     ).doc(model.userId).set(model.toFirestore(), SetOptions(merge: true));
   }
 
-  Future<void> deleteMember(String householdId, String userId) {
-    return _members(householdId).doc(userId).delete();
+  Future<void> deleteMember(String workspaceId, String userId) {
+    return _members(workspaceId).doc(userId).delete();
   }
 
   Future<void> updateMemberRole(
-    String householdId,
+    String workspaceId,
     String userId,
     String role,
   ) {
-    return _members(householdId).doc(userId).set(<String, dynamic>{
+    return _members(workspaceId).doc(userId).set(<String, dynamic>{
       'role': role,
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
 
-  Stream<List<WorkspaceMemberModel>> watchMembers(String householdId) {
-    return _members(householdId)
+  Stream<List<WorkspaceMemberModel>> watchMembers(String workspaceId) {
+    return _members(workspaceId)
         .orderBy('joinedAt')
         .snapshots()
         .map(
@@ -103,31 +105,31 @@ class WorkspaceDetailRemoteDataSource {
   }
 
   Future<String> createInvitation(
-    String householdId,
+    String workspaceId,
     WorkspaceInvitationModel model,
   ) async {
-    final doc = _invitations(householdId).doc();
+    final doc = _invitations(workspaceId).doc();
     await doc.set(model.toFirestore());
     return doc.id;
   }
 
-  Future<void> deleteInvitation(String householdId, String invitationId) {
-    return _invitations(householdId).doc(invitationId).delete();
+  Future<void> deleteInvitation(String workspaceId, String invitationId) {
+    return _invitations(workspaceId).doc(invitationId).delete();
   }
 
   Future<void> updateInvitationStatus(
-    String householdId,
+    String workspaceId,
     String invitationId,
     String status,
   ) {
-    return _invitations(householdId).doc(invitationId).set(<String, dynamic>{
+    return _invitations(workspaceId).doc(invitationId).set(<String, dynamic>{
       'status': status,
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
 
-  Stream<List<WorkspaceInvitationModel>> watchInvitations(String householdId) {
-    return _invitations(householdId)
+  Stream<List<WorkspaceInvitationModel>> watchInvitations(String workspaceId) {
+    return _invitations(workspaceId)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map(

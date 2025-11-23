@@ -19,18 +19,18 @@ import 'package:flutter_core/flutter_core.dart';
 class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
   WorkspaceDetailRepositoryImpl(
     this._firestore,
-    this._householdRemote,
+    this._workspaceDetailRemote,
     this._workspaceRemote,
     this._currentUser,
   );
 
   final FirebaseFirestore _firestore;
-  final WorkspaceDetailRemoteDataSource _householdRemote;
+  final WorkspaceDetailRemoteDataSource _workspaceDetailRemote;
   final WorkspaceRemoteDataSource _workspaceRemote;
   final CurrentUser _currentUser;
 
   @override
-  Future<WorkspaceDetailEntity> createHousehold({
+  Future<WorkspaceDetailEntity> createWorkspace({
     required String name,
     required String currencyCode,
     required List<String> inviteEmails,
@@ -43,10 +43,10 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
 
     final ownerName = snapshot?.displayName?.trim();
     final ownerEmail = snapshot?.email ?? '';
-    final normalizedName = (name.trim().isEmpty ? 'Household' : name.trim());
+    final normalizedName = (name.trim().isEmpty ? 'Workspace' : name.trim());
     final now = DateTime.now();
 
-    final householdId = await _householdRemote.createHousehold(
+    final workspaceId = await _workspaceDetailRemote.createWorkspace(
       WorkspaceDetailModel(
         id: '',
         name: normalizedName,
@@ -60,15 +60,15 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
     await _workspaceRemote.upsertMembership(
       uid,
       WorkspaceModel(
-        id: householdId,
+        id: workspaceId,
         name: normalizedName,
-        type: WorkspaceType.household,
+        type: WorkspaceType.workspace,
         role: 'owner',
       ),
     );
 
-    await _householdRemote.upsertMember(
-      householdId,
+    await _workspaceDetailRemote.upsertMember(
+      workspaceId,
       WorkspaceMemberModel(
         userId: uid,
         displayName: ownerName?.isNotEmpty == true ? ownerName! : ownerEmail,
@@ -85,8 +85,8 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
         .toSet();
 
     for (final email in uniqueInvites) {
-      await _householdRemote.createInvitation(
-        householdId,
+      await _workspaceDetailRemote.createInvitation(
+        workspaceId,
         WorkspaceInvitationModel(
           id: '',
           email: email,
@@ -99,7 +99,7 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
     }
 
     return WorkspaceDetailEntity(
-      id: householdId,
+      id: workspaceId,
       name: normalizedName,
       currencyCode: currencyCode,
       ownerId: uid,
@@ -109,35 +109,35 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
   }
 
   @override
-  Stream<List<WorkspaceMemberEntity>> watchMembers(String householdId) {
-    return _householdRemote
-        .watchMembers(householdId)
+  Stream<List<WorkspaceMemberEntity>> watchMembers(String workspaceId) {
+    return _workspaceDetailRemote
+        .watchMembers(workspaceId)
         .map((models) => models.map((model) => model.toEntity()).toList());
   }
 
   @override
-  Stream<List<WorkspaceInvitationEntity>> watchInvitations(String householdId) {
-    return _householdRemote
-        .watchInvitations(householdId)
+  Stream<List<WorkspaceInvitationEntity>> watchInvitations(String workspaceId) {
+    return _workspaceDetailRemote
+        .watchInvitations(workspaceId)
         .map((models) => models.map((model) => model.toEntity()).toList());
   }
 
   @override
   Future<void> updateMemberRole({
-    required String householdId,
+    required String workspaceId,
     required String memberId,
     required String role,
   }) {
-    return _householdRemote.updateMemberRole(householdId, memberId, role);
+    return _workspaceDetailRemote.updateMemberRole(workspaceId, memberId, role);
   }
 
   @override
   Future<void> removeMember({
-    required String householdId,
+    required String workspaceId,
     required String memberId,
   }) async {
-    await _householdRemote.deleteMember(householdId, memberId);
-    await _workspaceRemote.deleteMembership(memberId, householdId);
+    await _workspaceDetailRemote.deleteMember(workspaceId, memberId);
+    await _workspaceRemote.deleteMembership(memberId, workspaceId);
   }
 
   @override
@@ -146,13 +146,16 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
     required String workspaceId,
   }) async {
     // 1. Verify owner
-    final ownerMember = await _householdRemote.getMember(workspaceId, userId);
+    final ownerMember = await _workspaceDetailRemote.getMember(
+      workspaceId,
+      userId,
+    );
     if (ownerMember == null || ownerMember.role != 'owner') {
       throw Exception('Chỉ owner mới có quyền xóa workspace');
     }
 
     // 2. *** LẤY MEMBERS NGAY LẬP TỨC - KHI CHƯA XÓA GÌ CẢ ***
-    final members = await _householdRemote.getAllMembers(workspaceId);
+    final members = await _workspaceDetailRemote.getAllMembers(workspaceId);
 
     // 3. Batch delete tất cả
     final batch = _firestore.batch();
@@ -170,16 +173,16 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
     // 3.2. Xóa members subcollection
     for (final member in members) {
       final ref = _firestore
-          .collection('households')
+          .collection('workspaces')
           .doc(workspaceId)
           .collection('members')
           .doc(member.userId);
       batch.delete(ref);
     }
 
-    // 3.3. Xóa household document
-    final householdRef = _firestore.collection('households').doc(workspaceId);
-    batch.delete(householdRef);
+    // 3.3. Xóa workspaces document
+    final workspaceRef = _firestore.collection('workspaces').doc(workspaceId);
+    batch.delete(workspaceRef);
 
     // 4. Commit batch một lần
     await batch.commit();
@@ -187,7 +190,7 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
 
   @override
   Future<void> sendInvitation({
-    required String householdId,
+    required String workspaceId,
     required String email,
     required String role,
   }) async {
@@ -197,8 +200,8 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
       throw AuthException('auth.required', tokenExpired: true);
     }
     final now = DateTime.now();
-    await _householdRemote.createInvitation(
-      householdId,
+    await _workspaceDetailRemote.createInvitation(
+      workspaceId,
       WorkspaceInvitationModel(
         id: '',
         email: email.trim().toLowerCase(),
@@ -212,10 +215,10 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
 
   @override
   Future<void> cancelInvitation({
-    required String householdId,
+    required String workspaceId,
     required String invitationId,
   }) {
-    return _householdRemote.deleteInvitation(householdId, invitationId);
+    return _workspaceDetailRemote.deleteInvitation(workspaceId, invitationId);
   }
 
   @override
@@ -234,10 +237,13 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
 
     // 1. Create/update personal workspace document
     final now = DateTime.now();
-    final workspaceDoc = await _firestore.collection('workspaces').doc(uid).get();
-    
+    final workspaceDoc = await _firestore
+        .collection('workspaces')
+        .doc(uid)
+        .get();
+
     if (!workspaceDoc.exists) {
-      await _householdRemote.createHousehold(
+      await _workspaceDetailRemote.createWorkspace(
         WorkspaceDetailModel(
           id: uid,
           name: name,
@@ -250,7 +256,7 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
       );
 
       // 2. Create member entry for personal workspace
-      await _householdRemote.upsertMember(
+      await _workspaceDetailRemote.upsertMember(
         uid,
         WorkspaceMemberModel(
           userId: uid,
@@ -261,6 +267,7 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
           joinedAt: now,
         ),
       );
+      await Future.delayed(const Duration(milliseconds: 1500));
     }
 
     // 3. Ensure denormalized membership exists
@@ -268,5 +275,21 @@ class WorkspaceDetailRepositoryImpl implements WorkspaceDetailRepository {
       uid,
       WorkspaceModel.personal(id: uid, name: name),
     );
+  }
+
+  @override
+  Future<bool> verifyMemberExists({
+    required String workspaceId,
+    required String userId,
+  }) async {
+    try {
+      final member = await _workspaceDetailRemote.getMember(
+        workspaceId,
+        userId,
+      );
+      return member != null;
+    } catch (e) {
+      return false;
+    }
   }
 }

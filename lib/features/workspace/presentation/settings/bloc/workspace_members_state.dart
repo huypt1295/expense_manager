@@ -4,8 +4,8 @@ import 'package:flutter_core/flutter_core.dart';
 
 class WorkspaceMembersState extends BaseBlocState with EquatableMixin {
   const WorkspaceMembersState({
-    this.householdId = '',
-    this.householdName = '',
+    this.workspaceId = '',
+    this.workspaceName = '',
     this.currentUserId = '',
     this.currentUserRole = 'viewer',
     this.members = const <WorkspaceMemberEntity>[],
@@ -14,8 +14,8 @@ class WorkspaceMembersState extends BaseBlocState with EquatableMixin {
     this.errorMessage,
   });
 
-  final String householdId;
-  final String householdName;
+  final String workspaceId;
+  final String workspaceName;
   final String currentUserId;
   final String currentUserRole;
   final List<WorkspaceMemberEntity> members;
@@ -27,8 +27,8 @@ class WorkspaceMembersState extends BaseBlocState with EquatableMixin {
   bool get isEditor => currentUserRole.toLowerCase() == 'editor';
 
   WorkspaceMembersState copyWith({
-    String? householdId,
-    String? householdName,
+    String? workspaceId,
+    String? workspaceName,
     String? currentUserId,
     String? currentUserRole,
     List<WorkspaceMemberEntity>? members,
@@ -38,8 +38,8 @@ class WorkspaceMembersState extends BaseBlocState with EquatableMixin {
     String? errorMessage,
   }) {
     return WorkspaceMembersState(
-      householdId: householdId ?? this.householdId,
-      householdName: householdName ?? this.householdName,
+      workspaceId: workspaceId ?? this.workspaceId,
+      workspaceName: workspaceName ?? this.workspaceName,
       currentUserId: currentUserId ?? this.currentUserId,
       currentUserRole: currentUserRole ?? this.currentUserRole,
       members: members ?? this.members,
@@ -51,8 +51,8 @@ class WorkspaceMembersState extends BaseBlocState with EquatableMixin {
 
   @override
   List<Object?> get props => <Object?>[
-        householdId,
-        householdName,
+        workspaceId,
+        workspaceName,
         currentUserId,
         currentUserRole,
         members,

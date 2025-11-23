@@ -202,7 +202,7 @@ void main() {
 
       expect(remote.lastAllocateContext, isNotNull);
       expect(remote.lastAllocateContext!.workspaceId, 'household-1');
-      expect(remote.lastAllocateContext!.type, WorkspaceType.household);
+      expect(remote.lastAllocateContext!.type, WorkspaceType.workspace);
 
       expect(remote.lastUpsertContext, isNotNull);
       expect(remote.lastUpsertContext!.workspaceId, 'household-1');
@@ -227,7 +227,7 @@ void main() {
     test('uses workspace snapshot when provided', () async {
       currentWorkspace.snapshot = const CurrentWorkspaceSnapshot(
         id: 'household-1',
-        type: WorkspaceType.household,
+        type: WorkspaceType.workspace,
         name: 'Family',
         role: 'owner',
       );
@@ -236,7 +236,7 @@ void main() {
 
       expect(remote.lastDeleteContext, isNotNull);
       expect(remote.lastDeleteContext!.workspaceId, 'household-1');
-      expect(remote.lastDeleteContext!.type, WorkspaceType.household);
+      expect(remote.lastDeleteContext!.type, WorkspaceType.workspace);
     });
   });
 }

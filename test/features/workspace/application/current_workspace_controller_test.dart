@@ -59,7 +59,7 @@ void main() {
 
       const household = CurrentWorkspaceSnapshot(
         id: 'household-1',
-        type: WorkspaceType.household,
+        type: WorkspaceType.workspace,
         name: 'Family',
         role: 'owner',
       );

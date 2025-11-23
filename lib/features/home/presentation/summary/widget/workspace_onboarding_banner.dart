@@ -1,10 +1,9 @@
+import 'package:expense_manager/features/workspace/presentation/onboarding/workspace_onboarding_wizard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_resource/l10n/gen/l10n.dart';
 
-import '../../../../workspace/presentation/onboarding/household_onboarding_wizard.dart';
-
-class HouseholdOnboardingBanner extends StatelessWidget {
-  const HouseholdOnboardingBanner({super.key});
+class WorkspaceOnboardingBanner extends StatelessWidget {
+  const WorkspaceOnboardingBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +12,7 @@ class HouseholdOnboardingBanner extends StatelessWidget {
       color: colorScheme.secondaryContainer,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => HouseholdOnboardingWizard.show(context),
+        onTap: () => WorkspaceOnboardingWizard.show(context),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -37,16 +36,14 @@ class HouseholdOnboardingBanner extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       S.current.workspace_banner_content,
-                      style: TextStyle(
-                        color: colorScheme.onSecondaryContainer,
-                      ),
+                      style: TextStyle(color: colorScheme.onSecondaryContainer),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 12),
               FilledButton(
-                onPressed: () => HouseholdOnboardingWizard.show(context),
+                onPressed: () => WorkspaceOnboardingWizard.show(context),
                 child: Text(S.current.get_started),
               ),
             ],

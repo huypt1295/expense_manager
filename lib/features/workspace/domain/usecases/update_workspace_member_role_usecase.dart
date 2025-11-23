@@ -1,14 +1,14 @@
 import 'package:expense_manager/features/workspace/domain/repositories/workspace_detail_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-class UpdateHouseholdMemberRoleParams {
-  const UpdateHouseholdMemberRoleParams({
-    required this.householdId,
+class UpdateWorkspaceMemberRoleParams {
+  const UpdateWorkspaceMemberRoleParams({
+    required this.workspaceId,
     required this.memberId,
     required this.role,
   });
 
-  final String householdId;
+  final String workspaceId;
   final String memberId;
   final String role;
 }
@@ -19,9 +19,9 @@ class UpdateWorkspaceMemberRoleUseCase {
 
   final WorkspaceDetailRepository _repository;
 
-  Future<void> call(UpdateHouseholdMemberRoleParams params) {
+  Future<void> call(UpdateWorkspaceMemberRoleParams params) {
     return _repository.updateMemberRole(
-      householdId: params.householdId,
+      workspaceId: params.workspaceId,
       memberId: params.memberId,
       role: params.role,
     );

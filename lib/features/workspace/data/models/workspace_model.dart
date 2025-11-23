@@ -29,9 +29,9 @@ class WorkspaceModel {
     DocumentSnapshot<Map<String, dynamic>> snapshot,
   ) {
     final data = snapshot.data() ?? const <String, dynamic>{};
-    final typeValue = (data['type'] as String?) ?? 'household';
+    final typeValue = (data['type'] as String?) ?? 'workspace';
     final role = (data['role'] as String?) ?? 'viewer';
-    final name = (data['name'] as String?) ?? 'Household';
+    final name = (data['name'] as String?) ?? 'Workspace';
     return WorkspaceModel(
       id: snapshot.id,
       name: name,
@@ -61,9 +61,9 @@ class WorkspaceModel {
     switch (raw) {
       case 'personal':
         return WorkspaceType.personal;
-      case 'household':
+      case 'workspace':
       default:
-        return WorkspaceType.household;
+        return WorkspaceType.workspace;
     }
   }
 }

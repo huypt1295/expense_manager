@@ -1,14 +1,14 @@
 import 'package:expense_manager/features/workspace/domain/repositories/workspace_detail_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-class SendHouseholdInvitationParams {
-  const SendHouseholdInvitationParams({
-    required this.householdId,
+class SendWorkspaceInvitationParams {
+  const SendWorkspaceInvitationParams({
+    required this.workspaceId,
     required this.email,
     required this.role,
   });
 
-  final String householdId;
+  final String workspaceId;
   final String email;
   final String role;
 }
@@ -19,9 +19,9 @@ class SendWorkspaceInvitationUseCase {
 
   final WorkspaceDetailRepository _repository;
 
-  Future<void> call(SendHouseholdInvitationParams params) {
+  Future<void> call(SendWorkspaceInvitationParams params) {
     return _repository.sendInvitation(
-      householdId: params.householdId,
+      workspaceId: params.workspaceId,
       email: params.email,
       role: params.role,
     );

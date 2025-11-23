@@ -1,13 +1,13 @@
 import 'package:expense_manager/features/workspace/domain/repositories/workspace_detail_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-class CancelHouseholdInvitationParams {
-  const CancelHouseholdInvitationParams({
-    required this.householdId,
+class CancelWorkspaceInvitationParams {
+  const CancelWorkspaceInvitationParams({
+    required this.workspaceId,
     required this.invitationId,
   });
 
-  final String householdId;
+  final String workspaceId;
   final String invitationId;
 }
 
@@ -17,9 +17,9 @@ class CancelWorkspaceInvitationUseCase {
 
   final WorkspaceDetailRepository _repository;
 
-  Future<void> call(CancelHouseholdInvitationParams params) {
+  Future<void> call(CancelWorkspaceInvitationParams params) {
     return _repository.cancelInvitation(
-      householdId: params.householdId,
+      workspaceId: params.workspaceId,
       invitationId: params.invitationId,
     );
   }

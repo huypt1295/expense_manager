@@ -23,7 +23,7 @@ service cloud.firestore {
         : null;
     }
 
-    function canManageHousehold(workspaceId) {
+    function canManageWorkspace(workspaceId) {
       return hasMembership(workspaceId) &&
         membershipRole(workspaceId) in ['owner', 'editor'];
     }
@@ -53,24 +53,24 @@ service cloud.firestore {
       }
     }
 
-    match /households/{householdId} {
-      allow read: if hasMembership(householdId);
+    match /workspaces/{workspaceId} {
+      allow read: if hasMembership(workspaceId);
       allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update, delete: if canManageHousehold(householdId);
+      allow update, delete: if canManageWorkspace(workspaceId);
 
       match /members/{memberId} {
-        allow read: if hasMembership(householdId);
-        allow create, update, delete: if canManageHousehold(householdId);
+        allow read: if hasMembership(workspaceId);
+        allow create, update, delete: if canManageWorkspace(workspaceId);
       }
 
       match /invitations/{invitationId} {
-        allow read: if canManageHousehold(householdId);
-        allow create, update, delete: if canManageHousehold(householdId);
+        allow read: if canManageWorkspace(workspaceId);
+        allow create, update, delete: if canManageWorkspace(workspaceId);
       }
 
       match /transactions/{transactionId} {
-        allow read: if hasMembership(householdId);
-        allow create, update, delete: if canManageHousehold(householdId);
+        allow read: if hasMembership(workspaceId);
+        allow create, update, delete: if canManageWorkspace(workspaceId);
       }
     }
   }

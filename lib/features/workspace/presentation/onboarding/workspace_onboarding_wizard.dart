@@ -23,7 +23,7 @@ class WorkspaceOnboardingWizard {
 
     if (context.mounted) {
       final creationResult =
-          await showModalBottomSheet<HouseholdCreationResult>(
+          await showModalBottomSheet<WorkspaceCreationResult>(
             context: context,
             isScrollControlled: true,
             useSafeArea: true,
@@ -41,8 +41,8 @@ class WorkspaceOnboardingWizard {
       if (context.mounted) {
         await WorkspaceManagementSheet.show(
           context,
-          householdId: creationResult.householdId,
-          householdName: creationResult.householdName,
+          workspaceId: creationResult.workspaceId,
+          workspaceName: creationResult.workspaceName,
           currentRole: 'owner',
         );
       }

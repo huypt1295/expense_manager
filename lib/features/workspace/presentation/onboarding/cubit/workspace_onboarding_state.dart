@@ -6,18 +6,18 @@ class WorkspaceOnboardingState extends BaseBlocState with EquatableMixin {
     this.iconIndex = 0,
     this.isSubmitting = false,
     this.errorMessage,
-    this.completedHouseholdId,
+    this.completedWorkspaceId,
   });
 
   final String name;
   final int iconIndex;
   final bool isSubmitting;
   final String? errorMessage;
-  final String? completedHouseholdId;
+  final String? completedWorkspaceId;
 
   bool get canSubmit => name.trim().isNotEmpty;
 
-  bool get isCompleted => completedHouseholdId != null;
+  bool get isCompleted => completedWorkspaceId != null;
 
   WorkspaceOnboardingState copyWith({
     String? name,
@@ -25,14 +25,14 @@ class WorkspaceOnboardingState extends BaseBlocState with EquatableMixin {
     bool? isSubmitting,
     bool clearError = false,
     String? errorMessage,
-    String? completedHouseholdId,
+    String? completedWorkspaceId,
   }) {
     return WorkspaceOnboardingState(
       name: name ?? this.name,
       iconIndex: iconIndex ?? this.iconIndex,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      completedHouseholdId: completedHouseholdId ?? this.completedHouseholdId,
+      completedWorkspaceId: completedWorkspaceId ?? this.completedWorkspaceId,
     );
   }
 
@@ -42,6 +42,6 @@ class WorkspaceOnboardingState extends BaseBlocState with EquatableMixin {
     iconIndex,
     isSubmitting,
     errorMessage,
-    completedHouseholdId,
+    completedWorkspaceId,
   ];
 }

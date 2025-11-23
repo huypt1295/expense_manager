@@ -17,19 +17,19 @@ import 'package:flutter_resource/l10n/gen/l10n.dart';
 class WorkspaceManagementSheet extends StatefulWidget {
   const WorkspaceManagementSheet({
     super.key,
-    required this.householdId,
-    required this.householdName,
+    required this.workspaceId,
+    required this.workspaceName,
     required this.currentRole,
   });
 
-  final String householdId;
-  final String householdName;
+  final String workspaceId;
+  final String workspaceName;
   final String currentRole;
 
   static Future<void> show(
     BuildContext context, {
-    required String householdId,
-    required String householdName,
+    required String workspaceId,
+    required String workspaceName,
     required String currentRole,
   }) async {
     final currentUser = tpGetIt.get<CurrentUser>().now();
@@ -44,15 +44,15 @@ class WorkspaceManagementSheet extends StatefulWidget {
         create: (_) => tpGetIt.get<WorkspaceMembersBloc>()
           ..add(
             WorkspaceMembersStarted(
-              householdId: householdId,
-              householdName: householdName,
+              workspaceId: workspaceId,
+              workspaceName: workspaceName,
               currentUserId: currentUserId,
               currentUserRole: currentRole,
             ),
           ),
         child: WorkspaceManagementSheet(
-          householdId: householdId,
-          householdName: householdName,
+          workspaceId: workspaceId,
+          workspaceName: workspaceName,
           currentRole: currentRole,
         ),
       ),
@@ -132,7 +132,7 @@ class _WorkspaceManagementSheetState extends State<WorkspaceManagementSheet> {
   }
 
   Widget _buildWorkspaceInfo(WorkspaceMembersState state) {
-    return WorkspaceInfoCard(name: state.householdName, onEditNameTap: () {});
+    return WorkspaceInfoCard(name: state.workspaceName, onEditNameTap: () {});
   }
 
   Widget _buildWorkspaceMembersInfo(WorkspaceMembersState state) =>
@@ -155,7 +155,7 @@ class _WorkspaceManagementSheetState extends State<WorkspaceManagementSheet> {
       isOwner: state.isOwner,
       onLeave: () => _showLeaveSheet(context),
       onDelete: state.isOwner
-          ? () => _showDeleteSheet(context, state.householdName)
+          ? () => _showDeleteSheet(context, state.workspaceName)
           : null,
     );
   }

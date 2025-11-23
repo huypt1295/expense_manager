@@ -10,7 +10,7 @@ class WorkspaceDetailModel {
     required this.ownerId,
     required this.createdAt,
     required this.updatedAt,
-    this.type = WorkspaceType.household,
+    this.type = WorkspaceType.workspace,
   });
 
   final String id;
@@ -75,9 +75,9 @@ class WorkspaceDetailModel {
       case 'personal':
         return WorkspaceType.personal;
       case 'shared':
-      case 'household':
+      case 'workspace':
       default:
-        return WorkspaceType.household;
+        return WorkspaceType.workspace;
     }
   }
 }

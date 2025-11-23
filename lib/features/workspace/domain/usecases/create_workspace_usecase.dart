@@ -2,8 +2,8 @@ import 'package:expense_manager/features/workspace/domain/entities/workspace_det
 import 'package:expense_manager/features/workspace/domain/repositories/workspace_detail_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-class CreateHouseholdParams {
-  const CreateHouseholdParams({
+class CreateWorkspaceParams {
+  const CreateWorkspaceParams({
     required this.name,
     required this.currencyCode,
     required this.inviteEmails,
@@ -20,8 +20,8 @@ class CreateWorkspaceUseCase {
 
   final WorkspaceDetailRepository _repository;
 
-  Future<WorkspaceDetailEntity> call(CreateHouseholdParams params) {
-    return _repository.createHousehold(
+  Future<WorkspaceDetailEntity> call(CreateWorkspaceParams params) {
+    return _repository.createWorkspace(
       name: params.name,
       currencyCode: params.currencyCode,
       inviteEmails: params.inviteEmails,

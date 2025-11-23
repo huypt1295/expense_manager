@@ -74,7 +74,7 @@ class _FakeWorkspaceRemoteDataSource
 WorkspaceModel _household(String id) => WorkspaceModel(
       id: id,
       name: 'Household $id',
-      type: WorkspaceType.household,
+      type: WorkspaceType.workspace,
       role: 'editor',
     );
 

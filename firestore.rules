@@ -1,0 +1,120 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserId() {
+      return request.auth.uid;
+    }
+    
+    function isWorkspaceMember(workspaceId) {
+      return exists(/databases/$(database)/documents/workspaces/$(workspaceId)/members/$(getUserId()));
+    }
+    
+    function isWorkspaceOwner(workspaceId) {
+      return get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.ownerId == getUserId();
+    }
+    
+    function getWorkspaceMemberRole(workspaceId) {
+      return get(/databases/$(database)/documents/workspaces/$(workspaceId)/members/$(getUserId())).data.role;
+    }
+    
+    function canEditWorkspace(workspaceId) {
+      let role = getWorkspaceMemberRole(workspaceId);
+      return role == 'owner' || role == 'editor';
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && getUserId() == userId;
+      allow create: if isAuthenticated() && getUserId() == userId;
+      allow update: if isAuthenticated() && getUserId() == userId;
+      allow delete: if false; // Users cannot delete themselves
+      
+      // User workspace memberships (denormalized)
+      match /workspaces/{workspaceId} {
+        allow read: if isAuthenticated() && getUserId() == userId;
+        allow write: if isAuthenticated() && getUserId() == userId;
+      }
+    }
+    
+    // Global categories (read-only for all authenticated users)
+    match /globalCategories/{categoryId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only admins can modify (via Firebase Console)
+    }
+    
+    // Workspaces collection
+    match /workspaces/{workspaceId} {
+      // Allow users to read their own personal workspace (workspaceId == userId)
+      // OR if they are a member (for shared workspaces)
+      allow read: if isAuthenticated() && 
+                     (workspaceId == getUserId() || isWorkspaceMember(workspaceId));
+      
+      // Allow creating personal workspace or workspace where user is owner
+      allow create: if isAuthenticated() && 
+                       (workspaceId == getUserId() || request.resource.data.ownerId == getUserId());
+      
+      allow update: if isAuthenticated() && isWorkspaceOwner(workspaceId);
+      allow delete: if isAuthenticated() && isWorkspaceOwner(workspaceId);
+      
+      // Workspace members
+      match /members/{memberId} {
+        allow read: if isAuthenticated() && 
+                       (workspaceId == getUserId() || isWorkspaceMember(workspaceId));
+        
+        // Allow creating member in personal workspace OR if user is workspace owner
+        allow create: if isAuthenticated() && 
+                         (workspaceId == getUserId() || isWorkspaceOwner(workspaceId));
+        
+        allow update: if isAuthenticated() && 
+                         (workspaceId == getUserId() || isWorkspaceOwner(workspaceId));
+        
+        allow delete: if isAuthenticated() && 
+                       (workspaceId == getUserId() || isWorkspaceOwner(workspaceId) || getUserId() == memberId);
+      }
+      
+      // Workspace invitations
+      match /invitations/{invitationId} {
+        allow read: if isAuthenticated() && isWorkspaceMember(workspaceId);
+        allow create: if isAuthenticated() && canEditWorkspace(workspaceId);
+        allow update: if isAuthenticated() && canEditWorkspace(workspaceId);
+        allow delete: if isAuthenticated() && canEditWorkspace(workspaceId);
+      }
+      
+      // Custom categories in workspace
+      match /customCategories/{categoryId} {
+        allow read: if isAuthenticated() && isWorkspaceMember(workspaceId);
+        allow create: if isAuthenticated() && canEditWorkspace(workspaceId);
+        allow update: if isAuthenticated() && canEditWorkspace(workspaceId);
+        allow delete: if isAuthenticated() && canEditWorkspace(workspaceId);
+      }
+      
+      // Budgets in workspace
+      match /budgets/{budgetId} {
+        allow read: if isAuthenticated() && isWorkspaceMember(workspaceId);
+        allow create: if isAuthenticated() && canEditWorkspace(workspaceId);
+        allow update: if isAuthenticated() && canEditWorkspace(workspaceId);
+        allow delete: if isAuthenticated() && canEditWorkspace(workspaceId);
+      }
+      
+      // Transactions in workspace
+      match /transactions/{transactionId} {
+        allow read: if isAuthenticated() && isWorkspaceMember(workspaceId);
+        allow create: if isAuthenticated() && canEditWorkspace(workspaceId);
+        allow update: if isAuthenticated() && canEditWorkspace(workspaceId);
+        allow delete: if isAuthenticated() && canEditWorkspace(workspaceId);
+      }
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

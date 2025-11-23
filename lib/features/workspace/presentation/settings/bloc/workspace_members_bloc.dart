@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:expense_manager/features/workspace/domain/entities/workspace_invitation_entity.dart';
 import 'package:expense_manager/features/workspace/domain/entities/workspace_member_entity.dart';
-import 'package:expense_manager/features/workspace/domain/usecases/cancel_household_invitation_usecase.dart';
-import 'package:expense_manager/features/workspace/domain/usecases/delete_household_usecase.dart';
-import 'package:expense_manager/features/workspace/domain/usecases/remove_household_member_usecase.dart';
-import 'package:expense_manager/features/workspace/domain/usecases/send_household_invitation_usecase.dart';
-import 'package:expense_manager/features/workspace/domain/usecases/update_household_member_role_usecase.dart';
-import 'package:expense_manager/features/workspace/domain/usecases/watch_household_invitations_usecase.dart';
-import 'package:expense_manager/features/workspace/domain/usecases/watch_household_members_usecase.dart';
+import 'package:expense_manager/features/workspace/domain/usecases/cancel_workspace_invitation_usecase.dart';
+import 'package:expense_manager/features/workspace/domain/usecases/delete_workspace_usecase.dart';
+import 'package:expense_manager/features/workspace/domain/usecases/remove_workspace_member_usecase.dart';
+import 'package:expense_manager/features/workspace/domain/usecases/send_workspace_invitation_usecase.dart';
+import 'package:expense_manager/features/workspace/domain/usecases/update_workspace_member_role_usecase.dart';
+import 'package:expense_manager/features/workspace/domain/usecases/watch_workspace_invitations_usecase.dart';
+import 'package:expense_manager/features/workspace/domain/usecases/watch_workspace_members_usecase.dart';
 import 'package:expense_manager/features/workspace/presentation/settings/bloc/workspace_members_event.dart';
 import 'package:expense_manager/features/workspace/presentation/settings/bloc/workspace_members_state.dart';
 import 'package:flutter_core/flutter_core.dart';
@@ -21,7 +21,7 @@ class WorkspaceMembersBloc
     this._watchInvitationsUseCase,
     this._updateMemberRoleUseCase,
     this._removeMemberUseCase,
-    this._deleteHouseholdUseCase,
+    this._deleteWorkspaceUseCase,
     this._sendInvitationUseCase,
     this._cancelInvitationUseCase,
   ) : super(const WorkspaceMembersState()) {
@@ -35,13 +35,13 @@ class WorkspaceMembersBloc
     on<WorkspaceMembersInvitationCancelled>(_onInvitationCancelled);
   }
 
-  final WatchHouseholdMembersUseCase _watchMembersUseCase;
-  final WatchHouseholdInvitationsUseCase _watchInvitationsUseCase;
-  final UpdateHouseholdMemberRoleUseCase _updateMemberRoleUseCase;
-  final RemoveHouseholdMemberUseCase _removeMemberUseCase;
-  final DeleteHouseholdUseCase _deleteHouseholdUseCase;
-  final SendHouseholdInvitationUseCase _sendInvitationUseCase;
-  final CancelHouseholdInvitationUseCase _cancelInvitationUseCase;
+  final WatchWorkspaceMembersUseCase _watchMembersUseCase;
+  final WatchWorkspaceInvitationsUseCase _watchInvitationsUseCase;
+  final UpdateWorkspaceMemberRoleUseCase _updateMemberRoleUseCase;
+  final RemoveWorkspaceMemberUseCase _removeMemberUseCase;
+  final DeleteWorkspaceUseCase _deleteWorkspaceUseCase;
+  final SendWorkspaceInvitationUseCase _sendInvitationUseCase;
+  final CancelWorkspaceInvitationUseCase _cancelInvitationUseCase;
 
   StreamSubscription<List<WorkspaceMemberEntity>>? _membersSubscription;
   StreamSubscription<List<WorkspaceInvitationEntity>>? _invitationsSubscription;
@@ -52,8 +52,8 @@ class WorkspaceMembersBloc
   ) async {
     emit(
       state.copyWith(
-        householdId: event.householdId,
-        householdName: event.householdName,
+        workspaceId: event.workspaceId,
+        workspaceName: event.workspaceName,
         currentUserId: event.currentUserId,
         currentUserRole: event.currentUserRole,
         isLoading: true,
@@ -66,7 +66,7 @@ class WorkspaceMembersBloc
 
     _membersSubscription =
         _watchMembersUseCase(
-          WatchHouseholdMembersParams(event.householdId),
+          WatchWorkspaceMembersParams(event.workspaceId),
         ).listen(
           (members) {
             add(
@@ -83,7 +83,7 @@ class WorkspaceMembersBloc
 
     _invitationsSubscription =
         _watchInvitationsUseCase(
-          WatchHouseholdInvitationsParams(event.householdId),
+          WatchWorkspaceInvitationsParams(event.workspaceId),
         ).listen(
           (invitations) {
             add(
@@ -127,8 +127,8 @@ class WorkspaceMembersBloc
       return;
     }
     await _updateMemberRoleUseCase(
-      UpdateHouseholdMemberRoleParams(
-        householdId: state.householdId,
+      UpdateWorkspaceMemberRoleParams(
+        workspaceId: state.workspaceId,
         memberId: event.memberId,
         role: event.role,
       ),
@@ -143,8 +143,8 @@ class WorkspaceMembersBloc
       return;
     }
     await _removeMemberUseCase(
-      RemoveHouseholdMemberParams(
-        householdId: state.householdId,
+      RemoveWorkspaceMemberParams(
+        workspaceId: state.workspaceId,
         memberId: event.memberId,
       ),
     );
@@ -157,10 +157,10 @@ class WorkspaceMembersBloc
     if (!state.isOwner) {
       return;
     }
-    await _deleteHouseholdUseCase(
-      DeleteHouseholdParams(
+    await _deleteWorkspaceUseCase(
+      DeleteWorkspaceParams(
         userId: state.currentUserId,
-        workspaceId: state.householdId,
+        workspaceId: state.workspaceId,
       ),
     );
   }
@@ -174,8 +174,8 @@ class WorkspaceMembersBloc
       return;
     }
     await _sendInvitationUseCase(
-      SendHouseholdInvitationParams(
-        householdId: state.householdId,
+      SendWorkspaceInvitationParams(
+        workspaceId: state.workspaceId,
         email: email,
         role: event.role,
       ),
@@ -190,8 +190,8 @@ class WorkspaceMembersBloc
       return;
     }
     await _cancelInvitationUseCase(
-      CancelHouseholdInvitationParams(
-        householdId: state.householdId,
+      CancelWorkspaceInvitationParams(
+        workspaceId: state.workspaceId,
         invitationId: event.invitationId,
       ),
     );

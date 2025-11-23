@@ -15,7 +15,7 @@ import 'package:expense_manager/features/profile_setting/presentation/profile/wi
 import 'package:expense_manager/features/workspace/domain/entities/workspace_entity.dart';
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart';
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_state.dart';
-import 'package:expense_manager/features/workspace/presentation/onboarding/household_onboarding_wizard.dart';
+import 'package:expense_manager/features/workspace/presentation/onboarding/workspace_onboarding_wizard.dart';
 import 'package:expense_manager/features/workspace/presentation/settings/workspace_management_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -301,9 +301,9 @@ class _ProfileContent extends StatelessWidget {
     final profile = state.profile;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final WorkspaceState workspaceState = context.watch<WorkspaceBloc>().state;
-    final WorkspaceEntity? householdWorkspace = workspaceState.workspaces
+    final WorkspaceEntity? workspace = workspaceState.workspaces
         .firstWhereOrNull((workspace) => !workspace.isPersonal);
-    final String workspaceLabel = householdWorkspace?.name ?? S.current.only_me;
+    final String workspaceLabel = workspace?.name ?? S.current.only_me;
 
     return ColoredBox(
       color: colors.backgroundMain,
@@ -349,15 +349,15 @@ class _ProfileContent extends StatelessWidget {
                 AppSettingsSection(
                   workspaceLabel: workspaceLabel,
                   onWorkspaceTap: () {
-                    final target = householdWorkspace;
+                    final target = workspace;
                     if (target == null) {
-                      HouseholdOnboardingWizard.show(context);
+                      WorkspaceOnboardingWizard.show(context);
                       return;
                     }
                     WorkspaceManagementSheet.show(
                       context,
-                      householdId: target.id,
-                      householdName: target.name,
+                      workspaceId: target.id,
+                      workspaceName: target.name,
                       currentRole: target.role,
                     );
                   },

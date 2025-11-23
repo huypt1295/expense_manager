@@ -1,18 +1,18 @@
 import 'package:expense_manager/core/workspace/current_workspace.dart';
 import 'package:expense_manager/core/workspace/workspace_context.dart';
-import 'package:expense_manager/features/workspace/domain/usecases/create_household_usecase.dart';
+import 'package:expense_manager/features/workspace/domain/usecases/create_workspace_usecase.dart';
 import 'package:expense_manager/features/workspace/domain/usecases/ensure_personal_workspace_usecase.dart';
 import 'package:expense_manager/features/workspace/presentation/onboarding/cubit/workspace_onboarding_state.dart';
 import 'package:flutter_core/flutter_core.dart';
 
 class WorkspaceOnboardingCubit extends Cubit<WorkspaceOnboardingState> {
   WorkspaceOnboardingCubit(
-    this._createHouseholdUseCase,
+    this._createWorkspaceUseCase,
     this._ensurePersonalWorkspaceUseCase,
     this._currentWorkspace,
   ) : super(const WorkspaceOnboardingState());
 
-  final CreateHouseholdUseCase _createHouseholdUseCase;
+  final CreateWorkspaceUseCase _createWorkspaceUseCase;
   final EnsurePersonalWorkspaceUseCase _ensurePersonalWorkspaceUseCase;
   final CurrentWorkspace _currentWorkspace;
 
@@ -32,8 +32,8 @@ class WorkspaceOnboardingCubit extends Cubit<WorkspaceOnboardingState> {
     emit(state.copyWith(isSubmitting: true, clearError: true));
     try {
       await _ensurePersonalWorkspaceUseCase();
-      final household = await _createHouseholdUseCase(
-        CreateHouseholdParams(
+      final workspace = await _createWorkspaceUseCase(
+        CreateWorkspaceParams(
           name: state.name,
           currencyCode: 'VND',
           inviteEmails: const <String>[],
@@ -41,16 +41,16 @@ class WorkspaceOnboardingCubit extends Cubit<WorkspaceOnboardingState> {
       );
       await _currentWorkspace.select(
         CurrentWorkspaceSnapshot(
-          id: household.id,
-          type: WorkspaceType.household,
-          name: household.name,
+          id: workspace.id,
+          type: WorkspaceType.workspace,
+          name: workspace.name,
           role: 'owner',
         ),
       );
       emit(
         state.copyWith(
           isSubmitting: false,
-          completedHouseholdId: household.id,
+          completedWorkspaceId: workspace.id,
         ),
       );
     } catch (error) {

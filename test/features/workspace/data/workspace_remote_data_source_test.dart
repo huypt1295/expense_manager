@@ -20,7 +20,7 @@ void main() {
       const model = WorkspaceModel(
         id: 'household-1',
         name: 'Family',
-        type: WorkspaceType.household,
+        type: WorkspaceType.workspace,
         role: 'owner',
       );
 
@@ -57,7 +57,7 @@ void main() {
       expect(models.first.id, 'workspace-a');
       expect(models.first.name, 'Workspace A');
       expect(models.first.role, 'editor');
-      expect(models.first.type, WorkspaceType.household);
+      expect(models.first.type, WorkspaceType.workspace);
     });
   });
 }

@@ -2,10 +2,10 @@ import 'package:expense_manager/features/workspace/domain/entities/workspace_mem
 import 'package:expense_manager/features/workspace/domain/repositories/workspace_detail_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-class WatchHouseholdMembersParams {
-  const WatchHouseholdMembersParams(this.householdId);
+class WatchWorkspaceMembersParams {
+  const WatchWorkspaceMembersParams(this.workspaceId);
 
-  final String householdId;
+  final String workspaceId;
 }
 
 @singleton
@@ -14,8 +14,8 @@ class WatchWorkspaceMembersUseCase {
 
   final WorkspaceDetailRepository _repository;
 
-  Stream<List<WorkspaceMemberEntity>> call(WatchHouseholdMembersParams params) {
-    return _repository.watchMembers(params.householdId);
+  Stream<List<WorkspaceMemberEntity>> call(WatchWorkspaceMembersParams params) {
+    return _repository.watchMembers(params.workspaceId);
   }
 }
 

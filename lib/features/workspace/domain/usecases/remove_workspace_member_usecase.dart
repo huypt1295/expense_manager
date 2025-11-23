@@ -1,13 +1,13 @@
 import 'package:expense_manager/features/workspace/domain/repositories/workspace_detail_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-class RemoveHouseholdMemberParams {
-  const RemoveHouseholdMemberParams({
-    required this.householdId,
+class RemoveWorkspaceMemberParams {
+  const RemoveWorkspaceMemberParams({
+    required this.workspaceId,
     required this.memberId,
   });
 
-  final String householdId;
+  final String workspaceId;
   final String memberId;
 }
 
@@ -17,9 +17,9 @@ class RemoveWorkspaceMemberUseCase {
 
   final WorkspaceDetailRepository _repository;
 
-  Future<void> call(RemoveHouseholdMemberParams params) {
+  Future<void> call(RemoveWorkspaceMemberParams params) {
     return _repository.removeMember(
-      householdId: params.householdId,
+      workspaceId: params.workspaceId,
       memberId: params.memberId,
     );
   }

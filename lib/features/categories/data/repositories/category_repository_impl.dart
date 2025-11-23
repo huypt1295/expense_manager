@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expense_manager/core/auth/current_user.dart';
 import 'package:expense_manager/core/workspace/current_workspace.dart';
 import 'package:expense_manager/core/workspace/workspace_context.dart';
@@ -187,20 +189,58 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
   @override
   Stream<List<CategoryEntity>> watchWorkspaceCategories() {
-    final context = _requireWorkspaceContext();
-    final defaultStream = _remoteDataSource.watchDefault();
-    final workspaceStream = _remoteDataSource.watchForWorkspace(context);
+    return Stream<List<CategoryEntity>>.multi((controller) {
+      StreamSubscription<CurrentWorkspaceSnapshot?>? workspaceSubscription;
+      StreamSubscription<List<CategoryEntity>>? categoriesSubscription;
 
-    return Rx.combineLatest2<
-          List<CategoryModel>,
-          List<CategoryModel>,
-          List<CategoryEntity>
-        >(
-          defaultStream,
-          workspaceStream,
-          (defaults, workspace) => _mapModelsToEntities(defaults, workspace),
-        )
-        .map(List<CategoryEntity>.unmodifiable);
+      void listenCategories() {
+        categoriesSubscription?.cancel();
+        try {
+          final context = _requireWorkspaceContext();
+          final defaultStream = _remoteDataSource.watchDefault();
+          final workspaceStream = _remoteDataSource.watchForWorkspace(context);
+
+          categoriesSubscription =
+              Rx.combineLatest2<
+                    List<CategoryModel>,
+                    List<CategoryModel>,
+                    List<CategoryEntity>
+                  >(
+                    defaultStream,
+                    workspaceStream,
+                    (defaults, workspace) =>
+                        _mapModelsToEntities(defaults, workspace),
+                  )
+                  .map(List<CategoryEntity>.unmodifiable)
+                  .listen(controller.add, onError: controller.addError);
+        } catch (error, stackTrace) {
+          controller.addError(error, stackTrace);
+        }
+      }
+
+      workspaceSubscription = _currentWorkspace.watch().listen((snapshot) {
+        if (!controller.isClosed && snapshot != null) {
+          listenCategories();
+        }
+      }, onError: controller.addError);
+
+      // Only listen if workspace is already available
+      if (_currentWorkspace.now() != null) {
+        listenCategories();
+      }
+
+      controller
+        ..onPause = () {
+          categoriesSubscription?.pause();
+        }
+        ..onResume = () {
+          categoriesSubscription?.resume();
+        }
+        ..onCancel = () async {
+          await categoriesSubscription?.cancel();
+          await workspaceSubscription?.cancel();
+        };
+    });
   }
 
   @override

@@ -11,21 +11,21 @@ abstract class WorkspaceMembersEvent extends BaseBlocEvent with EquatableMixin {
 
 class WorkspaceMembersStarted extends WorkspaceMembersEvent {
   const WorkspaceMembersStarted({
-    required this.householdId,
-    required this.householdName,
+    required this.workspaceId,
+    required this.workspaceName,
     required this.currentUserId,
     required this.currentUserRole,
   });
 
-  final String householdId;
-  final String householdName;
+  final String workspaceId;
+  final String workspaceName;
   final String currentUserId;
   final String currentUserRole;
 
   @override
   List<Object?> get props => <Object?>[
-    householdId,
-    householdName,
+    workspaceId,
+    workspaceName,
     currentUserId,
     currentUserRole,
   ];

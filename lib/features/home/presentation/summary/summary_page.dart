@@ -9,17 +9,14 @@ import 'package:expense_manager/features/home/presentation/summary/widget/summar
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_spending_widget.dart';
 import 'package:expense_manager/features/home/presentation/summary/widget/summary_weekly_transactions_line_chart_widget.dart';
 import 'package:expense_manager/features/home/presentation/summary/widget/workspace_onboarding_banner.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_entity.dart';
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart';
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_state.dart';
 import 'package:expense_manager/features/workspace/presentation/settings/workspace_management_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
-import 'package:flutter_resource/l10n/gen/l10n.dart';
 import 'package:sliver_tools/sliver_tools.dart' show MultiSliver;
-
-import '../../../workspace/domain/entities/workspace_entity.dart';
-import '../../../workspace/presentation/onboarding/household_onboarding_wizard.dart';
 
 class SummaryPage extends BaseStatelessWidget {
   const SummaryPage({super.key});
@@ -123,8 +120,8 @@ class _SummaryView extends StatelessWidget {
                         }
                         WorkspaceManagementSheet.show(
                           context,
-                          householdId: target.id,
-                          householdName: target.name,
+                          workspaceId: target.id,
+                          workspaceName: target.name,
                           currentRole: target.role,
                         );
                       }
@@ -132,7 +129,7 @@ class _SummaryView extends StatelessWidget {
               ),
               if (showOnboardingBanner) ...[
                 const SizedBox(height: 12),
-                const HouseholdOnboardingBanner(),
+                const WorkspaceOnboardingBanner(),
               ],
             ],
           );

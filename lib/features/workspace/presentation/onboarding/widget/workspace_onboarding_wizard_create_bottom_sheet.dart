@@ -35,7 +35,7 @@ class WorkspaceOnboardingWizardCreateBottomSheetState
     return BlocConsumer<WorkspaceOnboardingCubit, WorkspaceOnboardingState>(
       listenWhen: (previous, current) =>
           previous.errorMessage != current.errorMessage ||
-          previous.completedHouseholdId != current.completedHouseholdId,
+          previous.completedWorkspaceId != current.completedWorkspaceId,
       listener: (context, state) {
         if (state.errorMessage != null) {
           ScaffoldMessenger.of(
@@ -44,9 +44,9 @@ class WorkspaceOnboardingWizardCreateBottomSheetState
         }
         if (state.isCompleted) {
           Navigator.of(context).maybePop(
-            HouseholdCreationResult(
-              householdId: state.completedHouseholdId!,
-              householdName: state.name.trim(),
+            WorkspaceCreationResult(
+              workspaceId: state.completedWorkspaceId!,
+              workspaceName: state.name.trim(),
             ),
           );
         }
@@ -298,14 +298,14 @@ class _IconOption {
   final Color backgroundColor;
 }
 
-class HouseholdCreationResult {
-  const HouseholdCreationResult({
-    required this.householdId,
-    required this.householdName,
+class WorkspaceCreationResult {
+  const WorkspaceCreationResult({
+    required this.workspaceId,
+    required this.workspaceName,
   });
 
-  final String householdId;
-  final String householdName;
+  final String workspaceId;
+  final String workspaceName;
 }
 
 extension on Color {

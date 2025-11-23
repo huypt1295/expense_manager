@@ -1,6 +1,6 @@
 enum WorkspaceType {
   personal,
-  household,
+  workspace,
 }
 
 class WorkspaceContext {

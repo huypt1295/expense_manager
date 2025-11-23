@@ -22,9 +22,7 @@ class TransactionsBloc
     this._updateTransactionUseCase,
     this._deleteTransactionUseCase,
     this._shareTransactionUseCase,
-    {Duration undoDuration = kUndoDuration,}
-  )   : _undoDuration = undoDuration,
-        super(const TransactionsState()) {
+  ) : super(const TransactionsState()) {
     on<TransactionsStarted>(_onStarted);
     on<TransactionsStreamChanged>(_onStreamChanged);
     on<TransactionsStreamFailed>(_onStreamFailed);
@@ -41,7 +39,6 @@ class TransactionsBloc
   final UpdateTransactionUseCase _updateTransactionUseCase;
   final DeleteTransactionUseCase _deleteTransactionUseCase;
   final ShareTransactionUseCase _shareTransactionUseCase;
-  final Duration _undoDuration;
 
   StreamSubscription<List<TransactionEntity>>? _subscription;
   _PendingDeletion? _pendingDeletion;
@@ -170,7 +167,7 @@ class TransactionsBloc
       TransactionsShowUndoDeleteEffect(
         message: 'Transaction deleted',
         actionLabel: 'Undo',
-        duration: _undoDuration,
+        duration: kUndoDuration,
       ),
     );
   }
@@ -198,7 +195,7 @@ class TransactionsBloc
 
   void _startPendingDeletionTimer() {
     _pendingDeletionTimer?.cancel();
-    _pendingDeletionTimer = Timer(_undoDuration, _commitPendingDeletion);
+    _pendingDeletionTimer = Timer(kUndoDuration, _commitPendingDeletion);
   }
 
   void _commitPendingDeletion() {

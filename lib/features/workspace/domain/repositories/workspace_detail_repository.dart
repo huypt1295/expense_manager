@@ -3,24 +3,24 @@ import 'package:expense_manager/features/workspace/domain/entities/workspace_inv
 import 'package:expense_manager/features/workspace/domain/entities/workspace_member_entity.dart';
 
 abstract interface class WorkspaceDetailRepository {
-  Future<WorkspaceDetailEntity> createHousehold({
+  Future<WorkspaceDetailEntity> createWorkspace({
     required String name,
     required String currencyCode,
     required List<String> inviteEmails,
   });
 
-  Stream<List<WorkspaceMemberEntity>> watchMembers(String householdId);
+  Stream<List<WorkspaceMemberEntity>> watchMembers(String workspaceId);
 
-  Stream<List<WorkspaceInvitationEntity>> watchInvitations(String householdId);
+  Stream<List<WorkspaceInvitationEntity>> watchInvitations(String workspaceId);
 
   Future<void> updateMemberRole({
-    required String householdId,
+    required String workspaceId,
     required String memberId,
     required String role,
   });
 
   Future<void> removeMember({
-    required String householdId,
+    required String workspaceId,
     required String memberId,
   });
 
@@ -30,16 +30,22 @@ abstract interface class WorkspaceDetailRepository {
   });
 
   Future<void> sendInvitation({
-    required String householdId,
+    required String workspaceId,
     required String email,
     required String role,
   });
 
   Future<void> cancelInvitation({
-    required String householdId,
+    required String workspaceId,
     required String invitationId,
   });
 
-
   Future<void> ensurePersonalWorkspace();
+
+  /// Verifies that member document exists for the given workspace and user
+  /// Returns true if member exists, false otherwise
+  Future<bool> verifyMemberExists({
+    required String workspaceId,
+    required String userId,
+  });
 }

@@ -1,8 +1,8 @@
 import 'package:expense_manager/features/workspace/domain/repositories/workspace_detail_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-class DeleteHouseholdParams {
-  const DeleteHouseholdParams({
+class DeleteWorkspaceParams {
+  const DeleteWorkspaceParams({
     required this.userId,
     required this.workspaceId,
   });
@@ -17,7 +17,7 @@ class DeleteWorkspaceUseCase {
 
   final WorkspaceDetailRepository _repository;
 
-  Future<void> call(DeleteHouseholdParams params) {
+  Future<void> call(DeleteWorkspaceParams params) {
     return _repository.deleteWorkspace(
       userId: params.userId,
       workspaceId: params.workspaceId,
