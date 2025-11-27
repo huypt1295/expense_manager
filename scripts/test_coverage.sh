@@ -5,7 +5,7 @@ set -e
 
 # Run flutter tests with coverage
 echo "Running flutter tests with coverage..."
-/Users/macbook1/Documents/sdk/3.35.4/flutter/bin/flutter test --coverage
+flutter test --coverage
 
 # Check if lcov is installed
 echo "Checking for lcov..."
