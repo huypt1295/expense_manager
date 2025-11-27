@@ -26,19 +26,20 @@ class CategoryRepositoryImpl implements CategoryRepository {
   Stream<List<CategoryEntity>> watchCombined() {
     final uid = _currentUser.now()?.uid;
     final defaultStream = _remoteDataSource.watchDefault();
+    final context = _requireWorkspaceContext();
     final userStream = (uid == null || uid.isEmpty)
         ? Stream<List<CategoryModel>>.value(const <CategoryModel>[])
-        : _remoteDataSource.watchForUser(uid);
+        : _remoteDataSource.watchForWorkspace(context);
 
     return Rx.combineLatest2<
-          List<CategoryModel>,
-          List<CategoryModel>,
-          List<CategoryEntity>
-        >(
-          defaultStream,
-          userStream,
+        List<CategoryModel>,
+        List<CategoryModel>,
+        List<CategoryEntity>
+    >(
+      defaultStream,
+      userStream,
           (defaults, users) => _mapModelsToEntities(defaults, users),
-        )
+    )
         .map(List<CategoryEntity>.unmodifiable);
   }
 
@@ -46,58 +47,16 @@ class CategoryRepositoryImpl implements CategoryRepository {
   Future<List<CategoryEntity>> fetchCombined() async {
     final uid = _currentUser.now()?.uid;
     final defaultModels = await _remoteDataSource.fetchDefault();
+    final context = _requireWorkspaceContext();
     final userModels = (uid == null || uid.isEmpty)
         ? const <CategoryModel>[]
-        : await _remoteDataSource.fetchForUser(uid);
+        : await _remoteDataSource.fetchForWorkspace(context);
     return List<CategoryEntity>.unmodifiable(
       _mapModelsToEntities(defaultModels, userModels),
     );
   }
 
-  @override
-  Future<CategoryEntity> createUserCategory(CategoryEntity entity) async {
-    final uid = _requireUid();
-    if (!entity.isCustom) {
-      throw ArgumentError.value(
-        entity.isCustom,
-        'isCustom',
-        'Only custom categories can be created for users.',
-      );
-    }
-
-    final model = CategoryModel.fromEntity(
-      entity.copyWith(
-        id: entity.id.isEmpty ? '' : entity.id,
-        ownerId: uid,
-        isArchived: false,
-        isActive: entity.isActive,
-      ),
-    );
-
-    final created = await _remoteDataSource.createForUser(uid, model);
-    return created.toEntity();
-  }
-
-  @override
-  Future<void> updateUserCategory(CategoryEntity entity) {
-    final uid = _requireUid();
-    if (!entity.isCustom) {
-      throw ArgumentError.value(
-        entity.isCustom,
-        'isCustom',
-        'Default categories cannot be updated by users.',
-      );
-    }
-
-    final model = CategoryModel.fromEntity(entity.copyWith(ownerId: uid));
-    return _remoteDataSource.updateForUser(uid, model);
-  }
-
-  @override
-  Future<void> deleteUserCategory(String id) {
-    final uid = _requireUid();
-    return _remoteDataSource.deleteForUser(uid, id);
-  }
+  // ========== Workspace-aware methods ==========
 
   List<CategoryEntity> _mapModelsToEntities(
     List<CategoryModel> defaultModels,
@@ -158,15 +117,6 @@ class CategoryRepositoryImpl implements CategoryRepository {
       }
     }
     return a.nameForLocale('en').compareTo(b.nameForLocale('en'));
-  }
-
-  String _requireUid() {
-    final snapshot = _currentUser.now();
-    final uid = snapshot?.uid;
-    if (uid == null || uid.isEmpty) {
-      throw AuthException('auth.required', tokenExpired: true);
-    }
-    return uid;
   }
 
   WorkspaceContext _requireWorkspaceContext() {

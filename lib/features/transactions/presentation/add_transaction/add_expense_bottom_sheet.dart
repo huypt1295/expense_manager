@@ -134,6 +134,7 @@ class _ExpenseFormBottomSheetState extends BaseState<AddExpenseBottomSheet> {
 
   Widget _buildTypeSelection() {
     return AddExpenseOrIncomeSelection(
+      selectedType: _type,
       onTypeChanged: (type) {
         setState(() {
           _type = type;

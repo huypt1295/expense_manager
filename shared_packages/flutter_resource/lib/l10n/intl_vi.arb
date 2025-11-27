@@ -65,6 +65,11 @@
   "workspace_wizard_title": "Bạn chưa tham gia workspace nào",
   "workspace_wizard_description": "Tạo workspace để chia sẻ giao dịch và ngân sách với gia đình hoặc đồng nghiệp",
   "workspace_wizard_choose_icon": "Chọn icon",
-  "workspace_name": "Tên workspace"
-
+  "workspace_name": "Tên workspace",
+  "add_category": "Thêm danh mục",
+  "category_type": "Loại giao dịch",
+  "choose_icon": "Chọn biểu tượng",
+  "category_name": "Tên danh mục",
+  "please_enter_category_name": "Vui lòng nhập tên danh mục",
+  "please_choose_icon": "Vui lòng chọn biểu tượng"
 }

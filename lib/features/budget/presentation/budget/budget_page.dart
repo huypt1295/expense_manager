@@ -13,6 +13,7 @@ import 'package:expense_manager/features/budget/presentation/budget/widget/budge
 import 'package:expense_manager/features/budget/presentation/budget/widget/budget_list_widget.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/budget_overview_widget.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/chart/budget_chart_widget.dart';
+import 'package:expense_manager/features/home/presentation/home/home_page.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:expense_manager/features/workspace/domain/entities/workspace_entity.dart';
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart';
@@ -55,7 +56,6 @@ class _BudgetPageState extends BaseState<BudgetPage> {
             final workspaceState = context.watch<WorkspaceBloc>().state;
             final selectedWorkspace = _resolveWorkspace(workspaceState);
             final canManage = _canManageWorkspace(selectedWorkspace);
-
             final budgetsByMonth = state.budgets
                 .where(_isBudgetInMonth)
                 .toList();
@@ -77,6 +77,9 @@ class _BudgetPageState extends BaseState<BudgetPage> {
                       ),
                       _buildChart(budgetsByMonth),
                       _buildListRecentBudget(budgetsByMonth, state, canManage),
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: bottomNavHeight),
+                      ),
                     ],
                   ),
                   _buildSubmitButton(canManage),
@@ -151,7 +154,7 @@ class _BudgetPageState extends BaseState<BudgetPage> {
   }
 
   Widget _buildSubmitButton(bool canManage) => Positioned(
-    bottom: 16,
+    bottom: 16 + bottomNavHeight,
     right: 16,
     child: AddBudgetButton(enabled: canManage),
   );

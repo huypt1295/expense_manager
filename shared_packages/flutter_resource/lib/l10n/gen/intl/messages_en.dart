@@ -26,6 +26,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "access_role": MessageLookupByLibrary.simpleMessage("Access role"),
     "add_budget": MessageLookupByLibrary.simpleMessage("Add budget"),
+    "add_category": MessageLookupByLibrary.simpleMessage("Add category"),
     "add_expense": MessageLookupByLibrary.simpleMessage("Add expense"),
     "add_income": MessageLookupByLibrary.simpleMessage("Add income"),
     "add_transaction": MessageLookupByLibrary.simpleMessage("Add transaction"),
@@ -37,6 +38,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
     "category": MessageLookupByLibrary.simpleMessage("Category"),
+    "category_name": MessageLookupByLibrary.simpleMessage("Category name"),
+    "category_type": MessageLookupByLibrary.simpleMessage("Transaction type"),
+    "choose_icon": MessageLookupByLibrary.simpleMessage("Choose icon"),
     "create_workspace": MessageLookupByLibrary.simpleMessage(
       "Create workspace",
     ),
@@ -76,6 +80,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "note": MessageLookupByLibrary.simpleMessage("Note"),
     "note_hint": MessageLookupByLibrary.simpleMessage("Add notes..."),
     "only_me": MessageLookupByLibrary.simpleMessage("Only me"),
+    "please_choose_icon": MessageLookupByLibrary.simpleMessage(
+      "Please choose an icon",
+    ),
+    "please_enter_category_name": MessageLookupByLibrary.simpleMessage(
+      "Please enter a category name",
+    ),
     "profile": MessageLookupByLibrary.simpleMessage("Profile"),
     "recent_transactions": MessageLookupByLibrary.simpleMessage(
       "Recent transactions",

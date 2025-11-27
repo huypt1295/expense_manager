@@ -1,6 +1,8 @@
 import 'package:expense_manager/core/enums/transaction_type.dart';
+import 'package:expense_manager/features/transactions/presentation/add_transaction/widgets/add_expense_or_income_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
+import 'package:flutter_resource/l10n/gen/l10n.dart';
 
 class AddUserCategoryBottomSheet extends StatefulWidget {
   const AddUserCategoryBottomSheet({super.key, required this.initialType});
@@ -34,103 +36,78 @@ class _AddUserCategoryBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final viewInsets = MediaQuery.of(context).viewInsets.bottom;
-
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 24,
-          bottom: viewInsets + 24,
-        ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 48,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade400,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Thêm danh mục',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              CommonTextFormField(
-                controller: _nameController,
-               hintText: "Tên danh mục",
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Vui lòng nhập tên danh mục';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              CommonTextFormField(
-                controller: _iconController,
-                hintText: "Biểu tượng (emoji)",
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Vui lòng nhập emoji';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<TransactionType>(
-                value: _type,
-                decoration: const InputDecoration(labelText: 'Loại giao dịch'),
-                items: TransactionType.values
-                    .map(
-                      (type) => DropdownMenuItem<TransactionType>(
-                        value: type,
-                        child: Text(_labelForType(type)),
-                      ),
-                    )
-                    .toList(growable: false),
-                onChanged: (type) {
-                  if (type != null) {
-                    setState(() {
-                      _type = type;
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Huỷ'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _submit,
-                      child: const Text('Lưu'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+    return CommonBottomSheet(
+      title: S.current.add_category,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => ViewUtils.hideKeyboard(context),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                _buildTypeSelection(),
+                const SizedBox(height: 24),
+                _buildCategoryName(),
+                const SizedBox(height: 16),
+                _buildCategoryIcon(),
+                const SizedBox(height: 24),
+                _buildActionButton(context),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTypeSelection() {
+    return AddExpenseOrIncomeSelection(
+      selectedType: _type,
+      onTypeChanged: (type) {
+        setState(() {
+          _type = type;
+        });
+      },
+    );
+  }
+
+  Widget _buildCategoryName() {
+    return CommonTextFormField(
+      controller: _nameController,
+      hintText: S.current.category_name,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return S.current.please_enter_category_name;
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildCategoryIcon() {
+    return CommonTextFormField(
+      controller: _iconController,
+      hintText: S.current.choose_icon,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return S.current.please_choose_icon;
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildActionButton(BuildContext context) {
+    return CommonPrimaryButton(
+      onPressed: () {
+        _submit();
+      },
+      padding: EdgeInsets.zero,
+      child: Text(S.current.save,
+        style: TextStyle(fontSize: 16),
       ),
     );
   }
@@ -146,15 +123,6 @@ class _AddUserCategoryBottomSheetState
         type: _type,
       ),
     );
-  }
-
-  static String _labelForType(TransactionType type) {
-    switch (type) {
-      case TransactionType.expense:
-        return 'Chi tiêu';
-      case TransactionType.income:
-        return 'Thu nhập';
-    }
   }
 }
 

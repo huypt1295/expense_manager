@@ -122,4 +122,32 @@ class CategoryModel {
     }
     return null;
   }
+
+  CategoryModel copyWith({
+    String? id,
+    String? icon,
+    bool? isActive,
+    TransactionType? type,
+    Map<String, String>? name,
+    bool? isUserDefined,
+    int? sortOrder,
+    String? ownerId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? isArchived,
+  }) {
+    return CategoryModel(
+      id: id ?? this.id,
+      icon: icon ?? this.icon,
+      isActive: isActive ?? this.isActive,
+      type: type ?? this.type,
+      name: name ?? this.name,
+      isUserDefined: isUserDefined ?? this.isUserDefined,
+      sortOrder: sortOrder ?? this.sortOrder,
+      ownerId: ownerId ?? this.ownerId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isArchived: isArchived ?? this.isArchived,
+    );
+  }
 }

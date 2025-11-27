@@ -538,6 +538,61 @@ class S {
       args: [],
     );
   }
+
+  /// `Add category`
+  String get add_category {
+    return Intl.message(
+      'Add category',
+      name: 'add_category',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Transaction type`
+  String get category_type {
+    return Intl.message(
+      'Transaction type',
+      name: 'category_type',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose icon`
+  String get choose_icon {
+    return Intl.message('Choose icon', name: 'choose_icon', desc: '', args: []);
+  }
+
+  /// `Category name`
+  String get category_name {
+    return Intl.message(
+      'Category name',
+      name: 'category_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter a category name`
+  String get please_enter_category_name {
+    return Intl.message(
+      'Please enter a category name',
+      name: 'please_enter_category_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please choose an icon`
+  String get please_choose_icon {
+    return Intl.message(
+      'Please choose an icon',
+      name: 'please_choose_icon',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

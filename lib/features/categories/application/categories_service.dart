@@ -34,13 +34,23 @@ class CategoriesService {
     bool forceRefresh = false,
     TransactionType? type,
   }) async {
-    final categories = await _fetchAll(forceRefresh: forceRefresh);
-    if (type == null) {
-      return categories;
+    if (!forceRefresh && _cache != null) {
+      return _filterByType(_cache!, type);
     }
-    return categories
-        .where((category) => category.type == type)
-        .toList(growable: false);
+
+    _inFlight ??= _loadCategoriesUseCase(NoParam()).then((result) {
+      return result.fold(
+        ok: (categories) {
+          _cache = categories;
+          _inFlight = null;
+          return categories;
+        },
+        err: (failure) => throw failure,
+      );
+    });
+
+    final categories = await _inFlight!;
+    return _filterByType(categories, type);
   }
 
   Future<CategoryEntity> createUserCategory(CategoryEntity entity) async {
@@ -63,7 +73,6 @@ class CategoriesService {
     return result.fold(
       ok: (_) {
         clearCache();
-        return;
       },
       err: (failure) => throw failure,
     );
@@ -76,7 +85,6 @@ class CategoriesService {
     return result.fold(
       ok: (_) {
         clearCache();
-        return;
       },
       err: (failure) => throw failure,
     );
@@ -86,33 +94,15 @@ class CategoriesService {
     _cache = null;
   }
 
-  Future<List<CategoryEntity>> _fetchAll({required bool forceRefresh}) async {
-    if (!forceRefresh) {
-      final cached = _cache;
-      if (cached != null) {
-        return cached;
-      }
-      final inFlight = _inFlight;
-      if (inFlight != null) {
-        return inFlight;
-      }
+  List<CategoryEntity> _filterByType(
+    List<CategoryEntity> categories,
+    TransactionType? type,
+  ) {
+    if (type == null) {
+      return categories;
     }
-
-    final future = _loadCategoriesUseCase(NoParam()).then((result) {
-      return result.fold(
-        ok: (items) {
-          _cache = items;
-          return items;
-        },
-        err: (failure) => throw failure,
-      );
-    });
-
-    _inFlight = future;
-    try {
-      return await future;
-    } finally {
-      _inFlight = null;
-    }
+    return categories
+        .where((category) => category.type == type)
+        .toList(growable: false);
   }
 }

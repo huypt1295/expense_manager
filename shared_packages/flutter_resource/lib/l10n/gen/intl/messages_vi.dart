@@ -26,6 +26,7 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "access_role": MessageLookupByLibrary.simpleMessage("Quyền truy cập"),
     "add_budget": MessageLookupByLibrary.simpleMessage("Thêm ngân sách"),
+    "add_category": MessageLookupByLibrary.simpleMessage("Thêm danh mục"),
     "add_expense": MessageLookupByLibrary.simpleMessage("Thêm chi tiêu"),
     "add_income": MessageLookupByLibrary.simpleMessage("Thêm thu nhập"),
     "add_transaction": MessageLookupByLibrary.simpleMessage("Thêm giao dịch"),
@@ -37,6 +38,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "cancel": MessageLookupByLibrary.simpleMessage("Hủy"),
     "category": MessageLookupByLibrary.simpleMessage("Danh mục"),
+    "category_name": MessageLookupByLibrary.simpleMessage("Tên danh mục"),
+    "category_type": MessageLookupByLibrary.simpleMessage("Loại giao dịch"),
+    "choose_icon": MessageLookupByLibrary.simpleMessage("Chọn biểu tượng"),
     "create_workspace": MessageLookupByLibrary.simpleMessage("Tạo workspace"),
     "date_time": MessageLookupByLibrary.simpleMessage("Thời gian"),
     "delete": MessageLookupByLibrary.simpleMessage("Xóa"),
@@ -70,6 +74,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "note": MessageLookupByLibrary.simpleMessage("Ghi chú"),
     "note_hint": MessageLookupByLibrary.simpleMessage("Thêm ghi chú..."),
     "only_me": MessageLookupByLibrary.simpleMessage("Chỉ mình tôi"),
+    "please_choose_icon": MessageLookupByLibrary.simpleMessage(
+      "Vui lòng chọn biểu tượng",
+    ),
+    "please_enter_category_name": MessageLookupByLibrary.simpleMessage(
+      "Vui lòng nhập tên danh mục",
+    ),
     "profile": MessageLookupByLibrary.simpleMessage("Cá nhân"),
     "recent_transactions": MessageLookupByLibrary.simpleMessage(
       "Giao dịch gần đây",

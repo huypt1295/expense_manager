@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:expense_manager/features/home/presentation/home/home_page.dart';
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_bloc.dart';
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_effect.dart';
 import 'package:expense_manager/features/home/presentation/summary/bloc/summary_event.dart';
@@ -66,6 +67,7 @@ class _SummaryView extends StatelessWidget {
                       _buildChart(state),
                       SliverToBoxAdapter(child: const SizedBox(height: 24)),
                       _buildListRecent(state),
+                      SliverToBoxAdapter(child: SizedBox(height: bottomNavHeight)),
                     ],
                   ),
                 ),

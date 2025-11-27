@@ -44,7 +44,7 @@ service cloud.firestore {
     }
     
     // Global categories (read-only for all authenticated users)
-    match /globalCategories/{categoryId} {
+    match /categories/{categoryId} {
       allow read: if isAuthenticated();
       allow write: if false; // Only admins can modify (via Firebase Console)
     }

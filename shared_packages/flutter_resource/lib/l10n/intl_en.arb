@@ -65,5 +65,11 @@
   "workspace_wizard_title": "You haven't joined any workspace yet",
   "workspace_wizard_description": "Create a workspace to share expenses and budgets with family or friends",
   "workspace_wizard_choose_icon": "Choose icon",
-  "workspace_name": "Workspace name"
+  "workspace_name": "Workspace name",
+  "add_category": "Add category",
+  "category_type": "Transaction type",
+  "choose_icon": "Choose icon",
+  "category_name": "Category name",
+  "please_enter_category_name": "Please enter a category name",
+  "please_choose_icon": "Please choose an icon"
 }

@@ -60,22 +60,14 @@ import 'package:expense_manager/features/categories/data/repositories/category_r
     as _i939;
 import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart'
     as _i482;
-import 'package:expense_manager/features/categories/domain/usecases/create_user_category_usecase.dart'
-    as _i469;
 import 'package:expense_manager/features/categories/domain/usecases/create_workspace_category_usecase.dart'
     as _i771;
-import 'package:expense_manager/features/categories/domain/usecases/delete_user_category_usecase.dart'
-    as _i380;
 import 'package:expense_manager/features/categories/domain/usecases/delete_workspace_category_usecase.dart'
     as _i585;
 import 'package:expense_manager/features/categories/domain/usecases/load_categories_usecase.dart'
     as _i823;
-import 'package:expense_manager/features/categories/domain/usecases/update_user_category_usecase.dart'
-    as _i770;
 import 'package:expense_manager/features/categories/domain/usecases/update_workspace_category_usecase.dart'
     as _i979;
-import 'package:expense_manager/features/categories/domain/usecases/watch_categories_usecase.dart'
-    as _i276;
 import 'package:expense_manager/features/categories/domain/usecases/watch_workspace_categories_usecase.dart'
     as _i246;
 import 'package:expense_manager/features/home/presentation/home/bloc/home_bloc.dart'
@@ -426,22 +418,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1026.ExpenseBloc>(
       () => _i1026.ExpenseBloc(gh<_i892.AddTransactionUseCase>()),
     );
-    gh.factory<_i469.CreateUserCategoryUseCase>(
-      () => _i469.CreateUserCategoryUseCase(gh<_i482.CategoryRepository>()),
-    );
     gh.factory<_i771.CreateWorkspaceCategoryUseCase>(
       () =>
           _i771.CreateWorkspaceCategoryUseCase(gh<_i482.CategoryRepository>()),
     );
-    gh.factory<_i380.DeleteUserCategoryUseCase>(
-      () => _i380.DeleteUserCategoryUseCase(gh<_i482.CategoryRepository>()),
-    );
     gh.factory<_i585.DeleteWorkspaceCategoryUseCase>(
       () =>
           _i585.DeleteWorkspaceCategoryUseCase(gh<_i482.CategoryRepository>()),
-    );
-    gh.factory<_i770.UpdateUserCategoryUseCase>(
-      () => _i770.UpdateUserCategoryUseCase(gh<_i482.CategoryRepository>()),
     );
     gh.factory<_i979.UpdateWorkspaceCategoryUseCase>(
       () =>
@@ -449,9 +432,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i823.LoadCategoriesUseCase>(
       () => _i823.LoadCategoriesUseCase(gh<_i482.CategoryRepository>()),
-    );
-    gh.singleton<_i276.WatchCategoriesUseCase>(
-      () => _i276.WatchCategoriesUseCase(gh<_i482.CategoryRepository>()),
     );
     gh.singleton<_i246.WatchWorkspaceCategoriesUseCase>(
       () =>

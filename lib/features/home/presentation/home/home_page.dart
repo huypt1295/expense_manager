@@ -9,10 +9,10 @@ import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'home_destinations.dart';
 
+const double bottomNavHeight = 75.0;
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.state, required this.child});
-
-  static const double _bottomNavHeight = 75.0;
 
   final GoRouterState state;
   final Widget child;
@@ -59,7 +59,7 @@ class HomePage extends StatelessWidget {
       curvedIndex: 2,
       color: context.tpColors.backgroundMain,
       curvedBackgroundColor: context.tpColors.surfaceNeutralComponent,
-      height: _bottomNavHeight,
+      height: bottomNavHeight,
       items: destinations
           .map(
             (destination) => CurvedNavigationItem(
