@@ -4,6 +4,7 @@ import 'package:expense_manager/core/auth/current_user.dart';
 import 'package:expense_manager/core/workspace/current_workspace.dart';
 import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/workspace/application/current_workspace_controller.dart';
+import 'package:expense_manager/features/workspace/domain/usecases/ensure_personal_workspace_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeCurrentUser implements CurrentUser {
@@ -29,16 +30,36 @@ class _FakeCurrentUser implements CurrentUser {
   Future<void> close() => _controller.close();
 }
 
+class _FakeEnsurePersonalWorkspaceUseCase
+    implements EnsurePersonalWorkspaceUseCase {
+  @override
+  Future<void> call() async {}
+
+  @override
+  Future<bool> verifyMemberExists({
+    required String workspaceId,
+    required String userId,
+  }) async {
+    return true;
+  }
+}
+
 void main() {
   group('CurrentWorkspaceController', () {
     late _FakeCurrentUser currentUser;
     late CurrentWorkspaceController controller;
 
+    late _FakeEnsurePersonalWorkspaceUseCase ensurePersonalWorkspaceUseCase;
+
     setUp(() {
       currentUser = _FakeCurrentUser(
         const CurrentUserSnapshot(uid: 'uid-123', displayName: 'Taylor'),
       );
-      controller = CurrentWorkspaceController(currentUser);
+      ensurePersonalWorkspaceUseCase = _FakeEnsurePersonalWorkspaceUseCase();
+      controller = CurrentWorkspaceController(
+        currentUser,
+        ensurePersonalWorkspaceUseCase,
+      );
     });
 
     tearDown(() async {
@@ -46,7 +67,8 @@ void main() {
       await controller.dispose();
     });
 
-    test('initial snapshot defaults to personal workspace', () {
+    test('initial snapshot defaults to personal workspace', () async {
+      await pumpEventQueue();
       final snapshot = controller.now();
       expect(snapshot, isNotNull);
       expect(snapshot!.id, 'uid-123');

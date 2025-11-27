@@ -69,6 +69,8 @@ class CurrentWorkspaceController implements CurrentWorkspace {
       print('Error ensuring personal workspace: $error');
     }
 
+    if (_currentUser.now()?.uid != uid) return;
+
     final name = snapshot.displayName?.trim();
     final personal = CurrentWorkspaceSnapshot.personal(
       id: uid,

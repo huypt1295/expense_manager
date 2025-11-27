@@ -62,7 +62,10 @@ class CategoryRemoteDataSource {
     final collection = _workspaceCollection(context);
     final docRef = collection.doc();
     final withId = model.copyWith(id: docRef.id);
-    await docRef.set(withId.toFirestoreBase());
+    final data = withId.toFirestoreBase()
+      ..['createdAt'] = FieldValue.serverTimestamp()
+      ..['updatedAt'] = FieldValue.serverTimestamp();
+    await docRef.set(data);
     return withId;
   }
 

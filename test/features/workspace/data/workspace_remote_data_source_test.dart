@@ -35,7 +35,7 @@ void main() {
 
       expect(doc.exists, isTrue);
       expect(doc.data()?['name'], 'Family');
-      expect(doc.data()?['type'], 'household');
+      expect(doc.data()?['type'], 'workspace');
       expect(doc.data()?['role'], 'owner');
     });
 
@@ -45,11 +45,7 @@ void main() {
           .doc(uid)
           .collection('workspaces')
           .doc('workspace-a')
-          .set({
-        'name': 'Workspace A',
-        'type': 'household',
-        'role': 'editor',
-      });
+          .set({'name': 'Workspace A', 'type': 'household', 'role': 'editor'});
 
       final models = await dataSource.watchMemberships(uid).first;
 

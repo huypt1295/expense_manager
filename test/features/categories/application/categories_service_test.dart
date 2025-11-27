@@ -4,11 +4,11 @@ import 'package:expense_manager/core/enums/transaction_type.dart';
 import 'package:expense_manager/features/categories/application/categories_service.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart';
-import 'package:expense_manager/features/categories/domain/usecases/create_user_category_usecase.dart';
-import 'package:expense_manager/features/categories/domain/usecases/delete_user_category_usecase.dart';
+import 'package:expense_manager/features/categories/domain/usecases/create_workspace_category_usecase.dart';
+import 'package:expense_manager/features/categories/domain/usecases/delete_workspace_category_usecase.dart';
 import 'package:expense_manager/features/categories/domain/usecases/load_categories_usecase.dart';
-import 'package:expense_manager/features/categories/domain/usecases/update_user_category_usecase.dart';
-import 'package:expense_manager/features/categories/domain/usecases/watch_categories_usecase.dart';
+import 'package:expense_manager/features/categories/domain/usecases/update_workspace_category_usecase.dart';
+import 'package:expense_manager/features/categories/domain/usecases/watch_workspace_categories_usecase.dart';
 import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -36,17 +36,24 @@ class _FakeCategoryRepository implements CategoryRepository {
   }
 
   @override
-  Future<CategoryEntity> createUserCategory(CategoryEntity entity) {
+  Future<List<CategoryEntity>> fetchWorkspaceCategories() async => const [];
+
+  @override
+  Stream<List<CategoryEntity>> watchWorkspaceCategories() =>
+      const Stream<List<CategoryEntity>>.empty();
+
+  @override
+  Future<CategoryEntity> createWorkspaceCategory(CategoryEntity entity) {
     throw UnimplementedError();
   }
 
   @override
-  Future<void> deleteUserCategory(String id) {
+  Future<void> deleteWorkspaceCategory(String id) {
     throw UnimplementedError();
   }
 
   @override
-  Future<void> updateUserCategory(CategoryEntity entity) {
+  Future<void> updateWorkspaceCategory(CategoryEntity entity) {
     throw UnimplementedError();
   }
 }
@@ -71,10 +78,10 @@ void main() {
       repository = _FakeCategoryRepository();
       service = CategoriesService(
         LoadCategoriesUseCase(repository),
-        WatchCategoriesUseCase(repository),
-        CreateUserCategoryUseCase(repository),
-        UpdateUserCategoryUseCase(repository),
-        DeleteUserCategoryUseCase(repository),
+        WatchWorkspaceCategoriesUseCase(repository),
+        CreateWorkspaceCategoryUseCase(repository),
+        UpdateWorkspaceCategoryUseCase(repository),
+        DeleteWorkspaceCategoryUseCase(repository),
       );
     });
 

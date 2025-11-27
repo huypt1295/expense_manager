@@ -17,16 +17,12 @@ import 'package:expense_manager/features/categories/application/categories_servi
     show CategoriesService;
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart';
-import 'package:expense_manager/features/categories/domain/usecases/create_user_category_usecase.dart'
-    show CreateUserCategoryUseCase;
-import 'package:expense_manager/features/categories/domain/usecases/delete_user_category_usecase.dart'
-    show DeleteUserCategoryUseCase;
+import 'package:expense_manager/features/categories/domain/usecases/create_workspace_category_usecase.dart';
+import 'package:expense_manager/features/categories/domain/usecases/delete_workspace_category_usecase.dart';
 import 'package:expense_manager/features/categories/domain/usecases/load_categories_usecase.dart'
     show LoadCategoriesUseCase;
-import 'package:expense_manager/features/categories/domain/usecases/update_user_category_usecase.dart'
-    show UpdateUserCategoryUseCase;
-import 'package:expense_manager/features/categories/domain/usecases/watch_categories_usecase.dart'
-    show WatchCategoriesUseCase;
+import 'package:expense_manager/features/categories/domain/usecases/update_workspace_category_usecase.dart';
+import 'package:expense_manager/features/categories/domain/usecases/watch_workspace_categories_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:expense_manager/features/transactions/domain/repositories/transactions_repository.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/watch_transactions_usecase.dart';
@@ -144,17 +140,24 @@ class _FakeCategoryRepository implements CategoryRepository {
       const Stream<List<CategoryEntity>>.empty();
 
   @override
-  Future<CategoryEntity> createUserCategory(CategoryEntity entity) {
+  Future<List<CategoryEntity>> fetchWorkspaceCategories() async => const [];
+
+  @override
+  Stream<List<CategoryEntity>> watchWorkspaceCategories() =>
+      const Stream<List<CategoryEntity>>.empty();
+
+  @override
+  Future<CategoryEntity> createWorkspaceCategory(CategoryEntity entity) {
     throw UnimplementedError();
   }
 
   @override
-  Future<void> updateUserCategory(CategoryEntity entity) {
+  Future<void> updateWorkspaceCategory(CategoryEntity entity) {
     throw UnimplementedError();
   }
 
   @override
-  Future<void> deleteUserCategory(String id) {
+  Future<void> deleteWorkspaceCategory(String id) {
     throw UnimplementedError();
   }
 }
@@ -197,10 +200,10 @@ void main() {
         WatchTransactionsUseCase(transactionsRepository),
         CategoriesService(
           LoadCategoriesUseCase(categoryRepository),
-          WatchCategoriesUseCase(categoryRepository),
-          CreateUserCategoryUseCase(categoryRepository),
-          UpdateUserCategoryUseCase(categoryRepository),
-          DeleteUserCategoryUseCase(categoryRepository),
+          WatchWorkspaceCategoriesUseCase(categoryRepository),
+          CreateWorkspaceCategoryUseCase(categoryRepository),
+          UpdateWorkspaceCategoryUseCase(categoryRepository),
+          DeleteWorkspaceCategoryUseCase(categoryRepository),
         ),
         currentWorkspace,
       );

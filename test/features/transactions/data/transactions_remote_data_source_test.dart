@@ -18,8 +18,11 @@ void main() {
     setUp(() {
       firestore = FakeFirebaseFirestore();
       dataSource = TransactionsRemoteDataSource(firestore);
-      personalContext =
-          const WorkspaceContext(userId: uid, workspaceId: uid, type: WorkspaceType.personal);
+      personalContext = const WorkspaceContext(
+        userId: uid,
+        workspaceId: uid,
+        type: WorkspaceType.personal,
+      );
       householdContext = const WorkspaceContext(
         userId: uid,
         workspaceId: householdId,
@@ -49,7 +52,7 @@ void main() {
       await dataSource.upsert(personalContext, model);
 
       final snapshot = await firestore
-          .collection('users')
+          .collection('workspaces')
           .doc(uid)
           .collection('transactions')
           .doc('tx-1')
@@ -63,7 +66,7 @@ void main() {
 
     test('update merges existing transaction', () async {
       final doc = firestore
-          .collection('users')
+          .collection('workspaces')
           .doc(uid)
           .collection('transactions')
           .doc('tx-merge');
@@ -95,7 +98,7 @@ void main() {
 
     test('softDelete marks transaction as deleted', () async {
       final doc = firestore
-          .collection('users')
+          .collection('workspaces')
           .doc(uid)
           .collection('transactions')
           .doc('tx-delete');
@@ -107,38 +110,43 @@ void main() {
       expect(snapshot.data()?['deleted'], isTrue);
     });
 
-    test('watchTransactions emits non-deleted transactions sorted desc by date', () async {
-      final collection = firestore
-          .collection('users')
-          .doc(uid)
-          .collection('transactions');
+    test(
+      'watchTransactions emits non-deleted transactions sorted desc by date',
+      () async {
+        final collection = firestore
+            .collection('workspaces')
+            .doc(uid)
+            .collection('transactions');
 
-      await collection.doc('old').set({
-        'title': 'Old',
-        'amount': 10,
-        'date': Timestamp.fromDate(DateTime(2024, 1, 1)),
-        'deleted': false,
-      });
-      await collection.doc('recent').set({
-        'title': 'Recent',
-        'amount': 20,
-        'date': Timestamp.fromDate(DateTime(2024, 2, 1)),
-        'deleted': false,
-      });
-      await collection.doc('deleted').set({
-        'title': 'Deleted',
-        'amount': 30,
-        'date': Timestamp.fromDate(DateTime(2024, 3, 1)),
-        'deleted': true,
-      });
+        await collection.doc('old').set({
+          'title': 'Old',
+          'amount': 10,
+          'date': Timestamp.fromDate(DateTime(2024, 1, 1)),
+          'deleted': false,
+        });
+        await collection.doc('recent').set({
+          'title': 'Recent',
+          'amount': 20,
+          'date': Timestamp.fromDate(DateTime(2024, 2, 1)),
+          'deleted': false,
+        });
+        await collection.doc('deleted').set({
+          'title': 'Deleted',
+          'amount': 30,
+          'date': Timestamp.fromDate(DateTime(2024, 3, 1)),
+          'deleted': true,
+        });
 
-      final models = await dataSource.watchTransactions(personalContext).first;
-      expect(models.map((m) => m.id), ['recent', 'old']);
-    });
+        final models = await dataSource
+            .watchTransactions(personalContext)
+            .first;
+        expect(models.map((m) => m.id), ['recent', 'old']);
+      },
+    );
 
     test('fetchTransactionsOnce mirrors watcher filtering', () async {
       final collection = firestore
-          .collection('users')
+          .collection('workspaces')
           .doc(uid)
           .collection('transactions');
 
@@ -177,7 +185,7 @@ void main() {
       await dataSource.upsert(householdContext, model);
 
       final doc = await firestore
-          .collection('households')
+          .collection('workspaces')
           .doc(householdId)
           .collection('transactions')
           .doc('shared')
@@ -189,31 +197,36 @@ void main() {
       expect(doc.data()?['sharedByUserId'], 'uid-123');
     });
 
-    test('household context reads and writes from household collection', () async {
-      final model = TransactionModel(
-        id: 'household-tx',
-        title: 'Groceries',
-        amount: 80,
-        date: DateTime(2024, 2, 2),
-        type: TransactionType.expense,
-        category: 'Food',
-        note: null,
-      );
+    test(
+      'household context reads and writes from household collection',
+      () async {
+        final model = TransactionModel(
+          id: 'household-tx',
+          title: 'Groceries',
+          amount: 80,
+          date: DateTime(2024, 2, 2),
+          type: TransactionType.expense,
+          category: 'Food',
+          note: null,
+        );
 
-      await dataSource.upsert(householdContext, model);
+        await dataSource.upsert(householdContext, model);
 
-      final doc = await firestore
-          .collection('households')
-          .doc(householdId)
-          .collection('transactions')
-          .doc('household-tx')
-          .get();
+        final doc = await firestore
+            .collection('workspaces')
+            .doc(householdId)
+            .collection('transactions')
+            .doc('household-tx')
+            .get();
 
-      expect(doc.exists, isTrue);
+        expect(doc.exists, isTrue);
 
-      final fetched = await dataSource.fetchTransactionsOnce(householdContext);
-      expect(fetched, hasLength(1));
-      expect(fetched.first.id, 'household-tx');
-    });
+        final fetched = await dataSource.fetchTransactionsOnce(
+          householdContext,
+        );
+        expect(fetched, hasLength(1));
+        expect(fetched.first.id, 'household-tx');
+      },
+    );
   });
 }

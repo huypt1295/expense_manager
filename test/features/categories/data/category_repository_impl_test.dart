@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:expense_manager/core/auth/current_user.dart';
 import 'package:expense_manager/core/enums/transaction_type.dart';
+import 'package:expense_manager/core/workspace/current_workspace.dart';
+import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/categories/data/datasources/category_remote_data_source.dart';
 import 'package:expense_manager/features/categories/data/models/category_model.dart';
 import 'package:expense_manager/features/categories/data/repositories/category_repository_impl.dart';
@@ -19,6 +21,31 @@ class _FakeCurrentUser implements CurrentUser {
   @override
   Stream<CurrentUserSnapshot?> watch() =>
       Stream<CurrentUserSnapshot?>.value(snapshot);
+}
+
+class _FakeCurrentWorkspace implements CurrentWorkspace {
+  _FakeCurrentWorkspace({this.snapshot});
+
+  CurrentWorkspaceSnapshot? snapshot;
+  final StreamController<CurrentWorkspaceSnapshot?> _controller =
+      StreamController<CurrentWorkspaceSnapshot?>.broadcast(sync: true);
+
+  @override
+  CurrentWorkspaceSnapshot? now() => snapshot;
+
+  @override
+  Stream<CurrentWorkspaceSnapshot?> watch() => _controller.stream;
+
+  @override
+  Future<void> select(CurrentWorkspaceSnapshot? snapshot) async {
+    this.snapshot = snapshot;
+    _controller.add(snapshot);
+  }
+
+  void emit(CurrentWorkspaceSnapshot? snapshot) {
+    this.snapshot = snapshot;
+    _controller.add(snapshot);
+  }
 }
 
 class _FakeCategoryRemoteDataSource implements CategoryRemoteDataSource {
@@ -41,18 +68,23 @@ class _FakeCategoryRemoteDataSource implements CategoryRemoteDataSource {
   Stream<List<CategoryModel>> watchDefault() => _defaultController.stream;
 
   @override
-  Stream<List<CategoryModel>> watchForUser(String uid) =>
+  Stream<List<CategoryModel>> watchForWorkspace(WorkspaceContext context) =>
       _userController.stream;
 
   @override
   Future<List<CategoryModel>> fetchDefault() async => defaultFetchModels;
 
   @override
-  Future<List<CategoryModel>> fetchForUser(String uid) async => userFetchModels;
+  Future<List<CategoryModel>> fetchForWorkspace(
+    WorkspaceContext context,
+  ) async => userFetchModels;
 
   @override
-  Future<CategoryModel> createForUser(String uid, CategoryModel model) async {
-    createdUid = uid;
+  Future<CategoryModel> createForWorkspace(
+    WorkspaceContext context,
+    CategoryModel model,
+  ) async {
+    createdUid = context.userId;
     createdModel = model;
     final next = CategoryModel(
       id: model.id.isEmpty
@@ -64,7 +96,7 @@ class _FakeCategoryRemoteDataSource implements CategoryRemoteDataSource {
       name: model.name,
       sortOrder: model.sortOrder,
       isUserDefined: true,
-      ownerId: uid,
+      ownerId: context.userId,
       createdAt: DateTime.utc(2024, 1, 1),
       updatedAt: DateTime.utc(2024, 1, 1),
       isArchived: model.isArchived,
@@ -74,14 +106,20 @@ class _FakeCategoryRemoteDataSource implements CategoryRemoteDataSource {
   }
 
   @override
-  Future<void> updateForUser(String uid, CategoryModel model) async {
-    updatedUid = uid;
+  Future<void> updateForWorkspace(
+    WorkspaceContext context,
+    CategoryModel model,
+  ) async {
+    updatedUid = context.userId;
     updatedModel = model;
   }
 
   @override
-  Future<void> deleteForUser(String uid, String categoryId) async {
-    deletedUid = uid;
+  Future<void> deleteForWorkspace(
+    WorkspaceContext context,
+    String categoryId,
+  ) async {
+    deletedUid = context.userId;
     deletedCategoryId = categoryId;
   }
 
@@ -134,12 +172,20 @@ void main() {
   group('CategoryRepositoryImpl', () {
     late _FakeCategoryRemoteDataSource remote;
     late _FakeCurrentUser currentUser;
+    late _FakeCurrentWorkspace currentWorkspace;
     late CategoryRepositoryImpl repository;
 
     setUp(() {
       remote = _FakeCategoryRemoteDataSource();
       currentUser = _FakeCurrentUser(uid: 'u-1');
-      repository = CategoryRepositoryImpl(remote, currentUser);
+      currentWorkspace = _FakeCurrentWorkspace(
+        snapshot: const CurrentWorkspaceSnapshot.personal(id: 'u-1'),
+      );
+      repository = CategoryRepositoryImpl(
+        remote,
+        currentUser,
+        currentWorkspace,
+      );
     });
 
     tearDown(() async {
@@ -161,7 +207,7 @@ void main() {
           _userModel('archived', isArchived: true),
         ];
 
-        final result = await repository.fetchCombined();
+        final result = await repository.fetchWorkspaceCategories();
 
         expect(result.map((e) => e.id).toList(), <String>[
           'a',
@@ -182,7 +228,7 @@ void main() {
 
     test('watchCombined emits merged lists', () async {
       final expectation = expectLater(
-        repository.watchCombined(),
+        repository.watchWorkspaceCategories(),
         emitsInOrder(<Matcher>[
           predicate<List<CategoryEntity>>((items) {
             return items.map((e) => e.id).toList().join(',') == 'd1,user-1';
@@ -214,7 +260,7 @@ void main() {
       await expectation;
     });
 
-    test('createUserCategory forwards to remote with user id', () async {
+    test('createWorkspaceCategory forwards to remote with user id', () async {
       final entity = CategoryEntity(
         id: '',
         icon: 'icon',
@@ -224,7 +270,7 @@ void main() {
         isCustom: true,
       );
 
-      final created = await repository.createUserCategory(entity);
+      final created = await repository.createWorkspaceCategory(entity);
 
       expect(created.id, isNotEmpty);
       expect(created.ownerId, 'u-1');
@@ -232,7 +278,7 @@ void main() {
       expect(remote.createdModel, isNotNull);
     });
 
-    test('createUserCategory throws when entity is not custom', () async {
+    test('createWorkspaceCategory throws when entity is not custom', () async {
       final entity = CategoryEntity(
         id: '',
         icon: 'icon',
@@ -242,7 +288,10 @@ void main() {
         isCustom: false,
       );
 
-      expect(() => repository.createUserCategory(entity), throwsArgumentError);
+      expect(
+        () => repository.createWorkspaceCategory(entity),
+        throwsArgumentError,
+      );
     });
   });
 }
