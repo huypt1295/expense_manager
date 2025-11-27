@@ -1,4 +1,6 @@
 import 'dart:async';
+
+import 'package:collection/collection.dart';
 import 'package:expense_manager/features/budget/domain/entities/budget_entity.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_bloc.dart';
 import 'package:expense_manager/features/budget/presentation/budget/bloc/budget_effect.dart';
@@ -11,7 +13,11 @@ import 'package:expense_manager/features/budget/presentation/budget/widget/budge
 import 'package:expense_manager/features/budget/presentation/budget/widget/budget_list_widget.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/budget_overview_widget.dart';
 import 'package:expense_manager/features/budget/presentation/budget/widget/chart/budget_chart_widget.dart';
+import 'package:expense_manager/features/home/presentation/home/home_page.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
+import 'package:expense_manager/features/workspace/domain/entities/workspace_entity.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart'
     show UndoSnackBarContent, DateTimeExtensions, MonthSelectorBar, ContextX;
@@ -47,6 +53,9 @@ class _BudgetPageState extends BaseState<BudgetPage> {
               return const Center(child: CircularProgressIndicator());
             }
 
+            final workspaceState = context.watch<WorkspaceBloc>().state;
+            final selectedWorkspace = _resolveWorkspace(workspaceState);
+            final canManage = _canManageWorkspace(selectedWorkspace);
             final budgetsByMonth = state.budgets
                 .where(_isBudgetInMonth)
                 .toList();
@@ -67,10 +76,13 @@ class _BudgetPageState extends BaseState<BudgetPage> {
                         spendingTransactionsByMonth,
                       ),
                       _buildChart(budgetsByMonth),
-                      _buildListRecentBudget(budgetsByMonth, state),
+                      _buildListRecentBudget(budgetsByMonth, state, canManage),
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: bottomNavHeight),
+                      ),
                     ],
                   ),
-                  _buildSubmitButton(),
+                  _buildSubmitButton(canManage),
                 ],
               ),
             );
@@ -100,6 +112,27 @@ class _BudgetPageState extends BaseState<BudgetPage> {
     );
   }
 
+  WorkspaceEntity? _resolveWorkspace(WorkspaceState state) {
+    final selectedId =
+        state.selectedWorkspaceId ??
+        (state.workspaces.isNotEmpty ? state.workspaces.first.id : null);
+    if (selectedId == null) {
+      return state.workspaces.isNotEmpty ? state.workspaces.first : null;
+    }
+    return state.workspaces.firstWhereOrNull(
+          (workspace) => workspace.id == selectedId,
+        ) ??
+        (state.workspaces.isNotEmpty ? state.workspaces.first : null);
+  }
+
+  bool _canManageWorkspace(WorkspaceEntity? workspace) {
+    if (workspace == null || workspace.isPersonal) {
+      return true;
+    }
+    final role = workspace.role.toLowerCase().trim();
+    return role == 'owner' || role == 'editor';
+  }
+
   Widget _buildChart(List<BudgetEntity> budgetsByMonth) {
     return SliverToBoxAdapter(
       child: BudgetChartWidget(budgets: budgetsByMonth),
@@ -109,17 +142,22 @@ class _BudgetPageState extends BaseState<BudgetPage> {
   Widget _buildListRecentBudget(
     List<BudgetEntity> budgetsByMonth,
     BudgetState state,
+    bool canManage,
   ) {
     return budgetsByMonth.isEmpty
-        ? SliverToBoxAdapter(child: const BudgetEmptyWidget())
+        ? const SliverToBoxAdapter(child: BudgetEmptyWidget())
         : BudgetSliverListWidget(
             budgets: budgetsByMonth,
             progress: state.progress,
+            canManage: canManage,
           );
   }
 
-  Widget _buildSubmitButton() =>
-      Positioned(bottom: 16, right: 16, child: AddBudgetButton());
+  Widget _buildSubmitButton(bool canManage) => Positioned(
+    bottom: 16 + bottomNavHeight,
+    right: 16,
+    child: AddBudgetButton(enabled: canManage),
+  );
 
   FutureOr<void> handleEffect(Effect effect, UiActions emitUi) {
     if (effect is BudgetShowErrorEffect) {

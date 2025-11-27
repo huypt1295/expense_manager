@@ -35,6 +35,12 @@ class _FakeTransactionsRepository implements TransactionsRepository {
 
   @override
   Future<void> deleteById(String id) async {}
+
+  @override
+  Future<void> shareToWorkspace({
+    required TransactionEntity entity,
+    required String workspaceId,
+  }) async {}
 }
 
 void main() {

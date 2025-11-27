@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/budget/data/datasources/budget_remote_data_source.dart';
 import 'package:expense_manager/features/budget/data/models/budget_model.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -9,15 +10,28 @@ void main() {
     late FakeFirebaseFirestore firestore;
     late BudgetRemoteDataSource dataSource;
     const uid = 'uid-123';
+    const householdId = 'household-123';
+    late WorkspaceContext personalContext;
+    late WorkspaceContext householdContext;
 
     setUp(() {
       firestore = FakeFirebaseFirestore();
       dataSource = BudgetRemoteDataSource(firestore);
+      personalContext = WorkspaceContext(
+        userId: uid,
+        workspaceId: uid,
+        type: WorkspaceType.personal,
+      );
+      householdContext = const WorkspaceContext(
+        userId: uid,
+        workspaceId: householdId,
+        type: WorkspaceType.workspace,
+      );
     });
 
     test('allocateId returns unique id for user budgets collection', () {
-      final id1 = dataSource.allocateId(uid);
-      final id2 = dataSource.allocateId(uid);
+      final id1 = dataSource.allocateId(personalContext);
+      final id2 = dataSource.allocateId(personalContext);
 
       expect(id1, isNotEmpty);
       expect(id2, isNotEmpty);
@@ -34,7 +48,7 @@ void main() {
         endDate: DateTime(2024, 1, 31),
       );
 
-      await dataSource.upsert(uid, model);
+      await dataSource.upsert(personalContext, model);
 
       final snapshot = await firestore
           .collection('users')
@@ -71,12 +85,35 @@ void main() {
         endDate: DateTime(2024, 2, 28),
       );
 
-      await dataSource.update(uid, updated);
+      await dataSource.update(personalContext, updated);
 
       final snapshot = await doc.get();
       expect(snapshot.data()?['category'], 'Travel');
       expect(snapshot.data()?['limitAmount'], 750);
       expect(snapshot.data()?['categoryId'], 'travel');
+    });
+
+    test('upsert writes to household collection when context is household', () async {
+      final model = BudgetModel(
+        id: 'household-budget',
+        category: 'Utilities',
+        categoryId: 'utilities',
+        limitAmount: 800,
+        startDate: DateTime(2024, 4, 1),
+        endDate: DateTime(2024, 4, 30),
+      );
+
+      await dataSource.upsert(householdContext, model);
+
+      final snapshot = await firestore
+          .collection('households')
+          .doc(householdId)
+          .collection('budgets')
+          .doc('household-budget')
+          .get();
+
+      expect(snapshot.exists, isTrue);
+      expect(snapshot.data()?['category'], 'Utilities');
     });
 
     test('delete removes document from collection', () async {
@@ -87,7 +124,7 @@ void main() {
           .doc('budget-delete');
       await doc.set({'category': 'Misc'});
 
-      await dataSource.delete(uid, 'budget-delete');
+      await dataSource.delete(personalContext, 'budget-delete');
 
       expect((await doc.get()).exists, isFalse);
     });
@@ -119,7 +156,7 @@ void main() {
         'endDate': Timestamp.fromDate(DateTime(2024, 1, 31)),
       });
 
-      final models = await dataSource.watchBudgets(uid).first;
+      final models = await dataSource.watchBudgets(personalContext).first;
       expect(models, hasLength(2));
       expect(models.first.id, 'b-soon');
       expect(models.last.id, 'b-late');

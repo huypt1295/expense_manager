@@ -2,23 +2,23 @@ import 'package:expense_manager/features/categories/domain/entities/category_ent
 import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-class CreateUserCategoryParams {
-  const CreateUserCategoryParams(this.entity);
+class CreateWorkspaceCategoryParams {
+  const CreateWorkspaceCategoryParams(this.entity);
 
   final CategoryEntity entity;
 }
 
 @injectable
-class CreateUserCategoryUseCase
-    extends BaseUseCase<CreateUserCategoryParams, CategoryEntity> {
-  CreateUserCategoryUseCase(this._repository);
+class CreateWorkspaceCategoryUseCase
+    extends BaseUseCase<CreateWorkspaceCategoryParams, CategoryEntity> {
+  CreateWorkspaceCategoryUseCase(this._repository);
 
   final CategoryRepository _repository;
 
   @override
-  Future<Result<CategoryEntity>> call(CreateUserCategoryParams params) {
+  Future<Result<CategoryEntity>> call(CreateWorkspaceCategoryParams params) {
     return Result.guard<CategoryEntity>(
-      () => _repository.createUserCategory(params.entity),
+      () => _repository.createWorkspaceCategory(params.entity),
       _mapToFailure,
     );
   }

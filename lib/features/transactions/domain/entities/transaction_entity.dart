@@ -12,6 +12,9 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
     this.note,
     this.categoryId,
     this.categoryIcon,
+    this.sharedFromWorkspaceId,
+    this.sharedFromTransactionId,
+    this.sharedByUserId,
   });
 
   final String id;
@@ -23,6 +26,9 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
   final String? note;
   final String? categoryId;
   final String? categoryIcon;
+  final String? sharedFromWorkspaceId;
+  final String? sharedFromTransactionId;
+  final String? sharedByUserId;
 
   @override
   List<Object?> get props => <Object?>[
@@ -35,6 +41,9 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
     note,
     categoryId,
     categoryIcon,
+    sharedFromWorkspaceId,
+    sharedFromTransactionId,
+    sharedByUserId,
   ];
 
   @override
@@ -48,6 +57,9 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
     'note': note,
     'categoryId': categoryId,
     'categoryIcon': categoryIcon,
+    'sharedFromWorkspaceId': sharedFromWorkspaceId,
+    'sharedFromTransactionId': sharedFromTransactionId,
+    'sharedByUserId': sharedByUserId,
   };
 
   TransactionEntity copyWith({
@@ -60,6 +72,9 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
     String? note,
     String? categoryId,
     String? categoryIcon,
+    String? sharedFromWorkspaceId,
+    String? sharedFromTransactionId,
+    String? sharedByUserId,
   }) {
     return TransactionEntity(
       id: id ?? this.id,
@@ -71,6 +86,11 @@ class TransactionEntity extends BaseEntity with EquatableMixin {
       note: note ?? this.note,
       categoryId: categoryId ?? this.categoryId,
       categoryIcon: categoryIcon ?? this.categoryIcon,
+      sharedFromWorkspaceId:
+          sharedFromWorkspaceId ?? this.sharedFromWorkspaceId,
+      sharedFromTransactionId:
+          sharedFromTransactionId ?? this.sharedFromTransactionId,
+      sharedByUserId: sharedByUserId ?? this.sharedByUserId,
     );
   }
 }

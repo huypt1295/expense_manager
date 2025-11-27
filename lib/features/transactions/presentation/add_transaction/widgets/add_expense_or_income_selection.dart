@@ -5,8 +5,13 @@ import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_resource/flutter_resource.dart';
 
 class AddExpenseOrIncomeSelection extends BaseStatelessWidget {
-  const AddExpenseOrIncomeSelection({super.key, required this.onTypeChanged});
+  const AddExpenseOrIncomeSelection({
+    super.key,
+    required this.selectedType,
+    required this.onTypeChanged,
+  });
 
+  final TransactionType selectedType;
   final ValueChanged<TransactionType> onTypeChanged;
 
   @override
@@ -17,15 +22,20 @@ class AddExpenseOrIncomeSelection extends BaseStatelessWidget {
   }
 
   Widget _buildIncomeButton(BuildContext context) {
+    final isSelected = selectedType == TransactionType.income;
     return Expanded(
       child: CommonPrimaryButton(
         onPressed: () => onTypeChanged.call(TransactionType.income),
-        backgroundColor: context.tpColors.surfacePositiveComponent,
+        backgroundColor: isSelected
+            ? context.tpColors.surfacePositiveComponent
+            : context.tpColors.surfaceSub,
         padding: EdgeInsets.only(left: 4, right: 16),
         child: Text(
           S.current.income,
           style: TPTextStyle.captionM.copyWith(
-            color: context.tpColors.textReverse,
+            color: isSelected
+                ? context.tpColors.textReverse
+                : context.tpColors.textMain,
           ),
         ),
       ),
@@ -33,15 +43,20 @@ class AddExpenseOrIncomeSelection extends BaseStatelessWidget {
   }
 
   Widget _buildExpenseButton(BuildContext context) {
+    final isSelected = selectedType == TransactionType.expense;
     return Expanded(
       child: CommonPrimaryButton(
         onPressed: () => onTypeChanged.call(TransactionType.expense),
-        backgroundColor: context.tpColors.surfaceNegativeComponent,
+        backgroundColor: isSelected
+            ? context.tpColors.surfaceNegativeComponent
+            : context.tpColors.surfaceSub,
         padding: EdgeInsets.only(left: 16, right: 4),
         child: Text(
           S.current.expense,
           style: TPTextStyle.captionM.copyWith(
-            color: context.tpColors.textReverse,
+            color: isSelected
+                ? context.tpColors.textReverse
+                : context.tpColors.textMain,
           ),
         ),
       ),

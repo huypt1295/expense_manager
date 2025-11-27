@@ -43,6 +43,26 @@ class TransactionsDeleteUndoRequested extends TransactionsEvent {
   const TransactionsDeleteUndoRequested();
 }
 
+
+class TransactionsShareRequested extends TransactionsEvent {
+  const TransactionsShareRequested({
+    required this.entity,
+    required this.targetWorkspaceId,
+    required this.targetWorkspaceName,
+  });
+
+  final TransactionEntity entity;
+  final String targetWorkspaceId;
+  final String targetWorkspaceName;
+
+  @override
+  List<Object?> get props => <Object?>[
+        entity,
+        targetWorkspaceId,
+        targetWorkspaceName,
+      ];
+}
+
 class TransactionsDeleted extends TransactionsEvent {
   const TransactionsDeleted(this.id);
 

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:flutter_core/flutter_core.dart';
 
 import '../models/budget_model.dart';
@@ -9,37 +10,44 @@ class BudgetRemoteDataSource {
 
   final FirebaseFirestore _firestore;
 
-  CollectionReference<Map<String, dynamic>> _collection(String uid) {
-    return _firestore.collection('users').doc(uid).collection('budgets');
+  CollectionReference<Map<String, dynamic>> _collection(
+    WorkspaceContext context,
+  ) {
+    return _firestore
+        .collection('workspaces')
+        .doc(context.workspaceId)
+        .collection('budgets');
   }
 
-  String allocateId(String uid) {
-    return _collection(uid).doc().id;
+  String allocateId(WorkspaceContext context) {
+    return _collection(context).doc().id;
   }
 
-  Stream<List<BudgetModel>> watchBudgets(String uid) {
-    return _collection(uid)
+  Stream<List<BudgetModel>> watchBudgets(WorkspaceContext context) {
+    return _collection(context)
         .orderBy('startDate', descending: false)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map(BudgetModel.fromFirestore)
-            .toList(growable: false));
+        .map(
+          (snapshot) => snapshot.docs
+              .map(BudgetModel.fromFirestore)
+              .toList(growable: false),
+        );
   }
 
-  Future<void> upsert(String uid, BudgetModel model) {
-    return _collection(uid).doc(model.id).set(
+  Future<void> upsert(WorkspaceContext context, BudgetModel model) {
+    return _collection(context).doc(model.id).set(
           model.toFirestore(),
           SetOptions(merge: false),
         );
   }
 
-  Future<void> update(String uid, BudgetModel model) {
-    return _collection(uid)
+  Future<void> update(WorkspaceContext context, BudgetModel model) {
+    return _collection(context)
         .doc(model.id)
         .set(model.toFirestore(merge: true), SetOptions(merge: true));
   }
 
-  Future<void> delete(String uid, String id) {
-    return _collection(uid).doc(id).delete();
+  Future<void> delete(WorkspaceContext context, String id) {
+    return _collection(context).doc(id).delete();
   }
 }

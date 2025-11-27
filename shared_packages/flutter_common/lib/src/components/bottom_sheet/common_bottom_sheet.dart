@@ -31,29 +31,36 @@ class CommonBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final mediaQuery = MediaQuery.of(context);
+    final bottomInset = mediaQuery.viewInsets.bottom;
     final resolvedHeight =
         height ??
-        (heightFactor != null
-            ? MediaQuery.of(context).size.height * heightFactor!
-            : null);
+        (heightFactor != null ? mediaQuery.size.height * heightFactor! : null);
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
         height: resolvedHeight,
+        constraints: resolvedHeight == null
+            ? BoxConstraints(maxHeight: mediaQuery.size.height * 0.8)
+            : null,
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: borderRadius,
         ),
-        child: Column(
-          mainAxisSize: resolvedHeight == null
-              ? MainAxisSize.min
-              : MainAxisSize.max,
-          children: [
-            if (showHeaderBar) _buildHeader(context),
-            Expanded(child: child),
-          ],
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: resolvedHeight == null
+                ? MainAxisSize.min
+                : MainAxisSize.max,
+            children: [
+              if (showHeaderBar) _buildHeader(context),
+              if (resolvedHeight != null)
+                Expanded(child: child)
+              else
+                Flexible(child: SingleChildScrollView(child: child)),
+            ],
+          ),
         ),
       ),
     );
@@ -69,14 +76,17 @@ class CommonBottomSheet extends StatelessWidget {
             title,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-
           ClipOval(
             child: Material(
               color: context.tpColors.surfaceSub, // Button color
               child: InkWell(
                 splashColor: context.tpColors.surfaceMain, // Splash color
                 onTap: () => Navigator.of(context).pop(),
-                child: SizedBox(width: 32, height: 32, child: Icon(Icons.close)),
+                child: SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: Icon(Icons.close),
+                ),
               ),
             ),
           ),

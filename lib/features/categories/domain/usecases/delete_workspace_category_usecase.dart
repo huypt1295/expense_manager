@@ -1,23 +1,23 @@
 import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart';
 import 'package:flutter_core/flutter_core.dart';
 
-class DeleteUserCategoryParams {
-  const DeleteUserCategoryParams(this.id);
+class DeleteWorkspaceCategoryParams {
+  const DeleteWorkspaceCategoryParams(this.id);
 
   final String id;
 }
 
 @injectable
-class DeleteUserCategoryUseCase
-    extends BaseUseCase<DeleteUserCategoryParams, void> {
-  DeleteUserCategoryUseCase(this._repository);
+class DeleteWorkspaceCategoryUseCase
+    extends BaseUseCase<DeleteWorkspaceCategoryParams, void> {
+  DeleteWorkspaceCategoryUseCase(this._repository);
 
   final CategoryRepository _repository;
 
   @override
-  Future<Result<void>> call(DeleteUserCategoryParams params) {
+  Future<Result<void>> call(DeleteWorkspaceCategoryParams params) {
     return Result.guard<void>(
-      () => _repository.deleteUserCategory(params.id),
+      () => _repository.deleteWorkspaceCategory(params.id),
       _mapToFailure,
     );
   }

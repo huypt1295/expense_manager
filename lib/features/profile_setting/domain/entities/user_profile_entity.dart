@@ -7,6 +7,7 @@ class UserProfileEntity extends BaseEntity with EquatableMixin {
     this.displayName,
     this.address,
     this.avatarUrl,
+    this.defaultWorkspaceId,
   });
 
   final String uid;
@@ -14,6 +15,7 @@ class UserProfileEntity extends BaseEntity with EquatableMixin {
   final String? displayName;
   final String? address;
   final String? avatarUrl;
+  final String? defaultWorkspaceId;
 
   @override
   List<Object?> get props => <Object?>[
@@ -22,6 +24,7 @@ class UserProfileEntity extends BaseEntity with EquatableMixin {
         displayName,
         address,
         avatarUrl,
+        defaultWorkspaceId,
       ];
 
   @override
@@ -31,6 +34,7 @@ class UserProfileEntity extends BaseEntity with EquatableMixin {
         'displayName': displayName,
         'address': address,
         'avatarUrl': avatarUrl,
+        'defaultWorkspaceId': defaultWorkspaceId,
       };
 
   UserProfileEntity copyWith({
@@ -39,6 +43,7 @@ class UserProfileEntity extends BaseEntity with EquatableMixin {
     String? displayName,
     String? address,
     String? avatarUrl,
+    String? defaultWorkspaceId,
   }) {
     return UserProfileEntity(
       uid: uid ?? this.uid,
@@ -46,6 +51,7 @@ class UserProfileEntity extends BaseEntity with EquatableMixin {
       displayName: displayName ?? this.displayName,
       address: address ?? this.address,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      defaultWorkspaceId: defaultWorkspaceId ?? this.defaultWorkspaceId,
     );
   }
 }

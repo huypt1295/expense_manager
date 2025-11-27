@@ -11,4 +11,9 @@ abstract class TransactionsRepository extends Repository {
   Future<void> update(TransactionEntity entity);
 
   Future<void> deleteById(String id);
+
+  Future<void> shareToWorkspace({
+    required TransactionEntity entity,
+    required String workspaceId,
+  });
 }

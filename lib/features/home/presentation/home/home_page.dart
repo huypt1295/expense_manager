@@ -1,37 +1,40 @@
 import 'package:expense_manager/core/routing/app_routes.dart';
 import 'package:expense_manager/features/transactions/presentation/add_transaction/add_expense_bottom_sheet.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart';
+import 'package:expense_manager/features/workspace/presentation/bloc/workspace_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart'
     show CurvedNavigationBar, ContextX, CurvedNavigationItem;
 import 'package:flutter_core/flutter_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'home_destinations.dart';
+
+const double bottomNavHeight = 75.0;
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.state, required this.child});
-
-  static const double _bottomNavHeight = 75.0;
-  static const double _bottomNavVisualHeight = 100.0;
 
   final GoRouterState state;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      bottomNavigationBar: _buildBottomNav(context),
-      body: _buildHomeBody(context),
+    return BlocProvider(
+      create: (context) =>
+          tpGetIt.get<WorkspaceBloc>()..add(const WorkspaceStarted()),
+      child: Scaffold(
+        extendBody: true,
+        bottomNavigationBar: _buildBottomNav(context),
+        body: _buildHomeBody(context),
+      ),
     );
   }
 
   Widget _buildHomeBody(BuildContext context) {
-    final double bottomPadding =
-        MediaQuery.of(context).padding.bottom + _bottomNavVisualHeight;
-
     return Container(
       color: context.tpColors.backgroundMain,
       child: Padding(
-        padding: EdgeInsets.only(bottom: bottomPadding),
+        padding: EdgeInsets.only(bottom: 0),
         child: SafeArea(
           bottom: false,
           child: KeyedSubtree(
@@ -56,7 +59,7 @@ class HomePage extends StatelessWidget {
       curvedIndex: 2,
       color: context.tpColors.backgroundMain,
       curvedBackgroundColor: context.tpColors.surfaceNeutralComponent,
-      height: _bottomNavHeight,
+      height: bottomNavHeight,
       items: destinations
           .map(
             (destination) => CurvedNavigationItem(

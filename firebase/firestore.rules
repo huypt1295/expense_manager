@@ -1,0 +1,77 @@
+// rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function membershipPath(userId, workspaceId) {
+      return /databases/$(database)/documents/users/$(userId)/workspaces/$(workspaceId);
+    }
+
+    function hasMembership(workspaceId) {
+      return signedIn() && exists(membershipPath(request.auth.uid, workspaceId));
+    }
+
+    function membershipRole(workspaceId) {
+      return hasMembership(workspaceId)
+        ? get(membershipPath(request.auth.uid, workspaceId)).data.role
+        : null;
+    }
+
+    function canManageWorkspace(workspaceId) {
+      return hasMembership(workspaceId) &&
+        membershipRole(workspaceId) in ['owner', 'editor'];
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isSelf(userId);
+
+      match /categories/{categoryId} {
+        allow read, write: if isSelf(userId);
+      }
+
+      match /budgets/{budgetId} {
+        allow read, write: if isSelf(userId);
+      }
+
+      match /transactions/{transactionId} {
+        allow read, write: if isSelf(userId);
+      }
+
+      match /workspaces/{workspaceId} {
+        allow read, write: if isSelf(userId);
+      }
+    }
+
+    match /workspaces/{workspaceId} {
+      allow read: if hasMembership(workspaceId);
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if canManageWorkspace(workspaceId);
+
+      match /members/{memberId} {
+        allow read: if hasMembership(workspaceId);
+        allow create, update, delete: if canManageWorkspace(workspaceId);
+      }
+
+      match /invitations/{invitationId} {
+        allow read: if canManageWorkspace(workspaceId);
+        allow create, update, delete: if canManageWorkspace(workspaceId);
+      }
+
+      match /transactions/{transactionId} {
+        allow read: if hasMembership(workspaceId);
+        allow create, update, delete: if canManageWorkspace(workspaceId);
+      }
+    }
+  }
+}
