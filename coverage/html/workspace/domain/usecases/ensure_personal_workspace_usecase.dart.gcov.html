@@ -31,13 +31,13 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">5</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2025-11-27 23:50:46</td>
+            <td class="headerValue">2025-11-28 23:09:27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,19 +65,19 @@
 <span id="L3"><span class="lineNum">       3</span>              : </span>
 <span id="L4"><span class="lineNum">       4</span>              : @singleton</span>
 <span id="L5"><span class="lineNum">       5</span>              : class EnsurePersonalWorkspaceUseCase {</span>
-<span id="L6"><span class="lineNum">       6</span> <span class="tlaUNC">           0 :   const EnsurePersonalWorkspaceUseCase(this._repository);</span></span>
+<span id="L6"><span class="lineNum">       6</span> <span class="tlaGNC">           1 :   const EnsurePersonalWorkspaceUseCase(this._repository);</span></span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              :   final WorkspaceDetailRepository _repository;</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaUNC">           0 :   Future&lt;void&gt; call() {</span></span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaUNC">           0 :     return _repository.ensurePersonalWorkspace();</span></span>
+<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC">           1 :   Future&lt;void&gt; call() {</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           2 :     return _repository.ensurePersonalWorkspace();</span></span>
 <span id="L12"><span class="lineNum">      12</span>              :   }</span>
 <span id="L13"><span class="lineNum">      13</span>              : </span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :   Future&lt;bool&gt; verifyMemberExists({</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :   Future&lt;bool&gt; verifyMemberExists({</span></span>
 <span id="L15"><span class="lineNum">      15</span>              :     required String workspaceId,</span>
 <span id="L16"><span class="lineNum">      16</span>              :     required String userId,</span>
 <span id="L17"><span class="lineNum">      17</span>              :   }) {</span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :     return _repository.verifyMemberExists(</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           2 :     return _repository.verifyMemberExists(</span></span>
 <span id="L19"><span class="lineNum">      19</span>              :       workspaceId: workspaceId,</span>
 <span id="L20"><span class="lineNum">      20</span>              :       userId: userId,</span>
 <span id="L21"><span class="lineNum">      21</span>              :     );</span>

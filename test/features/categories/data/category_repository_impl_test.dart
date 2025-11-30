@@ -8,6 +8,7 @@ import 'package:expense_manager/features/categories/data/datasources/category_re
 import 'package:expense_manager/features/categories/data/models/category_model.dart';
 import 'package:expense_manager/features/categories/data/repositories/category_repository_impl.dart';
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
+import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeCurrentUser implements CurrentUser {
@@ -293,5 +294,168 @@ void main() {
         throwsArgumentError,
       );
     });
+
+    test('updateWorkspaceCategory forwards to remote with user id', () async {
+      final entity = CategoryEntity(
+        id: 'cat-123',
+        icon: 'icon',
+        isActive: true,
+        type: TransactionType.expense,
+        names: const {'en': 'Updated Coffee'},
+        isCustom: true,
+        ownerId: 'u-1',
+      );
+
+      await repository.updateWorkspaceCategory(entity);
+
+      expect(remote.updatedUid, 'u-1');
+      expect(remote.updatedModel, isNotNull);
+      expect(remote.updatedModel?.id, 'cat-123');
+    });
+
+    test('updateWorkspaceCategory throws when entity is not custom', () async {
+      final entity = CategoryEntity(
+        id: 'default-cat',
+        icon: 'icon',
+        isActive: true,
+        type: TransactionType.expense,
+        names: const {'en': 'Default'},
+        isCustom: false,
+      );
+
+      expect(
+        () => repository.updateWorkspaceCategory(entity),
+        throwsArgumentError,
+      );
+    });
+
+    test('deleteWorkspaceCategory forwards to remote with user id', () async {
+      await repository.deleteWorkspaceCategory('cat-to-delete');
+
+      expect(remote.deletedUid, 'u-1');
+      expect(remote.deletedCategoryId, 'cat-to-delete');
+    });
+
+    test('watchCombined throws when no user authenticated', () async {
+      currentUser.snapshot = null;
+
+      expect(
+        () => repository.watchCombined().first,
+        throwsA(isA<AuthException>()),
+      );
+    });
+
+    test('fetchCombined throws when no user authenticated', () async {
+      currentUser.snapshot = null;
+
+      expect(() => repository.fetchCombined(), throwsA(isA<AuthException>()));
+    });
+
+    test('filters out categories with empty names', () async {
+      remote.defaultFetchModels = <CategoryModel>[
+        _defaultModel('valid'),
+        CategoryModel(
+          id: 'empty-name',
+          icon: 'icon',
+          isActive: true,
+          type: TransactionType.expense,
+          name: {'en': '   '}, // Empty after trim
+          isUserDefined: false,
+        ),
+      ];
+
+      final result = await repository.fetchCombined();
+
+      expect(result.map((e) => e.id).toList(), <String>['valid']);
+    });
+
+    test('sorts default categories by sortOrder then name', () async {
+      remote.defaultFetchModels = <CategoryModel>[
+        _defaultModel('zebra', sortOrder: 2),
+        _defaultModel('apple'),
+        _defaultModel('banana', sortOrder: 1),
+      ];
+
+      final result = await repository.fetchCombined();
+
+      expect(result.map((e) => e.id).toList(), <String>[
+        'banana', // sortOrder 1
+        'zebra', // sortOrder 2
+        'apple', // no sortOrder, alphabetically
+      ]);
+    });
+
+    test('sorts user categories by createdAt then name', () async {
+      remote.userFetchModels = <CategoryModel>[
+        _userModel('zebra', createdAt: DateTime.utc(2024, 1, 3)),
+        _userModel('apple'), // no createdAt
+        _userModel('banana', createdAt: DateTime.utc(2024, 1, 1)),
+      ];
+
+      final result = await repository.fetchCombined();
+
+      // Items without createdAt come first (alphabetically), then items with createdAt (by date)
+      expect(result.map((e) => e.id).toList(), <String>[
+        'apple', // no createdAt, alphabetically first
+        'banana', // earliest createdAt
+        'zebra', // later createdAt
+      ]);
+    });
+
+    test('watchWorkspaceCategories resubscribes on workspace change', () async {
+      final results = <List<CategoryEntity>>[];
+      final subscription = repository.watchWorkspaceCategories().listen(
+        results.add,
+      );
+
+      remote.emitDefault(<CategoryModel>[_defaultModel('d1')]);
+      remote.emitUser(<CategoryModel>[
+        _userModel('user-1', createdAt: DateTime.utc(2024, 1, 1)),
+      ]);
+      await pumpEventQueue();
+
+      // Change workspace
+      await currentWorkspace.select(
+        const CurrentWorkspaceSnapshot(
+          id: 'workspace-2',
+          type: WorkspaceType.workspace,
+          name: 'Workspace 2',
+        ),
+      );
+
+      remote.emitDefault(<CategoryModel>[_defaultModel('d2')]);
+      remote.emitUser(<CategoryModel>[
+        _userModel('user-2', createdAt: DateTime.utc(2024, 1, 1)),
+      ]);
+      await pumpEventQueue();
+
+      await subscription.cancel();
+
+      expect(results.length, greaterThan(1));
+    });
+
+    test(
+      'fetchWorkspaceCategories throws when no workspace selected',
+      () async {
+        currentWorkspace.snapshot = null;
+
+        expect(
+          () => repository.fetchWorkspaceCategories(),
+          throwsA(isA<Exception>()),
+        );
+      },
+    );
+
+    test(
+      'fetchWorkspaceCategories throws when no user authenticated',
+      () async {
+        currentUser.snapshot = null;
+
+        expect(
+          () => repository.fetchWorkspaceCategories(),
+          throwsA(isA<AuthException>()),
+        );
+      },
+    );
   });
 }

@@ -31,13 +31,13 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">8.3&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">12</td>
-            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">12</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2025-11-27 23:50:46</td>
+            <td class="headerValue">2025-11-28 23:09:27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,7 +65,7 @@
 <span id="L3"><span class="lineNum">       3</span>              : import 'package:flutter_core/flutter_core.dart';</span>
 <span id="L4"><span class="lineNum">       4</span>              : </span>
 <span id="L5"><span class="lineNum">       5</span>              : class UpdateWorkspaceCategoryParams {</span>
-<span id="L6"><span class="lineNum">       6</span> <span class="tlaUNC">           0 :   const UpdateWorkspaceCategoryParams(this.entity);</span></span>
+<span id="L6"><span class="lineNum">       6</span> <span class="tlaGNC">           2 :   const UpdateWorkspaceCategoryParams(this.entity);</span></span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              :   final CategoryEntity entity;</span>
 <span id="L9"><span class="lineNum">       9</span>              : }</span>
@@ -73,30 +73,30 @@
 <span id="L11"><span class="lineNum">      11</span>              : @injectable</span>
 <span id="L12"><span class="lineNum">      12</span>              : class UpdateWorkspaceCategoryUseCase</span>
 <span id="L13"><span class="lineNum">      13</span>              :     extends BaseUseCase&lt;UpdateWorkspaceCategoryParams, void&gt; {</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           2 :   UpdateWorkspaceCategoryUseCase(this._repository);</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           3 :   UpdateWorkspaceCategoryUseCase(this._repository);</span></span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              :   final CategoryRepository _repository;</span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :   @override</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           2 :   @override</span></span>
 <span id="L19"><span class="lineNum">      19</span>              :   Future&lt;Result&lt;void&gt;&gt; call(UpdateWorkspaceCategoryParams params) {</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :     return Result.guard&lt;void&gt;(</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :       () =&gt; _repository.updateWorkspaceCategory(params.entity),</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :     return Result.guard&lt;void&gt;(</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           8 :       () =&gt; _repository.updateWorkspaceCategory(params.entity),</span></span>
 <span id="L22"><span class="lineNum">      22</span>              :       _mapToFailure,</span>
 <span id="L23"><span class="lineNum">      23</span>              :     );</span>
 <span id="L24"><span class="lineNum">      24</span>              :   }</span>
 <span id="L25"><span class="lineNum">      25</span>              : }</span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 : Failure _mapToFailure(Object error, StackTrace stackTrace) {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :   if (error is Failure) {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 : Failure _mapToFailure(Object error, StackTrace stackTrace) {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :   if (error is Failure) {</span></span>
 <span id="L29"><span class="lineNum">      29</span>              :     return error;</span>
 <span id="L30"><span class="lineNum">      30</span>              :   }</span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :   if (error is ArgumentError) {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :     return ValidationFailure(</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :       message: error.message?.toString() ?? 'Invalid category data',</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :   if (error is ArgumentError) {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :     return ValidationFailure(</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :       message: error.message?.toString() ?? 'Invalid category data',</span></span>
 <span id="L34"><span class="lineNum">      34</span>              :     );</span>
 <span id="L35"><span class="lineNum">      35</span>              :   }</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :   return UnknownFailure(</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :     message: error.toString(),</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :   return UnknownFailure(</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :     message: error.toString(),</span></span>
 <span id="L38"><span class="lineNum">      38</span>              :     cause: error,</span>
 <span id="L39"><span class="lineNum">      39</span>              :     stackTrace: stackTrace,</span>
 <span id="L40"><span class="lineNum">      40</span>              :   );</span>

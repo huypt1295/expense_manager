@@ -31,13 +31,13 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">57.8&nbsp;%</td>
+            <td class="headerCovTableEntryMed">77.3&nbsp;%</td>
             <td class="headerCovTableEntry">185</td>
-            <td class="headerCovTableEntry">107</td>
+            <td class="headerCovTableEntry">143</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2025-11-27 23:50:46</td>
+            <td class="headerValue">2025-11-28 23:09:27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -240,39 +240,39 @@
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           5 :       task: () =&gt; _updateBudgetUseCase(UpdateBudgetParams(event.entity)),</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           2 :       onStart: (state) =&gt; state.copyWith(isLoading: true, clearError: true),</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           2 :       onOk: (state, _) =&gt; state.copyWith(isLoading: false),</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :       onErr: (currentState, failure) {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         final message = failure.message ?? failure.code;</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         emitEffect(BudgetShowErrorEffect(message));</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         emit(currentState.copyWith(isLoading: false, errorMessage: message));</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :       onErr: (currentState, failure) {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         final message = failure.message ?? failure.code;</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           2 :         emitEffect(BudgetShowErrorEffect(message));</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           2 :         emit(currentState.copyWith(isLoading: false, errorMessage: message));</span></span>
 <span id="L185"><span class="lineNum">     185</span>              :       },</span>
 <span id="L186"><span class="lineNum">     186</span>              :       trackKey: 'budget.update',</span>
 <span id="L187"><span class="lineNum">     187</span>              :       spanName: 'budget.update',</span>
 <span id="L188"><span class="lineNum">     188</span>              :     );</span>
 <span id="L189"><span class="lineNum">     189</span>              :   }</span>
 <span id="L190"><span class="lineNum">     190</span>              : </span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :   void _onDeleteRequested(</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :   void _onDeleteRequested(</span></span>
 <span id="L192"><span class="lineNum">     192</span>              :     BudgetDeleteRequested event,</span>
 <span id="L193"><span class="lineNum">     193</span>              :     Emitter&lt;BudgetState&gt; emit,</span>
 <span id="L194"><span class="lineNum">     194</span>              :   ) {</span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :     _commitPendingDeletion();</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :     _commitPendingDeletion();</span></span>
 <span id="L196"><span class="lineNum">     196</span>              : </span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :     if (!_shouldAllowManage(emit)) {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :     if (!_shouldAllowManage(emit)) {</span></span>
 <span id="L198"><span class="lineNum">     198</span>              :       return;</span>
 <span id="L199"><span class="lineNum">     199</span>              :     }</span>
 <span id="L200"><span class="lineNum">     200</span>              : </span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :     final currentItems = state.budgets;</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :     final index = currentItems.indexWhere((item) =&gt; item.id == event.entity.id);</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :     if (index == -1) {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           2 :     final currentItems = state.budgets;</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           6 :     final index = currentItems.indexWhere((item) =&gt; item.id == event.entity.id);</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           2 :     if (index == -1) {</span></span>
 <span id="L204"><span class="lineNum">     204</span>              :       return;</span>
 <span id="L205"><span class="lineNum">     205</span>              :     }</span>
 <span id="L206"><span class="lineNum">     206</span>              : </span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :     final updatedItems = List&lt;BudgetEntity&gt;.of(currentItems)..removeAt(index);</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :     emit(state.copyWith(budgets: updatedItems, clearError: true));</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           2 :     final updatedItems = List&lt;BudgetEntity&gt;.of(currentItems)..removeAt(index);</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           3 :     emit(state.copyWith(budgets: updatedItems, clearError: true));</span></span>
 <span id="L209"><span class="lineNum">     209</span>              : </span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :     _pendingDeletion = _PendingDeletion(entity: event.entity, index: index);</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :     _startPendingDeletionTimer();</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           3 :     _pendingDeletion = _PendingDeletion(entity: event.entity, index: index);</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :     _startPendingDeletionTimer();</span></span>
 <span id="L212"><span class="lineNum">     212</span>              : </span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :     emitEffect(</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :     emitEffect(</span></span>
 <span id="L214"><span class="lineNum">     214</span>              :       const BudgetShowUndoDeleteEffect(</span>
 <span id="L215"><span class="lineNum">     215</span>              :         message: 'Budget deleted',</span>
 <span id="L216"><span class="lineNum">     216</span>              :         actionLabel: 'Undo',</span>
@@ -281,34 +281,34 @@
 <span id="L219"><span class="lineNum">     219</span>              :     );</span>
 <span id="L220"><span class="lineNum">     220</span>              :   }</span>
 <span id="L221"><span class="lineNum">     221</span>              : </span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :   void _onDeleteUndoRequested(</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :   void _onDeleteUndoRequested(</span></span>
 <span id="L223"><span class="lineNum">     223</span>              :     BudgetDeleteUndoRequested event,</span>
 <span id="L224"><span class="lineNum">     224</span>              :     Emitter&lt;BudgetState&gt; emit,</span>
 <span id="L225"><span class="lineNum">     225</span>              :   ) {</span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :     final pending = _pendingDeletion;</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :     final pending = _pendingDeletion;</span></span>
 <span id="L227"><span class="lineNum">     227</span>              :     if (pending == null) {</span>
 <span id="L228"><span class="lineNum">     228</span>              :       return;</span>
 <span id="L229"><span class="lineNum">     229</span>              :     }</span>
 <span id="L230"><span class="lineNum">     230</span>              : </span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :     _pendingDeletionTimer?.cancel();</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :     _pendingDeletionTimer = null;</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :     _pendingDeletion = null;</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           2 :     _pendingDeletionTimer?.cancel();</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :     _pendingDeletionTimer = null;</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :     _pendingDeletion = null;</span></span>
 <span id="L234"><span class="lineNum">     234</span>              : </span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :     final updatedItems = List&lt;BudgetEntity&gt;.of(state.budgets)</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :       ..removeWhere((item) =&gt; item.id == pending.entity.id);</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :     final insertIndex = pending.index.clamp(0, updatedItems.length);</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :     updatedItems.insert(insertIndex, pending.entity);</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           3 :     final updatedItems = List&lt;BudgetEntity&gt;.of(state.budgets)</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           6 :       ..removeWhere((item) =&gt; item.id == pending.entity.id);</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           3 :     final insertIndex = pending.index.clamp(0, updatedItems.length);</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           2 :     updatedItems.insert(insertIndex, pending.entity);</span></span>
 <span id="L239"><span class="lineNum">     239</span>              : </span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :     emit(state.copyWith(budgets: updatedItems, clearError: true));</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           3 :     emit(state.copyWith(budgets: updatedItems, clearError: true));</span></span>
 <span id="L241"><span class="lineNum">     241</span>              :   }</span>
 <span id="L242"><span class="lineNum">     242</span>              : </span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :   void _startPendingDeletionTimer() {</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :     _pendingDeletionTimer?.cancel();</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :     _pendingDeletionTimer = Timer(kUndoDuration, _commitPendingDeletion);</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :   void _startPendingDeletionTimer() {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :     _pendingDeletionTimer?.cancel();</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           3 :     _pendingDeletionTimer = Timer(kUndoDuration, _commitPendingDeletion);</span></span>
 <span id="L246"><span class="lineNum">     246</span>              :   }</span>
 <span id="L247"><span class="lineNum">     247</span>              : </span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :   void _commitPendingDeletion() {</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :     final pending = _pendingDeletion;</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :   void _commitPendingDeletion() {</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :     final pending = _pendingDeletion;</span></span>
 <span id="L250"><span class="lineNum">     250</span>              :     if (pending == null) {</span>
 <span id="L251"><span class="lineNum">     251</span>              :       return;</span>
 <span id="L252"><span class="lineNum">     252</span>              :     }</span>
@@ -346,9 +346,9 @@
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         _committingDeletion = null;</span></span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         return state.copyWith(isLoading: false);</span></span>
 <span id="L286"><span class="lineNum">     286</span>              :       },</span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :       onErr: (currentState, failure) {</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         final committing = _committingDeletion;</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         final message = failure.message ?? failure.code;</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :       onErr: (currentState, failure) {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         final committing = _committingDeletion;</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         final message = failure.message ?? failure.code;</span></span>
 <span id="L290"><span class="lineNum">     290</span>              : </span>
 <span id="L291"><span class="lineNum">     291</span>              :         if (committing != null) {</span>
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :           final items = List&lt;BudgetEntity&gt;.of(state.budgets)</span></span>
@@ -365,10 +365,10 @@
 <span id="L303"><span class="lineNum">     303</span>              :             ),</span>
 <span id="L304"><span class="lineNum">     304</span>              :           );</span>
 <span id="L305"><span class="lineNum">     305</span>              :         } else {</span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :           emit(currentState.copyWith(isLoading: false, errorMessage: message));</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           2 :           emit(currentState.copyWith(isLoading: false, errorMessage: message));</span></span>
 <span id="L307"><span class="lineNum">     307</span>              :         }</span>
 <span id="L308"><span class="lineNum">     308</span>              : </span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :         emitEffect(BudgetShowErrorEffect(message));</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           2 :         emitEffect(BudgetShowErrorEffect(message));</span></span>
 <span id="L310"><span class="lineNum">     310</span>              :       },</span>
 <span id="L311"><span class="lineNum">     311</span>              :       trackKey: 'budget.delete',</span>
 <span id="L312"><span class="lineNum">     312</span>              :       spanName: 'budget.delete',</span>
@@ -490,13 +490,13 @@
 <span id="L428"><span class="lineNum">     428</span>              :   Future&lt;void&gt; close() async {</span>
 <span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           2 :     await _budgetsSubscription?.cancel();</span></span>
 <span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           2 :     await _transactionsSubscription?.cancel();</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :     _pendingDeletionTimer?.cancel();</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           2 :     _pendingDeletionTimer?.cancel();</span></span>
 <span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :     return super.close();</span></span>
 <span id="L433"><span class="lineNum">     433</span>              :   }</span>
 <span id="L434"><span class="lineNum">     434</span>              : }</span>
 <span id="L435"><span class="lineNum">     435</span>              : </span>
 <span id="L436"><span class="lineNum">     436</span>              : class _PendingDeletion {</span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :   _PendingDeletion({required this.entity, required this.index});</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :   _PendingDeletion({required this.entity, required this.index});</span></span>
 <span id="L438"><span class="lineNum">     438</span>              : </span>
 <span id="L439"><span class="lineNum">     439</span>              :   final BudgetEntity entity;</span>
 <span id="L440"><span class="lineNum">     440</span>              :   final int index;</span>
