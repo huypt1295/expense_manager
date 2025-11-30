@@ -93,7 +93,6 @@ class _FakeBudgetRepository implements BudgetRepository {
     deletedId = id;
   }
 
-  @override
   void dispose() {}
 }
 
@@ -127,7 +126,6 @@ class _FakeTransactionsRepository implements TransactionsRepository {
     required String workspaceId,
   }) async {}
 
-  @override
   void dispose() {}
 }
 

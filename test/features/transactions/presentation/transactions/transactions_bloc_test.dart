@@ -421,7 +421,7 @@ void main() {
     });
 
     test('share requested emits error effect when repository throws', () async {
-      repository.shareImpl = (_, __) async {
+      repository.shareImpl = (_, _) async {
         throw AuthException('share-failed');
       };
 

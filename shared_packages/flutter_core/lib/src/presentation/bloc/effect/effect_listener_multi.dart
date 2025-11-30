@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'effect_listener.dart';
 
 /// Wraps a child widget with multiple effect listeners without nesting them
 /// manually in the widget tree.
@@ -18,45 +19,38 @@ class EffectListenerMulti extends StatelessWidget {
     Widget current = child;
     // Wrap the child with listeners from the end of the list to the start.
     for (final l in listeners.reversed) {
-      current = _Wrap(wrapper: l, child: current);
+      current = _wrapWithListener(l, current);
     }
     return current;
   }
-}
 
-class _Wrap extends StatelessWidget {
-  const _Wrap({required this.child, required this.wrapper});
-  final Widget child;
-  final Widget wrapper;
-  @override
-  Widget build(BuildContext context) =>
-      _Passthrough(wrapper: wrapper, child: child);
-}
+  /// Wraps the [child] with the given [listener] widget.
+  ///
+  /// This method handles the special case where the listener is an
+  /// [EffectListener] by creating a new instance with the [child] injected.
+  static Widget _wrapWithListener(Widget listener, Widget child) {
+    // If it's an EffectListener, we need to clone it with the child
+    if (listener is EffectListener) {
+      // Use a dynamic approach since we don't know the generic types at runtime
+      return _cloneEffectListenerWithChild(listener, child);
+    }
 
-class _Passthrough extends StatelessWidget {
-  const _Passthrough({required this.child, required this.wrapper});
-  final Widget child;
-  final Widget wrapper;
-
-  @override
-  Widget build(BuildContext context) {
-    // Replace the placeholder child of the wrapper with the actual child.
-    // Assumes the wrapper is an EffectListener with `child = null`.
-    return _WithChild(wrapper: wrapper, child: child);
+    // For other widget types, just return them (shouldn't happen in practice)
+    return listener;
   }
-}
 
-class _WithChild extends StatelessWidget {
-  const _WithChild({required this.wrapper, required this.child});
-  final Widget wrapper;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: Improve wrapper handling once EffectListener enforces a non-null
-    // child. For now, manual composition may be clearer for complex cases.
-    return wrapper is SingleChildRenderObjectWidget
-        ? wrapper // Keep simple: nested EffectListener widgets cover most cases.
-        : wrapper;
+  /// Clones an EffectListener widget and injects the [child].
+  static Widget _cloneEffectListenerWithChild(
+    EffectListener listener,
+    Widget child,
+  ) {
+    // Create a new EffectListener with the same properties but with the child injected
+    return EffectListener(
+      key: listener.key,
+      listener: listener.listener,
+      filter: listener.filter,
+      cubit: listener.cubit,
+      child: child,
+    );
   }
 }

@@ -92,7 +92,7 @@ class BudgetOverviewWidget extends BaseStatelessWidget {
           child: LinearProgressIndicator(
             value: progress,
             minHeight: 12,
-            backgroundColor: context.tpColors.textReverse.withOpacity(0.2),
+            backgroundColor: context.tpColors.textReverse.withValues(alpha: 0.2),
             valueColor: AlwaysStoppedAnimation<Color>(
               context.tpColors.textReverse,
             ),

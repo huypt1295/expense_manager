@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart'
     show CurvedNavigationBar, ContextX, CurvedNavigationItem;
 import 'package:flutter_core/flutter_core.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'home_destinations.dart';
 
 const double bottomNavHeight = 75.0;

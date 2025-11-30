@@ -65,9 +65,8 @@ class CurrentWorkspaceController implements CurrentWorkspace {
 
       // Poll for member document existence with timeout
       await _waitForMemberDocument(uid);
-    } catch (error) {
-      print('Error ensuring personal workspace: $error');
-    }
+    // ignore: empty_catches
+    } catch (error) {    }
 
     if (_currentUser.now()?.uid != uid) return;
 
@@ -99,7 +98,6 @@ class CurrentWorkspaceController implements CurrentWorkspace {
       );
 
       if (exists) {
-        print('Member document verified after ${i + 1} attempts');
         return;
       }
 
@@ -107,7 +105,5 @@ class CurrentWorkspaceController implements CurrentWorkspace {
         await Future.delayed(delayBetweenAttempts);
       }
     }
-
-    print('Warning: Member document not verified after $maxAttempts attempts');
   }
 }

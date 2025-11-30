@@ -53,7 +53,7 @@ class ExpenseBloc extends BaseBloc<ExpenseEvent, ExpenseState, NoopEffect> {
       emit: emit,
       task: () => _addTransactionUseCase(AddTransactionParams(entity)),
       onStart: (_) => const ExpenseFormLoading(),
-      onOk: (_, __) => const ExpenseFormSuccess(),
+      onOk: (_, _) => const ExpenseFormSuccess(),
       onErr: (_, failure) {
         final message = failure.message ?? failure.code;
         emit(ExpenseFormError(message));

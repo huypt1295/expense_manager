@@ -4,8 +4,8 @@ import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeFirebaseException extends FirebaseException {
-  _FakeFirebaseException({required String code, String? message})
-      : super(plugin: 'test', code: code, message: message);
+  _FakeFirebaseException({required String super.code, super.message})
+      : super(plugin: 'test');
 }
 
 void main() {

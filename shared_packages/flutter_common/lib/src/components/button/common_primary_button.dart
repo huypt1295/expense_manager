@@ -33,7 +33,7 @@ class CommonPrimaryButton extends StatelessWidget {
           .copyWith(
             backgroundColor: WidgetStateProperty.resolveWith((states) {
               if (states.contains(WidgetState.pressed)) {
-                return backgroundColor?.withOpacity(0.5);
+                return backgroundColor?.withValues(alpha: 0.5);
               }
               return backgroundColor;
             }),

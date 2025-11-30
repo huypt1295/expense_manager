@@ -14,7 +14,9 @@ void main() {
     final received = <String>[];
     final sub = owner.effects.listen((e) => received.add(e.value));
 
+    // ignore: invalid_use_of_protected_member
     owner.emitEffect(const _TestEffect('first'));
+    // ignore: invalid_use_of_protected_member
     owner.emitEffect(const _TestEffect('second'));
 
     await Future<void>.delayed(Duration.zero);
@@ -24,6 +26,7 @@ void main() {
     owner.disposeEffects();
 
     // No further events dispatched after dispose.
+    // ignore: invalid_use_of_protected_member
     owner.emitEffect(const _TestEffect('ignored'));
     await Future<void>.delayed(Duration.zero);
     expect(received, ['first', 'second']);

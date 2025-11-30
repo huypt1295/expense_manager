@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_resource/flutter_resource.dart';
 import 'package:flutter_resource/src/localization/locale_service_impl.dart';
-import 'package:intl/intl.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

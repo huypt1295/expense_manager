@@ -47,7 +47,7 @@ class _DeleteWorkspaceSheetState extends State<DeleteWorkspaceSheet> {
           onChanged: (_) => setState(() {}),
         ),
       ),
-      onConfirm: true ? widget.onDelete : null,
+      onConfirm: canConfirm ? widget.onDelete : null,
     );
   }
 }

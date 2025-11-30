@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
-import 'package:flutter_resource/l10n/gen/l10n.dart';
 
 class CommonBottomSheet extends StatelessWidget {
   const CommonBottomSheet({

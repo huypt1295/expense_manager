@@ -78,7 +78,7 @@ void main() {
 
   test('proceedError allows interceptors to recover', () async {
     final chain = InterceptorChain([
-      _TestInterceptor(onErrorCallback: (_, __, ___) async {
+      _TestInterceptor(onErrorCallback: (_, _, _) async {
         fail('Earlier interceptors should not be reached once recovered');
       }),
       _TestInterceptor(onErrorCallback: (error, stack, req) async {

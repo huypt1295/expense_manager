@@ -145,7 +145,7 @@ void main() {
     final client = DioHttpClient(
       dio,
       [_RecoveringInterceptor(recovered)],
-      policy: RetryPolicy(shouldRetry: (_, __) => false, backoff: const ExponentialBackoff(maxRetries: 1)),
+      policy: RetryPolicy(shouldRetry: (_, _) => false, backoff: const ExponentialBackoff(maxRetries: 1)),
     );
 
     final response = await client.send<String>(

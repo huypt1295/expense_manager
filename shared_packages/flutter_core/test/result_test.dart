@@ -53,7 +53,7 @@ void main() {
     });
 
     test('guard returns success when block succeeds', () async {
-      final result = await Result.guard(() async => 'done', (_, __) => const _TestFailure('x'));
+      final result = await Result.guard(() async => 'done', (_, _) => const _TestFailure('x'));
       expect(result.valueOrNull, 'done');
     });
   });

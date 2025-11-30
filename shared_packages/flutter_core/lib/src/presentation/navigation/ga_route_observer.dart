@@ -22,7 +22,7 @@ class GARouteObserver extends RouteObserver<PageRoute<dynamic>> {
 
   @override
   void didPush(Route route, Route? previousRoute) {
-    LoggerProvider.instance?.debug("didPush called: route = ${route}, previousRoute = $previousRoute");
+    LoggerProvider.instance?.debug("didPush called: route = $route, previousRoute = $previousRoute");
     _send(route);
   }
 

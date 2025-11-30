@@ -65,7 +65,7 @@ class _WorkspaceIndicator extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color: colorScheme.surfaceVariant.withOpacity(0.4),
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
           ),
           constraints: const BoxConstraints(maxWidth: 180),
           child: Row(

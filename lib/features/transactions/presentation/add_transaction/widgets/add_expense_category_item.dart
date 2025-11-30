@@ -23,7 +23,7 @@ class CategoryGridItem extends StatelessWidget {
     final backgroundColor = isSelected
         ? colors.surfaceNeutralComponent2
         : category.isCustom
-        ? colors.surfaceSub.withOpacity(0.9)
+        ? colors.surfaceSub.withValues(alpha: 0.9)
         : colors.surfaceSub;
 
     return Material(
@@ -41,7 +41,7 @@ class CategoryGridItem extends StatelessWidget {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: colors.shadowSub.withOpacity(0.25),
+                      color: colors.shadowSub.withValues(alpha: 0.25),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -76,7 +76,7 @@ class CategoryGridItem extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: colors.surfaceNeutralComponent2.withOpacity(0.85),
+                      color: colors.surfaceNeutralComponent2.withValues(alpha: 0.85),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(Icons.person, size: 14, color: colors.iconMain),

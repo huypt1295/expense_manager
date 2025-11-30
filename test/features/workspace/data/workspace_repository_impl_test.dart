@@ -7,7 +7,6 @@ import 'package:expense_manager/features/workspace/data/models/workspace_model.d
 import 'package:expense_manager/features/workspace/data/repositories/workspace_repository_impl.dart';
 import 'package:expense_manager/features/workspace/domain/entities/workspace_entity.dart';
 import 'package:expense_manager/features/workspace/domain/repositories/workspace_repository.dart';
-import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeCurrentUser implements CurrentUser {

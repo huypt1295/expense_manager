@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 class ExpenseData {
   final String title;
@@ -43,15 +43,17 @@ class ExpenseAIService {
   static const String _geminiUrl =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyAg0jBmIxM8hEK_j84Z872BUpqSEtAB6K8';
 
-  static final TextRecognizer _textRecognizer =
-      GoogleMlKit.vision.textRecognizer();
+  static final TextRecognizer _textRecognizer = TextRecognizer(
+    script: TextRecognitionScript.latin,
+  );
 
   /// Extract text from image using OCR
   static Future<String> extractTextFromImage(File imageFile) async {
     try {
       final InputImage inputImage = InputImage.fromFilePath(imageFile.path);
-      final RecognizedText recognizedText =
-          await _textRecognizer.processImage(inputImage);
+      final RecognizedText recognizedText = await _textRecognizer.processImage(
+        inputImage,
+      );
       final List<String> textBlocks = [];
       for (TextBlock block in recognizedText.blocks) {
         for (TextLine line in block.lines) {
@@ -88,7 +90,8 @@ class ExpenseAIService {
   }) async {
     final httpClient = client ?? http.Client();
     try {
-      final String prompt = '''
+      final String prompt =
+          '''
 Analyze the following receipt/transaction text and extract expense information:
 
 Text: $extractedText
@@ -114,17 +117,15 @@ Rules:
         "contents": [
           {
             "parts": [
-              {"text": prompt}
-            ]
-          }
-        ]
+              {"text": prompt},
+            ],
+          },
+        ],
       });
 
       final response = await httpClient.post(
         Uri.parse(_geminiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: body,
       );
 
@@ -137,7 +138,8 @@ Rules:
         return ExpenseData.fromJson(expenseJson);
       } else {
         throw Exception(
-            'Gemini API request failed: \\${response.statusCode} \\${response.body}');
+          'Gemini API request failed: \\${response.statusCode} \\${response.body}',
+        );
       }
     } catch (e) {
       // Fallback to local analysis if AI fails
@@ -197,8 +199,10 @@ Rules:
         throw Exception('No text found in image');
       }
       // Step 2: Analyze with AI
-      final ExpenseData expenseData =
-          await analyzeExpenseWithAI(extractedText, client: client);
+      final ExpenseData expenseData = await analyzeExpenseWithAI(
+        extractedText,
+        client: client,
+      );
       return expenseData;
     } catch (e) {
       throw Exception('Failed to process image: ${e.toString()}');

@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'package:flutter_core/flutter_core.dart' show Equatable;
 
 enum WorkspaceInvitationStatus {
   pending,

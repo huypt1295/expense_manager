@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_resource/flutter_resource.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TransactionSliverListWidget extends BaseStatelessWidget {
   const TransactionSliverListWidget({super.key, required this.transactions});
@@ -99,7 +98,7 @@ class TransactionSliverListWidget extends BaseStatelessWidget {
           child: ListView.separated(
             shrinkWrap: true,
             itemCount: workspaces.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
+            separatorBuilder: (_, _) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final workspace = workspaces[index];
               return ListTile(
@@ -116,14 +115,15 @@ class TransactionSliverListWidget extends BaseStatelessWidget {
     if (selected == null) {
       return;
     }
-
-    context.read<TransactionsBloc>().add(
-          TransactionsShareRequested(
-            entity: transaction,
-            targetWorkspaceId: selected.id,
-            targetWorkspaceName: selected.name,
-          ),
-        );
+    if (context.mounted) {
+      context.read<TransactionsBloc>().add(
+            TransactionsShareRequested(
+              entity: transaction,
+              targetWorkspaceId: selected.id,
+              targetWorkspaceName: selected.name,
+            ),
+          );
+    }
   }
 }
 

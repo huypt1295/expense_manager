@@ -60,7 +60,7 @@ class ImageSourceBottomSheet extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF667eea).withOpacity(0.1),
+          color: const Color(0xFF667eea).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: const Icon(Icons.camera_alt, color: Color(0xFF667eea), size: 24),
@@ -79,7 +79,7 @@ class ImageSourceBottomSheet extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF764ba2).withOpacity(0.1),
+          color: const Color(0xFF764ba2).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: const Icon(

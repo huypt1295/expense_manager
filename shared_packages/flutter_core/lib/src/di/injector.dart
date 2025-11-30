@@ -4,4 +4,4 @@ import 'package:injectable/injectable.dart';
 final tpGetIt = GetIt.instance;
 
 @InjectableInit.microPackage()
-initMicroPackage(){}
+void initMicroPackage(){}

@@ -1,6 +1,7 @@
 import 'package:flutter_common/src/utils/date_time_utils.dart';
 import 'package:flutter_resource/flutter_resource.dart';
 import 'package:flutter_test/flutter_test.dart';
+// ignore: depend_on_referenced_packages
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() {

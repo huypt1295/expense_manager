@@ -10,7 +10,6 @@ import 'package:expense_manager/features/profile_setting/domain/usecases/watch_p
 import 'package:expense_manager/features/profile_setting/presentation/profile/bloc/profile_bloc.dart';
 import 'package:expense_manager/features/profile_setting/presentation/profile/bloc/profile_event.dart';
 import 'package:expense_manager/features/profile_setting/presentation/profile/bloc/profile_state.dart';
-import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeCurrentUser implements CurrentUser {
