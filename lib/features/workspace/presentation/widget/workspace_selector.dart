@@ -4,7 +4,6 @@ import 'package:expense_manager/features/workspace/presentation/bloc/workspace_e
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_event.dart';
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_core/flutter_core.dart';
 
 class WorkspaceSelector extends StatelessWidget {

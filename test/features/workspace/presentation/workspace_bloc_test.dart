@@ -7,8 +7,6 @@ import 'package:expense_manager/features/workspace/domain/repositories/workspace
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_bloc.dart';
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_effect.dart';
 import 'package:expense_manager/features/workspace/presentation/bloc/workspace_event.dart';
-import 'package:expense_manager/features/workspace/presentation/bloc/workspace_state.dart';
-import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeWorkspaceRepository implements WorkspaceRepository {
@@ -26,7 +24,7 @@ class _FakeWorkspaceRepository implements WorkspaceRepository {
 }
 
 class _FakeCurrentWorkspace implements CurrentWorkspace {
-  _FakeCurrentWorkspace([this._snapshot]) {
+  _FakeCurrentWorkspace() {
     _controller = StreamController<CurrentWorkspaceSnapshot?>.broadcast(sync: true);
     _controller.add(_snapshot);
   }

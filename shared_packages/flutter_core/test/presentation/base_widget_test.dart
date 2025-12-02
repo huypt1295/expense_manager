@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_core/src/presentation/widgets/base_stateful_widget.dart';
 import 'package:flutter_core/src/presentation/widgets/base_stateless_widget.dart';
@@ -43,7 +41,7 @@ class _TrackerInherited extends InheritedWidget {
 }
 
 class _StatelessLogger extends BaseStatelessWidget {
-  const _StatelessLogger({required this.log, super.key});
+  const _StatelessLogger({required this.log});
   final List<String> log;
 
   @override
@@ -56,7 +54,7 @@ class _StatelessLogger extends BaseStatelessWidget {
 }
 
 class _UiHost extends StatefulWidget {
-  const _UiHost({super.key});
+  const _UiHost();
 
   @override
   State<_UiHost> createState() => _UiHostState();

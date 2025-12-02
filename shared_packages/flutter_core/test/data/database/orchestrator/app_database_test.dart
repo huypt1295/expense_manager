@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter_core/src/data/database/orchestrator/app_database.dart';
 import 'package:flutter_core/src/data/database/orchestrator/db_module.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:path/path.dart' as p;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class _FakeModule extends DBModule {

@@ -1,7 +1,6 @@
 import 'dart:convert' show jsonEncode;
 
 import 'package:dio/dio.dart' show CancelToken, Dio, Options;
-import 'package:flutter_core/flutter_core.dart' show LazySingleton;
 import 'package:flutter_core/src/data/network/interceptor/http_interceptor.dart'
     show HttpInterceptor;
 import 'package:flutter_core/src/data/network/interceptor/interceptor_chain.dart'

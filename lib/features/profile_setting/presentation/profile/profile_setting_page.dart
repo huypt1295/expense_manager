@@ -18,12 +18,10 @@ import 'package:expense_manager/features/workspace/presentation/bloc/workspace_s
 import 'package:expense_manager/features/workspace/presentation/onboarding/workspace_onboarding_wizard.dart';
 import 'package:expense_manager/features/workspace/presentation/settings/workspace_management_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_common/flutter_common.dart';
 import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_resource/flutter_resource.dart';
 import 'package:flutter_resource/l10n/gen/l10n.dart';
-import 'package:go_router/go_router.dart';
 
 const _languageOptions = [
   _LanguageOption(code: 'vi', label: 'Ti\u1ebfng Vi\u1ec7t'),

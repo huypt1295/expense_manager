@@ -87,7 +87,7 @@ class ExpenseFormFields extends StatelessWidget {
 
   Widget _buildCategoryDropdown() {
     return DropdownButtonFormField<String>(
-      value: selectedCategory.isEmpty ? null : selectedCategory,
+      initialValue: selectedCategory.isEmpty ? null : selectedCategory,
       decoration: const InputDecoration(
         labelText: 'Category',
         border: OutlineInputBorder(),

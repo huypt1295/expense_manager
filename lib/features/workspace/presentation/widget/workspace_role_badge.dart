@@ -1,7 +1,6 @@
 import 'package:expense_manager/features/workspace/domain/entities/workspace_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_common/flutter_common.dart';
-import 'package:flutter_core/flutter_core.dart';
 import 'package:flutter_resource/flutter_resource.dart';
 
 class WorkspaceRoleBadge extends StatelessWidget {

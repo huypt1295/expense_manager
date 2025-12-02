@@ -61,7 +61,7 @@ void _configLoading() {
     ..loadingStyle = EasyLoadingStyle.custom
     ..maskType = EasyLoadingMaskType.custom
     ..backgroundColor = Colors.transparent
-    ..maskColor = Colors.black.withOpacity(0.7)
+    ..maskColor = Colors.black.withValues(alpha: 0.7)
     ..userInteractions = false
     ..boxShadow = []
     ..indicatorWidget = Lottie.asset(TPAnims.loading)

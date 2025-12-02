@@ -177,9 +177,9 @@ class SummaryWeeklyTransactionsLineChartWidget extends BaseStatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                gradientBase.withOpacity(0.4),
-                gradientBase.withOpacity(0.1),
-                gradientBase.withOpacity(0.0),
+                gradientBase.withValues(alpha: 0.4),
+                gradientBase.withValues(alpha: 0.1),
+                gradientBase.withValues(alpha: 0.0),
               ],
               stops: const [0.0, 0.5, 1.0],
             ),

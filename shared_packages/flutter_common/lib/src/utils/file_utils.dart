@@ -90,6 +90,7 @@ class FileUtils {
       await File(filePath).delete(recursive: true);
 
       return true;
+    // ignore: empty_catches
     } catch (e) {}
 
     return false;

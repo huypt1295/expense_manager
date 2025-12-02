@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:http/http.dart' as http;
-import 'package:google_ml_kit/google_ml_kit.dart';
 
 class ExpenseData {
   final String title;
@@ -43,8 +43,7 @@ class ExpenseAIService {
   static const String _geminiUrl =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyAg0jBmIxM8hEK_j84Z872BUpqSEtAB6K8';
 
-  static final TextRecognizer _textRecognizer = GoogleMlKit.vision
-      .textRecognizer();
+  static final TextRecognizer _textRecognizer = TextRecognizer();
 
   /// Extract text from image using OCR
   static Future<String> extractTextFromImage(File imageFile) async {

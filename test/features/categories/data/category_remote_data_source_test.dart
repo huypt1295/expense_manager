@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_manager/core/enums/transaction_type.dart';
+import 'package:expense_manager/core/workspace/workspace_context.dart';
 import 'package:expense_manager/features/categories/data/datasources/category_remote_data_source.dart';
 import 'package:expense_manager/features/categories/data/models/category_model.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -9,6 +10,12 @@ void main() {
   group('CategoryRemoteDataSource', () {
     late FakeFirebaseFirestore firestore;
     late CategoryRemoteDataSource dataSource;
+
+    const context = WorkspaceContext(
+      userId: 'uid',
+      workspaceId: 'ws-1',
+      type: WorkspaceType.personal,
+    );
 
     setUp(() {
       firestore = FakeFirebaseFirestore();
@@ -31,11 +38,11 @@ void main() {
       expect(model.name['en'], 'Food');
     });
 
-    test('fetchForUser returns user categories', () async {
+    test('fetchForWorkspace returns workspace categories', () async {
       final doc = firestore
-          .collection('users')
-          .doc('uid')
-          .collection('categories')
+          .collection('workspaces')
+          .doc('ws-1')
+          .collection('customCategories')
           .doc('custom');
       await doc.set({
         'icon': '🎯',
@@ -45,18 +52,18 @@ void main() {
         'ownerId': 'uid',
       });
 
-      final models = await dataSource.fetchForUser('uid');
+      final models = await dataSource.fetchForWorkspace(context);
       expect(models, hasLength(1));
       expect(models.first.isUserDefined, isTrue);
       expect(models.first.ownerId, 'uid');
     });
 
-    test('watchForUser streams updates', () async {
+    test('watchForWorkspace streams updates', () async {
       final collection = firestore
-          .collection('users')
-          .doc('user')
-          .collection('categories');
-      final stream = dataSource.watchForUser('user');
+          .collection('workspaces')
+          .doc('ws-1')
+          .collection('customCategories');
+      final stream = dataSource.watchForWorkspace(context);
 
       final expectation = expectLater(
         stream,
@@ -83,7 +90,7 @@ void main() {
       await expectation;
     });
 
-    test('createForUser writes document with timestamps', () async {
+    test('createForWorkspace writes document with timestamps', () async {
       final model = CategoryModel(
         id: '',
         icon: '📚',
@@ -93,17 +100,19 @@ void main() {
         isUserDefined: true,
       );
 
-      final created = await dataSource.createForUser('abc', model);
+      final created = await dataSource.createForWorkspace(context, model);
 
       final snapshot = await firestore
-          .collection('users')
-          .doc('abc')
-          .collection('categories')
+          .collection('workspaces')
+          .doc('ws-1')
+          .collection('customCategories')
           .doc(created.id)
           .get();
 
-      expect(created.ownerId, 'abc');
-      expect(snapshot.data()?['ownerId'], 'abc');
+      expect(
+        created.ownerId,
+        isNull,
+      ); // Owner ID is set by repository, not data source
       expect(snapshot.data()?['createdAt'], isA<Timestamp>());
       expect(snapshot.data()?['updatedAt'], isA<Timestamp>());
     });

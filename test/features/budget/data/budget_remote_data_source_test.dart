@@ -51,7 +51,7 @@ void main() {
       await dataSource.upsert(personalContext, model);
 
       final snapshot = await firestore
-          .collection('users')
+          .collection('workspaces')
           .doc(uid)
           .collection('budgets')
           .doc(model.id)
@@ -65,7 +65,7 @@ void main() {
 
     test('update merges existing document fields', () async {
       final doc = firestore
-          .collection('users')
+          .collection('workspaces')
           .doc(uid)
           .collection('budgets')
           .doc('budget-update');
@@ -93,32 +93,35 @@ void main() {
       expect(snapshot.data()?['categoryId'], 'travel');
     });
 
-    test('upsert writes to household collection when context is household', () async {
-      final model = BudgetModel(
-        id: 'household-budget',
-        category: 'Utilities',
-        categoryId: 'utilities',
-        limitAmount: 800,
-        startDate: DateTime(2024, 4, 1),
-        endDate: DateTime(2024, 4, 30),
-      );
+    test(
+      'upsert writes to household collection when context is household',
+      () async {
+        final model = BudgetModel(
+          id: 'household-budget',
+          category: 'Utilities',
+          categoryId: 'utilities',
+          limitAmount: 800,
+          startDate: DateTime(2024, 4, 1),
+          endDate: DateTime(2024, 4, 30),
+        );
 
-      await dataSource.upsert(householdContext, model);
+        await dataSource.upsert(householdContext, model);
 
-      final snapshot = await firestore
-          .collection('households')
-          .doc(householdId)
-          .collection('budgets')
-          .doc('household-budget')
-          .get();
+        final snapshot = await firestore
+            .collection('workspaces')
+            .doc(householdId)
+            .collection('budgets')
+            .doc('household-budget')
+            .get();
 
-      expect(snapshot.exists, isTrue);
-      expect(snapshot.data()?['category'], 'Utilities');
-    });
+        expect(snapshot.exists, isTrue);
+        expect(snapshot.data()?['category'], 'Utilities');
+      },
+    );
 
     test('delete removes document from collection', () async {
       final doc = firestore
-          .collection('users')
+          .collection('workspaces')
           .doc(uid)
           .collection('budgets')
           .doc('budget-delete');
@@ -131,30 +134,30 @@ void main() {
 
     test('watchBudgets emits models sorted by start date ascending', () async {
       await firestore
-          .collection('users')
+          .collection('workspaces')
           .doc(uid)
           .collection('budgets')
           .doc('b-late')
           .set({
-        'category': 'Late',
-        'categoryId': 'late',
-        'limitAmount': 200,
-        'startDate': Timestamp.fromDate(DateTime(2024, 3, 1)),
-        'endDate': Timestamp.fromDate(DateTime(2024, 3, 31)),
-      });
+            'category': 'Late',
+            'categoryId': 'late',
+            'limitAmount': 200,
+            'startDate': Timestamp.fromDate(DateTime(2024, 3, 1)),
+            'endDate': Timestamp.fromDate(DateTime(2024, 3, 31)),
+          });
 
       await firestore
-          .collection('users')
+          .collection('workspaces')
           .doc(uid)
           .collection('budgets')
           .doc('b-soon')
           .set({
-        'category': 'Soon',
-        'categoryId': 'soon',
-        'limitAmount': 100,
-        'startDate': Timestamp.fromDate(DateTime(2024, 1, 1)),
-        'endDate': Timestamp.fromDate(DateTime(2024, 1, 31)),
-      });
+            'category': 'Soon',
+            'categoryId': 'soon',
+            'limitAmount': 100,
+            'startDate': Timestamp.fromDate(DateTime(2024, 1, 1)),
+            'endDate': Timestamp.fromDate(DateTime(2024, 1, 31)),
+          });
 
       final models = await dataSource.watchBudgets(personalContext).first;
       expect(models, hasLength(2));

@@ -17,16 +17,12 @@ import 'package:expense_manager/features/categories/application/categories_servi
     show CategoriesService;
 import 'package:expense_manager/features/categories/domain/entities/category_entity.dart';
 import 'package:expense_manager/features/categories/domain/repositories/category_repository.dart';
-import 'package:expense_manager/features/categories/domain/usecases/create_user_category_usecase.dart'
-    show CreateUserCategoryUseCase;
-import 'package:expense_manager/features/categories/domain/usecases/delete_user_category_usecase.dart'
-    show DeleteUserCategoryUseCase;
+import 'package:expense_manager/features/categories/domain/usecases/create_workspace_category_usecase.dart';
+import 'package:expense_manager/features/categories/domain/usecases/delete_workspace_category_usecase.dart';
 import 'package:expense_manager/features/categories/domain/usecases/load_categories_usecase.dart'
     show LoadCategoriesUseCase;
-import 'package:expense_manager/features/categories/domain/usecases/update_user_category_usecase.dart'
-    show UpdateUserCategoryUseCase;
-import 'package:expense_manager/features/categories/domain/usecases/watch_categories_usecase.dart'
-    show WatchCategoriesUseCase;
+import 'package:expense_manager/features/categories/domain/usecases/update_workspace_category_usecase.dart';
+import 'package:expense_manager/features/categories/domain/usecases/watch_workspace_categories_usecase.dart';
 import 'package:expense_manager/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:expense_manager/features/transactions/domain/repositories/transactions_repository.dart';
 import 'package:expense_manager/features/transactions/domain/usecases/watch_transactions_usecase.dart';
@@ -97,7 +93,6 @@ class _FakeBudgetRepository implements BudgetRepository {
     deletedId = id;
   }
 
-  @override
   void dispose() {}
 }
 
@@ -131,7 +126,6 @@ class _FakeTransactionsRepository implements TransactionsRepository {
     required String workspaceId,
   }) async {}
 
-  @override
   void dispose() {}
 }
 
@@ -144,17 +138,24 @@ class _FakeCategoryRepository implements CategoryRepository {
       const Stream<List<CategoryEntity>>.empty();
 
   @override
-  Future<CategoryEntity> createUserCategory(CategoryEntity entity) {
+  Future<List<CategoryEntity>> fetchWorkspaceCategories() async => const [];
+
+  @override
+  Stream<List<CategoryEntity>> watchWorkspaceCategories() =>
+      const Stream<List<CategoryEntity>>.empty();
+
+  @override
+  Future<CategoryEntity> createWorkspaceCategory(CategoryEntity entity) {
     throw UnimplementedError();
   }
 
   @override
-  Future<void> updateUserCategory(CategoryEntity entity) {
+  Future<void> updateWorkspaceCategory(CategoryEntity entity) {
     throw UnimplementedError();
   }
 
   @override
-  Future<void> deleteUserCategory(String id) {
+  Future<void> deleteWorkspaceCategory(String id) {
     throw UnimplementedError();
   }
 }
@@ -197,10 +198,10 @@ void main() {
         WatchTransactionsUseCase(transactionsRepository),
         CategoriesService(
           LoadCategoriesUseCase(categoryRepository),
-          WatchCategoriesUseCase(categoryRepository),
-          CreateUserCategoryUseCase(categoryRepository),
-          UpdateUserCategoryUseCase(categoryRepository),
-          DeleteUserCategoryUseCase(categoryRepository),
+          WatchWorkspaceCategoriesUseCase(categoryRepository),
+          CreateWorkspaceCategoryUseCase(categoryRepository),
+          UpdateWorkspaceCategoryUseCase(categoryRepository),
+          DeleteWorkspaceCategoryUseCase(categoryRepository),
         ),
         currentWorkspace,
       );
@@ -548,6 +549,300 @@ void main() {
 
       await effectExpectation;
       expect(budgetRepository.added, isNull);
+    });
+
+    test('emits error effect when update budget fails', () async {
+      budgetRepository.updateError = AuthException('update.failed');
+      final budget = BudgetEntity(
+        id: 'b',
+        category: 'Food',
+        limitAmount: 150,
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 1, 31),
+      );
+
+      final stateExpectation = expectLater(
+        bloc.stream,
+        emitsThrough(
+          predicate<BudgetState>(
+            (state) =>
+                state.errorMessage == 'update.failed' && !state.isLoading,
+          ),
+        ),
+      );
+
+      final effectExpectation = expectLater(
+        bloc.effects,
+        emits(
+          isA<BudgetShowErrorEffect>().having(
+            (effect) => effect.message,
+            'message',
+            'update.failed',
+          ),
+        ),
+      );
+
+      bloc.add(BudgetUpdated(budget));
+
+      await Future.wait([stateExpectation, effectExpectation]);
+    });
+
+    test('emits permission error when updating in viewer role', () async {
+      await currentWorkspace.select(
+        const CurrentWorkspaceSnapshot(
+          id: 'household-id',
+          type: WorkspaceType.workspace,
+          name: 'Household',
+          role: 'viewer',
+        ),
+      );
+
+      final budget = BudgetEntity(
+        id: 'b',
+        category: 'Food',
+        limitAmount: 150,
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 1, 31),
+      );
+
+      final effectExpectation = expectLater(
+        bloc.effects,
+        emits(
+          isA<BudgetShowErrorEffect>().having(
+            (effect) => effect.message,
+            'message',
+            'You do not have permission to manage budgets in this workspace.',
+          ),
+        ),
+      );
+
+      bloc.add(BudgetUpdated(budget));
+
+      await effectExpectation;
+      expect(budgetRepository.updatedEntity, isNull);
+    });
+
+    test('emits error effect when delete budget fails', () async {
+      budgetRepository.deleteError = AuthException('delete.failed');
+
+      final stateExpectation = expectLater(
+        bloc.stream,
+        emitsThrough(
+          predicate<BudgetState>(
+            (state) =>
+                state.errorMessage == 'delete.failed' && !state.isLoading,
+          ),
+        ),
+      );
+
+      final effectExpectation = expectLater(
+        bloc.effects,
+        emits(
+          isA<BudgetShowErrorEffect>().having(
+            (effect) => effect.message,
+            'message',
+            'delete.failed',
+          ),
+        ),
+      );
+
+      bloc.add(const BudgetDeleted('delete-me'));
+
+      await Future.wait([stateExpectation, effectExpectation]);
+    });
+
+    test('BudgetDeleteRequested removes item and shows undo effect', () async {
+      final budget1 = BudgetEntity(
+        id: 'budget-1',
+        category: 'Food',
+        limitAmount: 100,
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 1, 31),
+      );
+
+      final budget2 = BudgetEntity(
+        id: 'budget-2',
+        category: 'Travel',
+        limitAmount: 200,
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 1, 31),
+      );
+
+      bloc.add(const BudgetStarted());
+      await _pumpEventQueue();
+
+      budgetsController.add([budget1, budget2]);
+      await _pumpEventQueue();
+
+      final stateExpectation = expectLater(
+        bloc.stream,
+        emitsThrough(
+          predicate<BudgetState>(
+            (state) =>
+                state.budgets.length == 1 && state.budgets[0].id == 'budget-2',
+          ),
+        ),
+      );
+
+      final effectExpectation = expectLater(
+        bloc.effects,
+        emits(isA<BudgetShowUndoDeleteEffect>()),
+      );
+
+      bloc.add(BudgetDeleteRequested(budget1));
+
+      await Future.wait([stateExpectation, effectExpectation]);
+    });
+
+    test('BudgetDeleteUndoRequested restores deleted item', () async {
+      final budget1 = BudgetEntity(
+        id: 'budget-1',
+        category: 'Food',
+        limitAmount: 100,
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 1, 31),
+      );
+
+      final budget2 = BudgetEntity(
+        id: 'budget-2',
+        category: 'Travel',
+        limitAmount: 200,
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 1, 31),
+      );
+
+      bloc.add(const BudgetStarted());
+      await _pumpEventQueue();
+
+      budgetsController.add([budget1, budget2]);
+      await _pumpEventQueue();
+
+      // Request delete
+      bloc.add(BudgetDeleteRequested(budget1));
+      await _pumpEventQueue();
+
+      // Undo delete
+      final stateExpectation = expectLater(
+        bloc.stream,
+        emitsThrough(
+          predicate<BudgetState>(
+            (state) =>
+                state.budgets.length == 2 &&
+                state.budgets.any((b) => b.id == 'budget-1'),
+          ),
+        ),
+      );
+
+      bloc.add(const BudgetDeleteUndoRequested());
+
+      await stateExpectation;
+    });
+
+    test('permission check allows owner role', () async {
+      await currentWorkspace.select(
+        const CurrentWorkspaceSnapshot(
+          id: 'household-id',
+          type: WorkspaceType.workspace,
+          name: 'Household',
+          role: 'owner',
+        ),
+      );
+
+      final budget = BudgetEntity(
+        id: 'b',
+        category: 'Food',
+        limitAmount: 100,
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 1, 31),
+      );
+
+      bloc.add(BudgetAdded(budget));
+      await _pumpEventQueue();
+
+      expect(budgetRepository.added, budget);
+    });
+
+    test('permission check allows editor role', () async {
+      await currentWorkspace.select(
+        const CurrentWorkspaceSnapshot(
+          id: 'household-id',
+          type: WorkspaceType.workspace,
+          name: 'Household',
+          role: 'editor',
+        ),
+      );
+
+      final budget = BudgetEntity(
+        id: 'b',
+        category: 'Food',
+        limitAmount: 100,
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 1, 31),
+      );
+
+      bloc.add(BudgetAdded(budget));
+      await _pumpEventQueue();
+
+      expect(budgetRepository.added, budget);
+    });
+
+    test('BudgetShowDialogAdd emits effect when allowed', () async {
+      final budget = BudgetEntity(
+        id: 'b',
+        category: 'Food',
+        limitAmount: 100,
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 1, 31),
+      );
+
+      final effectExpectation = expectLater(
+        bloc.effects,
+        emits(
+          isA<BudgetShowDialogAddEffect>().having(
+            (effect) => effect.budget,
+            'budget',
+            budget,
+          ),
+        ),
+      );
+
+      bloc.add(BudgetShowDialogAdd(budget: budget));
+
+      await effectExpectation;
+    });
+
+    test('BudgetShowDialogAdd blocked when viewer role', () async {
+      await currentWorkspace.select(
+        const CurrentWorkspaceSnapshot(
+          id: 'household-id',
+          type: WorkspaceType.workspace,
+          name: 'Household',
+          role: 'viewer',
+        ),
+      );
+
+      final budget = BudgetEntity(
+        id: 'b',
+        category: 'Food',
+        limitAmount: 100,
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 1, 31),
+      );
+
+      final effectExpectation = expectLater(
+        bloc.effects,
+        emits(
+          isA<BudgetShowErrorEffect>().having(
+            (effect) => effect.message,
+            'message',
+            'You do not have permission to manage budgets in this workspace.',
+          ),
+        ),
+      );
+
+      bloc.add(BudgetShowDialogAdd(budget: budget));
+
+      await effectExpectation;
     });
   });
 }

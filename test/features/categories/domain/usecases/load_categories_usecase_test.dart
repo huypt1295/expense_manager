@@ -22,17 +22,24 @@ class _FakeCategoryRepository implements CategoryRepository {
   }
 
   @override
-  Future<CategoryEntity> createUserCategory(CategoryEntity entity) {
+  Future<List<CategoryEntity>> fetchWorkspaceCategories() async => const [];
+
+  @override
+  Stream<List<CategoryEntity>> watchWorkspaceCategories() =>
+      const Stream<List<CategoryEntity>>.empty();
+
+  @override
+  Future<CategoryEntity> createWorkspaceCategory(CategoryEntity entity) {
     throw UnimplementedError();
   }
 
   @override
-  Future<void> updateUserCategory(CategoryEntity entity) {
+  Future<void> updateWorkspaceCategory(CategoryEntity entity) {
     throw UnimplementedError();
   }
 
   @override
-  Future<void> deleteUserCategory(String id) {
+  Future<void> deleteWorkspaceCategory(String id) {
     throw UnimplementedError();
   }
 }

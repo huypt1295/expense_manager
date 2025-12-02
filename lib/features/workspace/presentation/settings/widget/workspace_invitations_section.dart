@@ -52,7 +52,7 @@ class _InvitationTile extends StatelessWidget {
     };
 
     return Material(
-      color: theme.colorScheme.surfaceVariant.withValues(alpha: 0.6),
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
       borderRadius: BorderRadius.circular(16),
       child: Padding(
         padding: const EdgeInsets.all(16),

@@ -30,7 +30,7 @@ void main() {
   });
 
   group('dioShouldRetry', () {
-    DioException _exception(DioExceptionType type, {int? status}) =>
+    DioException exception(DioExceptionType type, {int? status}) =>
         DioException(
           requestOptions: RequestOptions(path: '/'),
           type: type,
@@ -44,15 +44,15 @@ void main() {
 
     test('retries for timeout related errors', () {
       expect(
-        dioShouldRetry(_exception(DioExceptionType.connectionTimeout), 1),
+        dioShouldRetry(exception(DioExceptionType.connectionTimeout), 1),
         isTrue,
       );
       expect(
-        dioShouldRetry(_exception(DioExceptionType.sendTimeout), 1),
+        dioShouldRetry(exception(DioExceptionType.sendTimeout), 1),
         isTrue,
       );
       expect(
-        dioShouldRetry(_exception(DioExceptionType.receiveTimeout), 1),
+        dioShouldRetry(exception(DioExceptionType.receiveTimeout), 1),
         isTrue,
       );
     });
@@ -60,21 +60,21 @@ void main() {
     test('retries for retriable status codes', () {
       expect(
         dioShouldRetry(
-          _exception(DioExceptionType.badResponse, status: 503),
+          exception(DioExceptionType.badResponse, status: 503),
           1,
         ),
         isTrue,
       );
       expect(
         dioShouldRetry(
-          _exception(DioExceptionType.badResponse, status: 429),
+          exception(DioExceptionType.badResponse, status: 429),
           1,
         ),
         isTrue,
       );
       expect(
         dioShouldRetry(
-          _exception(DioExceptionType.badResponse, status: 408),
+          exception(DioExceptionType.badResponse, status: 408),
           1,
         ),
         isTrue,
@@ -84,7 +84,7 @@ void main() {
     test('does not retry for non-retriable responses', () {
       expect(
         dioShouldRetry(
-          _exception(DioExceptionType.badResponse, status: 403),
+          exception(DioExceptionType.badResponse, status: 403),
           1,
         ),
         isFalse,

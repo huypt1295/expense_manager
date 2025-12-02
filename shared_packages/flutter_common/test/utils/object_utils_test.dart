@@ -26,7 +26,7 @@ void main() {
 
   group('ObjectUtils.let', () {
     test('invokes callback when value is not null', () {
-      const String? value = 'hello';
+      const String value = 'hello';
 
       final result = value.let((it) => it.toUpperCase());
 

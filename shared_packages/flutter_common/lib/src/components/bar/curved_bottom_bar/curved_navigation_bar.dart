@@ -117,7 +117,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
             type: MaterialType.circle,
             child: Material(
               elevation: 4,
-              shadowColor: Colors.blue.withOpacity(0.5),
+              shadowColor: Colors.blue.withValues(alpha: 0.5),
               shape: CircleBorder(),
               color: Colors.transparent,
               child: Padding(

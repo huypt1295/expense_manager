@@ -22,7 +22,8 @@ class _FakeTransactionsRepository implements TransactionsRepository {
   Future<void> Function(TransactionEntity entity)? addImpl;
   Future<void> Function(TransactionEntity entity)? updateImpl;
   Future<void> Function(String id)? deleteImpl;
-  Future<void> Function(TransactionEntity entity, String workspaceId)? shareImpl;
+  Future<void> Function(TransactionEntity entity, String workspaceId)?
+  shareImpl;
   Object? watchError;
 
   bool get isClosed => _controller.isClosed;
@@ -81,13 +82,13 @@ class _FakeTransactionsRepository implements TransactionsRepository {
 }
 
 TransactionEntity _transaction(String id, double amount) => TransactionEntity(
-      id: id,
-      title: 'Transaction $id',
-      amount: amount,
-      date: DateTime(2024, 1, 1),
-      type: TransactionType.expense,
-      category: 'Food',
-    );
+  id: id,
+  title: 'Transaction $id',
+  amount: amount,
+  date: DateTime(2024, 1, 1),
+  type: TransactionType.expense,
+  category: 'Food',
+);
 
 Future<void> _pumpEventQueue() async {
   await Future<void>.delayed(Duration.zero);
@@ -105,7 +106,6 @@ void main() {
       UpdateTransactionUseCase(repository),
       DeleteTransactionUseCase(repository),
       ShareTransactionUseCase(repository),
-      undoDuration: const Duration(milliseconds: 10),
     );
   });
 
@@ -121,27 +121,24 @@ void main() {
       final expectation = expectLater(
         bloc.stream,
         emitsInOrder([
-          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<TransactionsState>().having(
+            (s) => s.isLoading,
+            'isLoading',
+            true,
+          ),
           isA<TransactionsState>()
               .having((s) => s.isLoading, 'isLoading', false)
-              .having(
-                (s) => s.items,
-                'items',
-                [
-                  _transaction('1', 10),
-                  _transaction('2', 20),
-                ],
-              ),
+              .having((s) => s.items, 'items', [
+                _transaction('1', 10),
+                _transaction('2', 20),
+              ]),
         ]),
       );
 
       bloc.add(const TransactionsStarted());
       await _pumpEventQueue();
 
-      repository.emit([
-        _transaction('1', 10),
-        _transaction('2', 20),
-      ]);
+      repository.emit([_transaction('1', 10), _transaction('2', 20)]);
 
       await expectation;
     });
@@ -150,8 +147,11 @@ void main() {
       final expectation = expectLater(
         bloc.stream,
         emits(
-          isA<TransactionsState>()
-              .having((s) => s.errorMessage, 'error', 'failed'),
+          isA<TransactionsState>().having(
+            (s) => s.errorMessage,
+            'error',
+            'failed',
+          ),
         ),
       );
 
@@ -166,7 +166,11 @@ void main() {
       final stateExpectation = expectLater(
         bloc.stream,
         emitsInOrder([
-          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<TransactionsState>().having(
+            (s) => s.isLoading,
+            'isLoading',
+            true,
+          ),
           isA<TransactionsState>()
               .having((s) => s.isLoading, 'isLoading', false)
               .having((s) => s.errorMessage, 'error', 'watch-failed'),
@@ -176,8 +180,11 @@ void main() {
       final effectExpectation = expectLater(
         bloc.effects,
         emits(
-          isA<TransactionsShowErrorEffect>()
-              .having((e) => e.message, 'message', 'watch-failed'),
+          isA<TransactionsShowErrorEffect>().having(
+            (e) => e.message,
+            'message',
+            'watch-failed',
+          ),
         ),
       );
 
@@ -197,7 +204,11 @@ void main() {
       final expectation = expectLater(
         bloc.stream,
         emitsInOrder([
-          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<TransactionsState>().having(
+            (s) => s.isLoading,
+            'isLoading',
+            true,
+          ),
           isA<TransactionsState>()
               .having((s) => s.isLoading, 'isLoading', false)
               .having((s) => s.errorMessage, 'error', isNull),
@@ -219,7 +230,11 @@ void main() {
       final expectation = expectLater(
         bloc.stream,
         emitsInOrder([
-          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<TransactionsState>().having(
+            (s) => s.isLoading,
+            'isLoading',
+            true,
+          ),
           isA<TransactionsState>()
               .having((s) => s.isLoading, 'isLoading', false)
               .having((s) => s.errorMessage, 'error', 'cannot add'),
@@ -240,8 +255,16 @@ void main() {
       final expectation = expectLater(
         bloc.stream,
         emitsInOrder([
-          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', true),
-          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', false),
+          isA<TransactionsState>().having(
+            (s) => s.isLoading,
+            'isLoading',
+            true,
+          ),
+          isA<TransactionsState>().having(
+            (s) => s.isLoading,
+            'isLoading',
+            false,
+          ),
         ]),
       );
 
@@ -269,10 +292,7 @@ void main() {
       bloc.add(TransactionsDeleteRequested(first));
       await _pumpEventQueue();
 
-      expect(
-        bloc.state.items.map((e) => e.id).toList(),
-        ['2'],
-      );
+      expect(bloc.state.items.map((e) => e.id).toList(), ['2']);
 
       await effectExpectation;
     });
@@ -290,7 +310,7 @@ void main() {
       bloc.add(TransactionsDeleteRequested(tx));
       await _pumpEventQueue();
 
-      await Future<void>.delayed(const Duration(milliseconds: 20));
+      await Future<void>.delayed(const Duration(milliseconds: 3100));
       await _pumpEventQueue();
 
       expect(deletedId, 'delete-id');
@@ -316,10 +336,7 @@ void main() {
       await _pumpEventQueue();
 
       expect(deleted, isFalse);
-      expect(
-        bloc.state.items.map((e) => e.id).toList(),
-        ['1', '2'],
-      );
+      expect(bloc.state.items.map((e) => e.id).toList(), ['1', '2']);
     });
 
     test('update event emits error when repository throws', () async {
@@ -330,7 +347,11 @@ void main() {
       final stateExpectation = expectLater(
         bloc.stream,
         emitsInOrder([
-          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<TransactionsState>().having(
+            (s) => s.isLoading,
+            'isLoading',
+            true,
+          ),
           isA<TransactionsState>()
               .having((s) => s.isLoading, 'isLoading', false)
               .having((s) => s.errorMessage, 'error', 'cannot update'),
@@ -340,8 +361,11 @@ void main() {
       final effectExpectation = expectLater(
         bloc.effects,
         emits(
-          isA<TransactionsShowErrorEffect>()
-              .having((e) => e.message, 'message', 'cannot update'),
+          isA<TransactionsShowErrorEffect>().having(
+            (e) => e.message,
+            'message',
+            'cannot update',
+          ),
         ),
       );
 
@@ -359,16 +383,27 @@ void main() {
       final stateExpectation = expectLater(
         bloc.stream,
         emitsInOrder([
-          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', true),
-          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', false),
+          isA<TransactionsState>().having(
+            (s) => s.isLoading,
+            'isLoading',
+            true,
+          ),
+          isA<TransactionsState>().having(
+            (s) => s.isLoading,
+            'isLoading',
+            false,
+          ),
         ]),
       );
 
       final effectExpectation = expectLater(
         bloc.effects,
         emits(
-          isA<TransactionsShowSuccessEffect>()
-              .having((e) => e.message, 'message', contains('Household')),
+          isA<TransactionsShowSuccessEffect>().having(
+            (e) => e.message,
+            'message',
+            contains('Household'),
+          ),
         ),
       );
 
@@ -386,14 +421,18 @@ void main() {
     });
 
     test('share requested emits error effect when repository throws', () async {
-      repository.shareImpl = (_, __) async {
+      repository.shareImpl = (_, _) async {
         throw AuthException('share-failed');
       };
 
       final stateExpectation = expectLater(
         bloc.stream,
         emitsInOrder([
-          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<TransactionsState>().having(
+            (s) => s.isLoading,
+            'isLoading',
+            true,
+          ),
           isA<TransactionsState>()
               .having((s) => s.isLoading, 'isLoading', false)
               .having((s) => s.errorMessage, 'error', 'share-failed'),
@@ -403,8 +442,11 @@ void main() {
       final effectExpectation = expectLater(
         bloc.effects,
         emits(
-          isA<TransactionsShowErrorEffect>()
-              .having((e) => e.message, 'message', 'share-failed'),
+          isA<TransactionsShowErrorEffect>().having(
+            (e) => e.message,
+            'message',
+            'share-failed',
+          ),
         ),
       );
 
@@ -427,7 +469,11 @@ void main() {
       final stateExpectation = expectLater(
         bloc.stream,
         emitsInOrder([
-          isA<TransactionsState>().having((s) => s.isLoading, 'isLoading', true),
+          isA<TransactionsState>().having(
+            (s) => s.isLoading,
+            'isLoading',
+            true,
+          ),
           isA<TransactionsState>()
               .having((s) => s.isLoading, 'isLoading', false)
               .having((s) => s.errorMessage, 'error', 'cannot delete'),
@@ -437,8 +483,11 @@ void main() {
       final effectExpectation = expectLater(
         bloc.effects,
         emits(
-          isA<TransactionsShowErrorEffect>()
-              .having((e) => e.message, 'message', 'cannot delete'),
+          isA<TransactionsShowErrorEffect>().having(
+            (e) => e.message,
+            'message',
+            'cannot delete',
+          ),
         ),
       );
 

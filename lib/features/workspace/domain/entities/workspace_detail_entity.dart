@@ -1,5 +1,5 @@
-import 'package:equatable/equatable.dart';
 import 'package:expense_manager/core/workspace/workspace_context.dart';
+import 'package:flutter_core/flutter_core.dart';
 
 class WorkspaceDetailEntity extends Equatable {
   const WorkspaceDetailEntity({

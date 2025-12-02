@@ -10,7 +10,7 @@ import 'package:flutter_core/flutter_core.dart' hide test;
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeTransactionsRepository implements TransactionsRepository {
-  _FakeTransactionsRepository({this.addImpl});
+  _FakeTransactionsRepository();
 
   Future<void> Function(TransactionEntity entity)? addImpl;
 

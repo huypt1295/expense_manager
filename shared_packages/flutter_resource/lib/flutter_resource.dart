@@ -1,4 +1,4 @@
-library flutter_resource;
+library;
 
 export 'src/localization/localization.dart';
 export 'src/localization/locale_constants.dart';

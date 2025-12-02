@@ -6,7 +6,7 @@ import 'package:flutter_core/src/data/repository/base_cache_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _TestRepo extends BaseCacheRepository {
-  _TestRepo({required MemoryCache mem}) : super(mem: mem);
+  _TestRepo({required super.mem});
 }
 
 void main() {

@@ -81,6 +81,8 @@ class CategoryModel {
       'name': name,
       if (sortOrder != null) 'sortOrder': sortOrder,
       if (isArchived != null) 'isArchived': isArchived,
+      if (createdAt != null) 'createdAt': Timestamp.fromDate(createdAt!),
+      if (updatedAt != null) 'updatedAt': Timestamp.fromDate(updatedAt!),
     };
   }
 

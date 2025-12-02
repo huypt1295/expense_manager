@@ -9,7 +9,6 @@ class _MockCrashReporter extends Mock implements CrashReporter {}
 class _DummyBloc extends Bloc<int, int> {
   _DummyBloc() : super(0);
 
-  @override
   Stream<int> mapEventToState(int event) async* {}
 }
 
